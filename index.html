@@ -8,7 +8,7 @@
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, Arial, sans-serif; background: #0d0d15; color: #fff; padding: 15px; min-height: 100vh; }
 h1 { font-size: 18px; margin-bottom: 5px; color: #a855f7; display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
-.badge { font-size: 11px; padding: 3px 8px; border-radius: 10px; background: #333; color: #ccc; font-weight: normal; }
+.badge { font-size: 11px; padding: 4px 10px; border-radius: 10px; background: #333; color: #ccc; font-weight: normal; }
 .badge.admin { background: #a855f7; color: #fff; }
 .badge.worker { background: #10b981; color: #fff; }
 .me { font-size: 12px; color: #666; margin-bottom: 15px; }
@@ -20,9 +20,11 @@ h2 { font-size: 13px; margin: 0 0 10px 0; color: #888; text-transform: uppercase
 .add-form button { padding: 8px 16px; border: none; border-radius: 6px; background: #10b981; color: #fff; font-weight: bold; cursor: pointer; white-space: nowrap; }
 .add-form button:hover { background: #059669; }
 @media (max-width: 900px) { .add-form { grid-template-columns: 1fr 1fr; } }
+
 .tabs { display: flex; gap: 5px; margin-bottom: 15px; }
 .tabs button { flex: 1; padding: 10px; border: none; border-radius: 6px; background: #1a1a2a; color: #888; font-weight: bold; cursor: pointer; font-size: 13px; }
 .tabs button.active { background: #a855f7; color: #fff; }
+
 .card { background: #0d0d15; border: 1px solid #333; border-left: 4px solid #666; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
 .card.available { border-left-color: #a855f7; }
 .card.active { border-left-color: #10b981; }
@@ -68,6 +70,7 @@ h2 { font-size: 13px; margin: 0 0 10px 0; color: #888; text-transform: uppercase
 .mode-toggle { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 8px; z-index: 100; }
 .mode-toggle button { padding: 12px 18px; border-radius: 25px; border: none; background: #10b981; color: #fff; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); font-size: 13px; }
 .mode-toggle button.admin { background: #a855f7; }
+.mode-toggle button.worker { background: #10b981; }
 .mode-toggle button.settings { background: #333; padding: 12px; }
 
 .loading { text-align: center; padding: 30px; color: #666; }
@@ -76,6 +79,36 @@ h2 { font-size: 13px; margin: 0 0 10px 0; color: #888; text-transform: uppercase
 .toast.warn { background: #f59e0b; color: #000; }
 .toast.err { background: #ef4444; }
 @keyframes slideDown { from { top: -50px; opacity: 0; } to { top: 20px; opacity: 1; } }
+
+/* Модальное окно входа */
+.modal-overlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.85); z-index: 10000;
+  display: flex; align-items: center; justify-content: center; padding: 20px;
+}
+.modal-box {
+  background: #1a1a2a; border: 2px solid #a855f7; border-radius: 12px;
+  padding: 25px; max-width: 380px; width: 100%; text-align: center;
+}
+.modal-box h3 { font-size: 16px; margin-bottom: 20px; color: #a855f7; }
+.modal-box p { font-size: 12px; color: #888; margin-bottom: 15px; }
+.worker-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px; }
+.worker-btns button {
+  padding: 14px 10px; border: 2px solid #444; border-radius: 8px;
+  background: #0d0d15; color: #fff; font-size: 14px; font-weight: bold;
+  cursor: pointer; transition: all 0.2s;
+}
+.worker-btns button:hover { border-color: #10b981; background: #1a1a2a; }
+.worker-btns button.admin-btn { grid-column: 1 / -1; border-color: #a855f7; background: #2a1a2a; color: #a855f7; }
+.worker-btns button.admin-btn:hover { background: #3a2a3a; }
+.pin-row { display: flex; gap: 8px; margin-top: 10px; }
+.pin-row input { flex: 1; padding: 12px; border-radius: 6px; border: 2px solid #444; background: #000; color: #00ff88; font-family: monospace; font-size: 20px; text-align: center; letter-spacing: 8px; }
+.pin-row input:focus { outline: none; border-color: #a855f7; }
+.pin-row button { padding: 12px 20px; border: none; border-radius: 6px; background: #10b981; color: #fff; font-weight: bold; cursor: pointer; font-size: 14px; }
+.pin-row button:hover { background: #059669; }
+.modal-cancel { margin-top: 12px; padding: 8px 16px; border: none; background: transparent; color: #666; cursor: pointer; font-size: 13px; }
+.modal-cancel:hover { color: #999; }
+.pin-error { color: #ef4444; font-size: 12px; margin-top: 8px; min-height: 15px; }
 </style>
 </head>
 <body>
@@ -105,7 +138,7 @@ h2 { font-size: 13px; margin: 0 0 10px 0; color: #888; text-transform: uppercase
 
 <div class="mode-toggle">
   <button id="settingsBtn" class="settings" onclick="openSettings()" style="display:none;" title="Настройки">⚙</button>
-  <button id="modeBtn" onclick="toggleMode()">🔒 Войти как админ</button>
+  <button id="modeBtn" onclick="openLogin()">🔒 Войти</button>
 </div>
 
 <script type="module">
@@ -114,7 +147,12 @@ import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc
 
 // ============ КОНСТАНТЫ ============
 const ADMIN_PIN = '0927';
-const WORKERS = ['Denis', 'Dmitriy', 'Nikita', 'Evgeniy'];
+const WORKERS = {
+  'Denis':    '1111',
+  'Dmitriy':  '2222',
+  'Nikita':   '3333',
+  'Evgeniy':  '4444'
+};
 const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
 
 const firebaseConfig = {
@@ -134,15 +172,15 @@ const payoutsRef = collection(db, 'payouts');
 // ============ СОСТОЯНИЕ ============
 let payouts = [];
 let currentTab = 'available';
-let isAdmin = sessionStorage.getItem('isAdmin') === '1';
-let workerName = localStorage.getItem('workerName') || '';
-let shiftName = localStorage.getItem('shiftName') || '';
+let role = sessionStorage.getItem('role') || 'client'; // 'client' | 'worker' | 'admin'
+let workerName = sessionStorage.getItem('workerName') || '';
+let shiftName = sessionStorage.getItem('shiftName') || '';
 let soundEnabled = localStorage.getItem('soundEnabled') !== '0';
 let myName = localStorage.getItem('myName') || '';
 let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
 
-let prevState = new Map(); // отслеживание изменений
-let warnedPayouts = new Set(); // таймеры с предупреждением
+let prevState = new Map();
+let warnedPayouts = new Set();
 let audioCtx = null;
 
 // ============ ЗВУК ============
@@ -160,7 +198,6 @@ function playSound(type) {
   const now = audioCtx.currentTime;
 
   if (type === 'check') {
-    // Три сигнала при оплате
     [0, 0.15, 0.3].forEach(d => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
@@ -173,7 +210,6 @@ function playSound(type) {
       osc.stop(now + d + 0.1);
     });
   } else if (type === 'warning') {
-    // Короткий тихий
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
@@ -186,16 +222,14 @@ function playSound(type) {
   }
 }
 
-// ============ ПУШ-УВЕДОМЛЕНИЯ ============
+// ============ ПУШ ============
 async function showNotification(title, body) {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'default') {
     try { await Notification.requestPermission(); } catch(e) {}
   }
   if (Notification.permission === 'granted') {
-    try {
-      new Notification(title, { body, tag: 'payout-' + Date.now() });
-    } catch(e) {}
+    try { new Notification(title, { body, tag: 'payout-' + Date.now() }); } catch(e) {}
   }
 }
 
@@ -208,114 +242,183 @@ function showToast(msg, type = '') {
   setTimeout(() => el.remove(), 2500);
 }
 
-// ============ АДМИН-АВТОРИЗАЦИЯ ============
-function toggleMode() {
-  if (isAdmin) {
-    if (!confirm('Выйти из режима админа?')) return;
-    isAdmin = false;
-    sessionStorage.removeItem('isAdmin');
-    updateModeUI();
-    render();
+// ============ ЛОГИН ============
+function openLogin() {
+  if (role !== 'client') {
+    if (confirm('Выйти из аккаунта ' + (role === 'admin' ? '(админ)' : workerName) + '?')) {
+      role = 'client';
+      workerName = '';
+      sessionStorage.clear();
+      updateModeUI();
+      render();
+      showToast('👤 Режим клиента');
+    }
+    return;
+  }
+  showLoginStep1();
+}
+
+function showLoginStep1() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>🔐 Вход в систему</h3>
+      <p>Выбери, кто ты</p>
+      <div class="worker-btns">
+        ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
+        <button class="admin-btn" onclick="selectAdmin()">👑 Админ (тимлид)</button>
+      </div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+}
+
+function selectWorker(name) {
+  closeLogin();
+  showLoginPin(name, 'worker');
+}
+
+function selectAdmin() {
+  closeLogin();
+  showLoginPin('Админ', 'admin');
+}
+
+function showLoginPin(displayName, roleType) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>🔐 Вход: ${displayName}</h3>
+      <p>Введи PIN-код</p>
+      <div class="pin-row">
+        <input type="password" id="pinField" maxlength="6" placeholder="••••" autofocus>
+        <button onclick="submitPin('${roleType}', '${displayName}')">Войти</button>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>
+  `;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    const pinField = document.getElementById('pinField');
+    pinField?.focus();
+    pinField?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') submitPin(roleType, displayName);
+    });
+  }, 50);
+}
+
+function submitPin(roleType, displayName) {
+  const pin = document.getElementById('pinField')?.value;
+  if (!pin) return;
+
+  let correct = false;
+  if (roleType === 'admin') correct = (pin === ADMIN_PIN);
+  else correct = (WORKERS[displayName] === pin);
+
+  if (!correct) {
+    const err = document.getElementById('pinError');
+    if (err) err.textContent = '❌ Неверный PIN';
+    document.getElementById('pinField').value = '';
     return;
   }
 
-  const pin = prompt('🔒 Введи пин-код для входа в режим админа:');
-  if (pin === null) return;
-  if (pin !== ADMIN_PIN) { alert('❌ Неверный пин'); return; }
+  role = roleType;
+  workerName = (roleType === 'worker') ? displayName : 'Админ';
+  sessionStorage.setItem('role', role);
+  sessionStorage.setItem('workerName', workerName);
 
-  isAdmin = true;
-  sessionStorage.setItem('isAdmin', '1');
+  closeLogin();
 
-  // Спросить воркера
-  if (!workerName) {
-    const txt = '👤 Выбери воркера:\n\n' + WORKERS.map((w, i) => `${i + 1}. ${w}`).join('\n') + '\n\nВведи номер:';
-    const v = prompt(txt, '1');
-    const idx = parseInt(v) - 1;
-    if (idx >= 0 && idx < WORKERS.length) {
-      workerName = WORKERS[idx];
-      localStorage.setItem('workerName', workerName);
-    } else {
-      alert('⚠️ Воркер не выбран, будут пустые заявки');
-    }
-  }
-
-  // Спросить смену
+  // Спрашиваем смену (если ещё нет)
   if (!shiftName) {
-    const txt = '⏰ Выбери смену:\n\n' + SHIFTS.map((s, i) => `${i + 1}. ${s}`).join('\n') + '\n\nВведи номер:';
-    const v = prompt(txt, '1');
-    const idx = parseInt(v) - 1;
-    if (idx >= 0 && idx < SHIFTS.length) {
-      shiftName = SHIFTS[idx];
-      localStorage.setItem('shiftName', shiftName);
-    }
+    setTimeout(() => askShift(), 100);
   }
 
   updateModeUI();
   render();
+  showToast('✅ Вход выполнен: ' + (roleType === 'admin' ? 'Админ' : workerName));
 }
 
+function askShift() {
+  const txt = '⏰ Выбери смену:\n\n' + SHIFTS.map((s, i) => `${i + 1}. ${s}`).join('\n') + '\n\nВведи номер:';
+  const v = prompt(txt, '1');
+  const idx = parseInt(v) - 1;
+  if (idx >= 0 && idx < SHIFTS.length) {
+    shiftName = SHIFTS[idx];
+    sessionStorage.setItem('shiftName', shiftName);
+    updateModeUI();
+    render();
+  }
+}
+
+function closeLogin() {
+  document.getElementById('loginModal')?.remove();
+}
+
+// ============ НАСТРОЙКИ ============
 function openSettings() {
-  const txt = '⚙️ Изменить настройки:\n\n' +
-    '1. Сменить воркера\n' +
-    '2. Сменить смену\n' +
-    '3. Звук: ' + (soundEnabled ? 'ВКЛ' : 'ВЫКЛ') + '\n' +
-    '4. Скачать статистику\n\n' +
+  const workerLabel = role === 'admin' ? 'Админ' : workerName;
+  const txt = '⚙️ Настройки\n\n' +
+    'Пользователь: ' + workerLabel + '\n' +
+    'Смена: ' + (shiftName || '—') + '\n\n' +
+    '1. Сменить смену\n' +
+    '2. Звук: ' + (soundEnabled ? 'ВКЛ' : 'ВЫКЛ') + '\n' +
+    '3. Статистика за смену\n\n' +
     'Введи номер:';
   const v = prompt(txt);
-  if (v === '1') {
-    const t = '👤 Новый воркер:\n' + WORKERS.map((w, i) => `${i + 1}. ${w}`).join('\n');
-    const x = parseInt(prompt(t)) - 1;
-    if (x >= 0 && x < WORKERS.length) {
-      workerName = WORKERS[x];
-      localStorage.setItem('workerName', workerName);
-      updateModeUI(); render();
-    }
-  } else if (v === '2') {
-    const t = '⏰ Новая смена:\n' + SHIFTS.map((s, i) => `${i + 1}. ${s}`).join('\n');
-    const x = parseInt(prompt(t)) - 1;
-    if (x >= 0 && x < SHIFTS.length) {
-      shiftName = SHIFTS[x];
-      localStorage.setItem('shiftName', shiftName);
-      updateModeUI(); render();
-    }
-  } else if (v === '3') {
+  if (v === '1') askShift();
+  else if (v === '2') {
     soundEnabled = !soundEnabled;
     localStorage.setItem('soundEnabled', soundEnabled ? '1' : '0');
     showToast(soundEnabled ? '🔊 Звук ВКЛ' : '🔇 Звук ВЫКЛ');
-  } else if (v === '4') {
-    showStats();
-  }
+  } else if (v === '3') showStats();
 }
 
 function showStats() {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
-  const todayPayouts = payouts.filter(p => p.createdAt >= todayStart);
-  const done = todayPayouts.filter(p => p.status === 'done');
-  const active = todayPayouts.filter(p => p.status === 'active');
+
+  // Фильтр по роли
+  let myPayouts = payouts.filter(p => p.createdAt >= todayStart);
+  if (role === 'worker') {
+    myPayouts = myPayouts.filter(p => p.createdBy === workerName);
+  }
+
+  const done = myPayouts.filter(p => p.status === 'done');
+  const active = myPayouts.filter(p => p.status === 'active');
   const totalSum = done.reduce((s, p) => s + p.totalSum, 0);
 
-  // По воркерам
-  const byWorker = {};
-  todayPayouts.forEach(p => {
-    const w = p.worker || 'Без воркера';
-    if (!byWorker[w]) byWorker[w] = { count: 0, sum: 0 };
-    byWorker[w].count++;
-    if (p.status === 'done') byWorker[w].sum += p.totalSum;
-  });
-  const workersTxt = Object.entries(byWorker)
-    .map(([w, d]) => `  ${w}: ${d.count} заявок, ${Math.round(d.sum).toLocaleString('ru-RU')} ₽`)
-    .join('\n');
+  let byWorkerTxt = '';
+  if (role === 'admin') {
+    const byWorker = {};
+    myPayouts.forEach(p => {
+      const w = p.createdBy || 'Без воркера';
+      if (!byWorker[w]) byWorker[w] = { count: 0, sum: 0 };
+      byWorker[w].count++;
+      if (p.status === 'done') byWorker[w].sum += p.totalSum;
+    });
+    byWorkerTxt = '\n\nПо воркерам:\n' + Object.entries(byWorker)
+      .map(([w, d]) => `  ${w}: ${d.count} заявок, ${Math.round(d.sum).toLocaleString('ru-RU')} ₽`)
+      .join('\n');
+  }
 
   alert(
-    `📊 Статистика за сегодня (${now.toLocaleDateString('ru-RU')})\n\n` +
-    `Закрыто: ${done.length} заявок\n` +
-    `В работе: ${active.length}\n` +
-    `Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽\n\n` +
-    `По воркерам:\n${workersTxt || '  нет данных'}`
+    `📊 Статистика за сегодня (${now.toLocaleDateString('ru-RU')})\n` +
+    `${role === 'worker' ? '👤 Воркер: ' + workerName + '\n' : ''}` +
+    `⏰ Смена: ${shiftName || '—'}\n\n` +
+    `✅ Закрыто: ${done.length} заявок\n` +
+    `🔥 В работе: ${active.length}\n` +
+    `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽` +
+    byWorkerTxt
   );
 }
 
+// ============ ОБНОВЛЕНИЕ UI ============
 function updateModeUI() {
   const btn = document.getElementById('modeBtn');
   const settingsBtn = document.getElementById('settingsBtn');
@@ -323,17 +426,25 @@ function updateModeUI() {
   const badge = document.getElementById('workerBadge');
   const meInfo = document.getElementById('meInfo');
 
-  if (isAdmin) {
-    btn.textContent = '🔓 Выйти из админа';
-    btn.classList.add('admin');
+  if (role === 'admin') {
+    btn.textContent = '👑 Админ';
+    btn.className = 'admin';
     form.style.display = 'block';
     settingsBtn.style.display = 'block';
-    badge.textContent = (workerName || '?') + ' • ' + (shiftName || '?');
+    badge.textContent = '👑 Админ • ' + (shiftName || '?');
     badge.className = 'badge admin';
-    meInfo.textContent = '👑 Режим админа • смена: ' + (shiftName || '—') + ' • воркер: ' + (workerName || '—');
+    meInfo.textContent = '👑 Ты админ. Видишь все заявки. Смена: ' + (shiftName || '—');
+  } else if (role === 'worker') {
+    btn.textContent = '👤 ' + workerName;
+    btn.className = 'worker';
+    form.style.display = 'block';
+    settingsBtn.style.display = 'block';
+    badge.textContent = '👤 ' + workerName + ' • ' + (shiftName || '?');
+    badge.className = 'badge worker';
+    meInfo.textContent = '👤 Воркер: ' + workerName + '. Архив — только твои заявки. Смена: ' + (shiftName || '—');
   } else {
-    btn.textContent = '🔒 Войти как админ';
-    btn.classList.remove('admin');
+    btn.textContent = '🔒 Войти';
+    btn.className = '';
     form.style.display = 'none';
     settingsBtn.style.display = 'none';
     badge.textContent = '';
@@ -360,6 +471,23 @@ function setTab(tab) {
   render();
 }
 
+// ============ ФИЛЬТРАЦИЯ ПО РОЛИ ============
+function filterPayouts(list, tab) {
+  if (role === 'admin') return list; // Админ видит всё
+
+  if (role === 'worker') {
+    // Воркер: свой архив, свои активные + общий пул
+    if (tab === 'available') return list; // общий пул
+    if (tab === 'active') return list.filter(p => p.createdBy === workerName || p.client === workerName);
+    if (tab === 'done') return list.filter(p => p.createdBy === workerName);
+  }
+
+  // Клиент: видит только свои активные, архив не видит
+  if (tab === 'active') return list.filter(p => p.client === myName);
+  if (tab === 'done') return [];
+  return list;
+}
+
 // ============ СОЗДАНИЕ ЗАЯВКИ ============
 async function addPayout() {
   const cardNumber = document.getElementById('cardNumber').value.trim();
@@ -375,7 +503,8 @@ async function addPayout() {
     await addDoc(payoutsRef, {
       cardNumber, totalSum, totalChecks, timerMin,
       bank: bank || '',
-      worker: workerName || '',
+      createdBy: workerName || 'Unknown',
+      creatorRole: role,
       shift: shiftName || '',
       status: 'available',
       client: null,
@@ -392,7 +521,7 @@ async function addPayout() {
   } catch(e) { alert('Ошибка: ' + e.message); }
 }
 
-// ============ ДЕЙСТВИЯ С ЗАЯВКАМИ ============
+// ============ ДЕЙСТВИЯ ============
 async function takePayout(id) {
   if (!askName()) return;
   const p = payouts.find(x => x.id === id);
@@ -414,7 +543,7 @@ async function uploadCheck(id, inputEl) {
   const sum = parseFloat(sumEl.value);
   if (!file) { alert('Выбери файл'); return; }
   if (!sum || sum <= 0) { alert('Введи сумму чека'); return; }
-  if (file.size > 900000) { alert('Файл больше 900 KB. Сожми PDF или сделай скриншот.'); return; }
+  if (file.size > 900000) { alert('Файл больше 900 KB.'); return; }
 
   const btn = inputEl.parentElement.querySelector('label');
   const oldText = btn.textContent;
@@ -443,7 +572,6 @@ async function uploadCheck(id, inputEl) {
     }
     await updateDoc(doc(db, 'payouts', id), update);
 
-    // Очищаем сохранённый ввод
     delete checkInputs[id];
     localStorage.setItem('checkInputs', JSON.stringify(checkInputs));
 
@@ -468,6 +596,7 @@ async function returnToAvailable(id) {
 }
 
 async function deletePayout(id) {
+  if (role !== 'admin') { alert('Только админ может удалять'); return; }
   if (!confirm('Удалить заявку навсегда?')) return;
   await deleteDoc(doc(db, 'payouts', id));
 }
@@ -494,7 +623,7 @@ function formatTime(ms) {
 }
 function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
 function copyText(text) {
-  navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано: ' + text)).catch(()=>{});
+  navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано')).catch(()=>{});
 }
 function saveCheckInput(id, value) {
   checkInputs[id] = value;
@@ -504,15 +633,21 @@ function saveCheckInput(id, value) {
 // ============ РЕНДЕР ============
 function render() {
   const el = document.getElementById('content');
-  let list = [];
-  if (currentTab === 'available') list = payouts.filter(p => p.status === 'available');
-  else if (currentTab === 'active') list = payouts.filter(p => p.status === 'active');
-  else list = payouts.filter(p => p.status === 'done');
+
+  let baseList = [];
+  if (currentTab === 'available') baseList = payouts.filter(p => p.status === 'available');
+  else if (currentTab === 'active') baseList = payouts.filter(p => p.status === 'active');
+  else baseList = payouts.filter(p => p.status === 'done');
+
+  // Фильтр по роли
+  const list = filterPayouts(baseList, currentTab);
 
   if (!list.length) {
     el.innerHTML = `<div class="empty">${
       currentTab === 'available' ? 'Нет доступных заявок' :
-      currentTab === 'active' ? 'Нет заявок в работе' : 'Архив пуст'}</div>`;
+      currentTab === 'active' ? 'Нет заявок в работе' : 
+      role === 'client' ? 'Архив доступен только воркерам и админу' :
+      'Твой архив пуст'}</div>`;
     return;
   }
 
@@ -538,7 +673,7 @@ function render() {
     let actions = '';
     if (p.status === 'available') {
       actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">▶ Взять в работу</button>`;
-      if (isAdmin) actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
+      if (role === 'admin') actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
       actions += `</div>`;
     } else if (p.status === 'active') {
       const savedSum = checkInputs[p.id] || '';
@@ -553,7 +688,7 @@ function render() {
           </div>
         </div>
       `;
-      if (isAdmin) {
+      if (role === 'admin') {
         actions += `<div class="card-actions">
           <button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>
           <button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30 мин</button>
@@ -562,13 +697,11 @@ function render() {
           <button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>
         </div>`;
       }
-    } else if (p.status === 'done') {
-      actions = `<div class="card-actions">`;
-      if (isAdmin) actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
-      actions += `</div>`;
+    } else if (p.status === 'done' && role === 'admin') {
+      actions = `<div class="card-actions"><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
     }
 
-    // Список чеков
+    // Чеки
     let checksHtml = '';
     if ((p.checks || []).length) {
       checksHtml = `<div class="checks-list">` + p.checks.map((c, i) => `
@@ -578,10 +711,11 @@ function render() {
         </div>`).join('') + `</div>`;
     }
 
-    // Мета
+    // Мета (воркер, смена, дата)
     let metaHtml = '';
-    if (isAdmin && (p.worker || p.shift)) {
-      metaHtml = `<div class="card-row small">👷 ${esc(p.worker || '—')} • ${esc(p.shift || '—')} • создана ${new Date(p.createdAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>`;
+    if (role !== 'client' && (p.createdBy || p.shift)) {
+      const dateStr = new Date(p.createdAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+      metaHtml = `<div class="card-row small">👷 ${esc(p.createdBy || '—')} • ${esc(p.shift || '—')} • ${dateStr}</div>`;
     }
 
     return `
@@ -609,10 +743,9 @@ setInterval(() => {
     el.textContent = formatTime(left);
     el.className = 'timer ' + (left < 0 ? 'red' : (left < 5*60000 ? 'orange' : 'green'));
 
-    // Предупреждение < 10 минут
     if (left > 0 && left < 10 * 60 * 1000 && !warnedPayouts.has(id)) {
       warnedPayouts.add(id);
-      if (isAdmin) {
+      if (role !== 'client') {
         playSound('warning');
         const p = payouts.find(x => x.id === id);
         if (p) showToast('⏰ ' + formatMoney(p.totalSum) + ' — осталось <10 мин', 'warn');
@@ -621,26 +754,27 @@ setInterval(() => {
   });
 }, 1000);
 
-// ============ ПОДПИСКА НА FIREBASE ============
+// ============ ПОДПИСКА ============
 onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   const newPayouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
 
-  // Проверяем изменения
-  if (isAdmin) {
+  // Уведомления об изменениях (только для воркеров и админа)
+  if (role !== 'client') {
     newPayouts.forEach(p => {
       const prev = prevState.get(p.id);
       const checksCount = (p.checks || []).length;
 
       if (prev) {
-        // Новый чек
-        if (checksCount > prev.checksCount) {
+        // Только для заявок этого воркера (или для админа — все)
+        const isMyPayout = (role === 'admin') || (p.createdBy === workerName);
+
+        if (isMyPayout && checksCount > prev.checksCount) {
           const lastCheck = p.checks[checksCount - 1];
           playSound('check');
-          showToast('💰 ' + formatMoney(p.totalSum) + ' — новый чек на ' + formatMoney(lastCheck.sum));
+          showToast('💰 ' + formatMoney(p.totalSum) + ' — +' + formatMoney(lastCheck.sum));
           showNotification('💰 Чек оплачен', formatMoney(p.totalSum) + ' → +' + formatMoney(lastCheck.sum));
         }
-        // Заявка закрыта
-        if (prev.status === 'active' && p.status === 'done') {
+        if (isMyPayout && prev.status === 'active' && p.status === 'done') {
           playSound('check');
           showToast('🎉 Заявка ' + formatMoney(p.totalSum) + ' закрыта');
           showNotification('🎉 Заявка закрыта', formatMoney(p.totalSum));
@@ -649,7 +783,6 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
     });
   }
 
-  // Обновляем состояние
   prevState.clear();
   newPayouts.forEach(p => prevState.set(p.id, {
     status: p.status,
@@ -659,14 +792,13 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   payouts = newPayouts;
   render();
 }, err => {
-  document.getElementById('content').innerHTML = `<div class="empty">❌ Ошибка: ${esc(err.message)}<br><br>Проверь, что Firestore создан и правила открыты.</div>`;
+  document.getElementById('content').innerHTML = `<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;
 });
 
 // ============ СТАРТ ============
 updateModeUI();
 render();
 
-// Экспорт функций
 window.takePayout = takePayout;
 window.uploadCheck = uploadCheck;
 window.finishPayout = finishPayout;
@@ -675,10 +807,14 @@ window.deletePayout = deletePayout;
 window.addPayout = addPayout;
 window.setTab = setTab;
 window.copyText = copyText;
-window.toggleMode = toggleMode;
+window.openLogin = openLogin;
 window.extendTimer = extendTimer;
 window.saveCheckInput = saveCheckInput;
 window.openSettings = openSettings;
+window.selectWorker = selectWorker;
+window.selectAdmin = selectAdmin;
+window.submitPin = submitPin;
+window.closeLogin = closeLogin;
 </script>
 </body>
 </html>
