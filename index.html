@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Панель заявок</title>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: -apple-system, Arial, sans-serif; background: #0d0d15; color: #fff; padding: 15px; min-height: 100vh; }
+h1 { font-size: 18px; margin-bottom: 5px; color: #a855f7; }
+.me { font-size: 12px; color: #666; margin-bottom: 15px; }
+.section { background: #1a1a2a; border-radius: 10px; padding: 15px; margin-bottom: 15px; border: 1px solid #333; }
+h2 { font-size: 13px; margin: 0 0 10px 0; color: #888; text-transform: uppercase; letter-spacing: 1px; }
+.add-form { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr 1fr auto; gap: 8px; align-items: center; }
+.add-form input { padding: 8px 10px; border-radius: 6px; border: 1px solid #444; background: #0d0d15; color: #00ff88; font-size: 13px; font-family: monospace; width: 100%; min-width: 0; }
+.add-form input:focus { outline: none; border-color: #a855f7; }
+.add-form button { padding: 8px 16px; border: none; border-radius: 6px; background: #10b981; color: #fff; font-weight: bold; cursor: pointer; white-space: nowrap; }
+.add-form button:hover { background: #059669; }
+@media (max-width: 900px) { .add-form { grid-template-columns: 1fr 1fr; } }
+.tabs { display: flex; gap: 5px; margin-bottom: 15px; }
+.tabs button { flex: 1; padding: 10px; border: none; border-radius: 6px; background: #1a1a2a; color: #888; font-weight: bold; cursor: pointer; font-size: 13px; }
+.tabs button.active { background: #a855f7; color: #fff; }
+.card { background: #0d0d15; border: 1px solid #333; border-left: 4px solid #666; border-radius: 8px; padding: 12px; margin-bottom: 10px; }
+.card.available { border-left-color: #a855f7; }
+.card.active { border-left-color: #10b981; }
+.card.done { border-left-color: #555; opacity: 0.75; }
+.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 5px; }
+.card-header b { font-size: 15px; color: #fff; }
+.card-row { font-size: 13px; margin-bottom: 5px; }
+.card-row.small { font-size: 11px; color: #999; }
+.card-row b { color: #a855f7; }
+.card-row .card-num { cursor: pointer; color: #00ff88; font-family: monospace; }
+.card-row .card-num:hover { text-decoration: underline; }
+.timer { font-family: monospace; font-size: 15px; font-weight: bold; padding: 4px 10px; border-radius: 5px; background: #000; }
+.timer.green { color: #10b981; }
+.timer.orange { color: #f59e0b; }
+.timer.red { color: #ef4444; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: 0.4; } }
+.progress-bar { height: 10px; background: #000; border-radius: 5px; overflow: hidden; margin: 8px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, #10b981, #00ff88); transition: width 0.3s; }
+.checks-list { margin: 8px 0; }
+.check-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: #1a1a2a; border-radius: 5px; margin-bottom: 4px; font-size: 12px; }
+.check-item a { color: #00ff88; text-decoration: none; }
+.check-item a:hover { text-decoration: underline; }
+.card-actions { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+.card-actions button { padding: 8px 14px; border: none; border-radius: 5px; background: #a855f7; color: #fff; font-size: 12px; cursor: pointer; font-weight: 600; }
+.card-actions button:hover { opacity: 0.85; }
+.card-actions button.green { background: #10b981; }
+.card-actions button.red { background: #ef4444; }
+.card-actions button.gray { background: #555; }
+.empty { text-align: center; color: #555; padding: 30px; font-size: 13px; }
+.upload-row { display: flex; gap: 6px; margin-top: 8px; align-items: center; flex-wrap: wrap; }
+.upload-row input[type="number"] { padding: 6px 10px; border-radius: 5px; border: 1px solid #444; background: #000; color: #00ff88; font-size: 13px; font-family: monospace; width: 120px; }
+.upload-row input[type="file"] { display: none; }
+.upload-row label { padding: 7px 14px; border-radius: 5px; background: #10b981; color: #fff; font-weight: bold; cursor: pointer; font-size: 12px; }
+.upload-row label:hover { background: #059669; }
+.mode-toggle { position: fixed; bottom: 20px; right: 20px; display: flex; gap: 8px; z-index: 100; }
+.mode-toggle button { padding: 12px 18px; border-radius: 25px; border: none; background: #a855f7; color: #fff; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+.mode-toggle button.client-mode { background: #10b981; }
+.loading { text-align: center; padding: 30px; color: #666; }
+</style>
+</head>
+<body>
+
+<h1>📊 Панель заявок</h1>
+<div class="me" id="meInfo">Загрузка...</div>
+
+<div class="section" id="adminForm" style="display:none;">
+  <h2>➕ Добавить заявку</h2>
+  <div class="add-form">
+    <input id="cardNumber" placeholder="Номер карты">
+    <input id="totalSum" type="number" placeholder="Сумма ₽">
+    <input id="totalChecks" type="number" placeholder="Кол-во чеков">
+    <input id="timerMin" type="number" placeholder="Таймер, мин" value="60">
+    <input id="bank" placeholder="Банк (опц.)">
+    <button onclick="addPayout()">Добавить</button>
+  </div>
+</div>
+
+<div class="tabs">
+  <button id="tabAvailable" class="active" onclick="setTab('available')">🟣 Доступные</button>
+  <button id="tabActive" onclick="setTab('active')">🔥 В работе</button>
+  <button id="tabDone" onclick="setTab('done')">✅ Архив</button>
+</div>
+
+<div id="content" class="loading">Загрузка...</div>
+
+<div class="mode-toggle">
+  <button id="modeBtn" onclick="toggleMode()">👤 Режим клиента</button>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",
+  authDomain: "p2ppro-77db8.firebaseapp.com",
+  projectId: "p2ppro-77db8",
+  storageBucket: "p2ppro-77db8.firebasestorage.app",
+  messagingSenderId: "11682384845",
+  appId: "1:11682384845:web:e593073c123912adc45284",
+  measurementId: "G-ZB7JPRP7ZF"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const payoutsRef = collection(db, 'payouts');
+
+let payouts = [];
+let currentTab = 'available';
+let isAdmin = localStorage.getItem('isAdmin') === '1';
+let myName = localStorage.getItem('myName') || '';
+
+function toggleMode() {
+  isAdmin = !isAdmin;
+  localStorage.setItem('isAdmin', isAdmin ? '1' : '0');
+  updateModeUI(); render();
+}
+function updateModeUI() {
+  const btn = document.getElementById('modeBtn');
+  const form = document.getElementById('adminForm');
+  if (isAdmin) {
+    btn.textContent = '👑 Режим админа';
+    btn.classList.remove('client-mode');
+    form.style.display = 'block';
+  } else {
+    btn.textContent = '👤 Режим клиента';
+    btn.classList.add('client-mode');
+    form.style.display = 'none';
+  }
+  document.getElementById('meInfo').textContent = isAdmin ? '👑 Ты в режиме админа. Можешь добавлять заявки.' : (myName ? '👤 Ты: ' + myName + ' (клиент)' : '👤 Введи имя при первой заявке');
+}
+
+function askName() {
+  if (myName) return true;
+  const n = prompt('Введи своё имя (клиента):');
+  if (!n || n.trim().length < 2) { alert('Минимум 2 символа'); return false; }
+  myName = n.trim();
+  localStorage.setItem('myName', myName);
+  updateModeUI();
+  return true;
+}
+
+function setTab(tab) {
+  currentTab = tab;
+  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  render();
+}
+
+async function addPayout() {
+  const cardNumber = document.getElementById('cardNumber').value.trim();
+  const totalSum = parseFloat(document.getElementById('totalSum').value);
+  const totalChecks = parseInt(document.getElementById('totalChecks').value);
+  const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
+  const bank = document.getElementById('bank').value.trim();
+  if (!cardNumber || !totalSum || !totalChecks) { alert('Заполни: карта, сумма, кол-во чеков'); return; }
+  if (totalSum <= 0 || totalChecks <= 0) { alert('Сумма и чеки > 0'); return; }
+  try {
+    await addDoc(payoutsRef, {
+      cardNumber, totalSum, totalChecks, timerMin, bank: bank || '',
+      status: 'available', client: null, checks: [],
+      createdAt: Date.now(), startedAt: null, finishedAt: null
+    });
+    document.getElementById('cardNumber').value = '';
+    document.getElementById('totalSum').value = '';
+    document.getElementById('totalChecks').value = '';
+    document.getElementById('bank').value = '';
+  } catch(e) { alert('Ошибка: ' + e.message); }
+}
+
+async function takePayout(id) {
+  if (!askName()) return;
+  const p = payouts.find(x => x.id === id);
+  if (!p || p.status !== 'available') return;
+  await updateDoc(doc(db, 'payouts', id), {
+    status: 'active', client: myName, startedAt: Date.now()
+  });
+  setTab('active');
+}
+
+async function uploadCheck(id, inputEl) {
+  const p = payouts.find(x => x.id === id);
+  if (!p) return;
+  const file = inputEl.files[0];
+  const sumEl = document.getElementById('checkSum_' + id);
+  const sum = parseFloat(sumEl.value);
+  if (!file) { alert('Выбери файл'); return; }
+  if (!sum || sum <= 0) { alert('Введи сумму чека'); return; }
+  if (file.size > 900000) { alert('Файл больше 900 KB. Сожми PDF или сделай скриншот.'); return; }
+  
+  const btn = inputEl.parentElement.querySelector('label');
+  const oldText = btn.textContent;
+  btn.textContent = '⏳...';
+  
+  try {
+    const base64 = await new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+    
+    const newChecks = [...(p.checks || []), { 
+      data: base64, 
+      fileName: file.name, 
+      fileType: file.type,
+      sum, 
+      uploadedAt: Date.now() 
+    }];
+    const totalPaid = newChecks.reduce((s, c) => s + c.sum, 0);
+    const update = { checks: newChecks };
+    if (totalPaid >= p.totalSum) { update.status = 'done'; update.finishedAt = Date.now(); }
+    await updateDoc(doc(db, 'payouts', id), update);
+    sumEl.value = ''; inputEl.value = '';
+  } catch(e) { alert('Ошибка: ' + e.message); }
+  finally { btn.textContent = oldText; }
+}
+
+async function finishPayout(id) {
+  if (!confirm('Завершить заявку вручную?')) return;
+  await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: Date.now() });
+}
+async function returnToAvailable(id) {
+  if (!confirm('Вернуть в доступные?')) return;
+  await updateDoc(doc(db, 'payouts', id), { status: 'available', client: null, startedAt: null });
+}
+async function deletePayout(id) {
+  if (!confirm('Удалить навсегда?')) return;
+  await deleteDoc(doc(db, 'payouts', id));
+}
+
+function paidSum(p) { return (p.checks || []).reduce((s, c) => s + c.sum, 0); }
+function formatMoney(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
+function formatTime(ms) {
+  if (ms < 0) ms = 0;
+  const total = Math.floor(ms / 1000);
+  const h = Math.floor(total / 3600);
+  const m = Math.floor((total % 3600) / 60);
+  const s = total % 60;
+  if (h > 0) return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+}
+function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function copyText(text) { navigator.clipboard.writeText(text).catch(()=>{}); }
+
+function render() {
+  const el = document.getElementById('content');
+  let list = [];
+  if (currentTab === 'available') list = payouts.filter(p => p.status === 'available');
+  else if (currentTab === 'active') list = payouts.filter(p => p.status === 'active');
+  else list = payouts.filter(p => p.status === 'done');
+
+  if (!list.length) {
+    el.innerHTML = `<div class="empty">${
+      currentTab === 'available' ? 'Нет доступных заявок' :
+      currentTab === 'active' ? 'Нет заявок в работе' : 'Архив пуст'}</div>`;
+    return;
+  }
+
+  el.innerHTML = list.map(p => {
+    const paid = paidSum(p);
+    const left = Math.max(0, p.totalSum - paid);
+    const pct = Math.min(100, (paid / p.totalSum) * 100);
+    const checksCount = (p.checks || []).length;
+
+    let timerHtml = '';
+    if (p.status === 'active' && p.startedAt) {
+      const limitMs = p.timerMin * 60000;
+      const leftMs = limitMs - (Date.now() - p.startedAt);
+      const cls = leftMs < 0 ? 'red' : (leftMs < 5*60000 ? 'orange' : 'green');
+      timerHtml = `<span class="timer ${cls}" data-timer-start="${p.startedAt}" data-timer-limit="${limitMs}">${formatTime(leftMs)}</span>`;
+    }
+
+    let actions = '';
+    if (p.status === 'available') {
+      actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">▶ Взять в работу</button>`;
+      if (isAdmin) actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
+      actions += `</div>`;
+    } else if (p.status === 'active') {
+      actions = `<div class="upload-row">
+        <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01">
+        <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
+        <label for="checkFile_${p.id}">📎 Прикрепить чек</label>
+      </div>`;
+      if (isAdmin) {
+        actions += `<div class="card-actions">
+          <button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>
+          <button class="gray" onclick="returnToAvailable('${p.id}')">⏸ В доступные</button>
+          <button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>
+        </div>`;
+      }
+    } else if (p.status === 'done' && isAdmin) {
+      actions = `<div class="card-actions"><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
+    }
+
+    let checksHtml = '';
+    if ((p.checks || []).length) {
+      checksHtml = `<div class="checks-list">` + p.checks.map((c, i) => `
+        <div class="check-item">
+          <span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b></span>
+          <a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a>
+        </div>`).join('') + `</div>`;
+    }
+
+    return `
+      <div class="card ${p.status}">
+        <div class="card-header"><b>${formatMoney(p.totalSum)}</b>${timerHtml}</div>
+        <div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')" title="Клик — скопировать">${esc(p.cardNumber)}</span></div>
+        ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
+        ${p.client ? `<div class="card-row small">👤 Клиент: ${esc(p.client)}</div>` : ''}
+        <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+        <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} &nbsp;•&nbsp; Осталось: <b>${formatMoney(left)}</b> &nbsp;•&nbsp; 📄 ${checksCount}/${p.totalChecks}</div>
+        ${checksHtml}
+        ${actions}
+      </div>`;
+  }).join('');
+}
+
+setInterval(() => {
+  document.querySelectorAll('[data-timer-start]').forEach(el => {
+    const start = parseInt(el.dataset.timerStart);
+    const limit = parseInt(el.dataset.timerLimit);
+    const left = limit - (Date.now() - start);
+    el.textContent = formatTime(left);
+    el.className = 'timer ' + (left < 0 ? 'red' : (left < 5*60000 ? 'orange' : 'green'));
+  });
+}, 1000);
+
+onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
+  payouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
+  render();
+}, err => {
+  document.getElementById('content').innerHTML = `<div class="empty">❌ Ошибка: ${esc(err.message)}<br><br>Проверь, что Firestore создан и правила открыты.</div>`;
+});
+
+updateModeUI();
+window.takePayout = takePayout;
+window.uploadCheck = uploadCheck;
+window.finishPayout = finishPayout;
+window.returnToAvailable = returnToAvailable;
+window.deletePayout = deletePayout;
+window.addPayout = addPayout;
+window.setTab = setTab;
+window.copyText = copyText;
+window.toggleMode = toggleMode;
+</script>
+</body>
+</html>
