@@ -170,7 +170,7 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebas
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const ADMIN_PIN = '0927';
-const WORKERS = { 'Denis': '1111', 'Dmitriy': '2222', 'Nikita': '3333', 'Evgeniy': '4444' };
+const WORKERS = { 'Denis': '1111', 'Dmitriy': '2222', 'Artem': '3333', 'Evgeniy': '4444' };
 const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
 
 const firebaseConfig = {
@@ -398,7 +398,6 @@ function askShift() {
   if (idx >= 0 && idx < SHIFTS.length) {
     shiftName = SHIFTS[idx];
     sessionStorage.setItem('shiftName', shiftName);
-    // Сразу спрашиваем курс
     setTimeout(() => askRate(), 150);
   }
 }
@@ -500,7 +499,6 @@ function updateModeUI() {
     meInfo.textContent = myName ? '👤 Клиент: ' + myName : '👤 Введи имя при первой заявке';
   }
 
-  // Курс
   if (shiftRate && role !== 'client') {
     rateBadge.textContent = '💱 ' + shiftRate + ' ₽';
     rateBadge.className = 'badge rate';
@@ -822,7 +820,6 @@ function renderCard(p) {
     metaHtml = `<div class="card-row small">👷 ${esc(p.createdBy || '—')} • ${esc(p.shift || '—')} • ${dateStr}</div>`;
   }
 
-  // Курс
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')" title="Клик — изменить"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' <span style="color:var(--text-mute);font-size:9px">✏️</span>' : ''}</div>` : '';
 
   return `
@@ -920,7 +917,6 @@ setInterval(() => {
 onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   const newPayouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
 
-  // Новые заявки (для клиентов)
   if (role === 'client' && !isFirstSnapshot) {
     newPayouts.forEach(p => {
       if (!seenPayoutIds.has(p.id) && p.status === 'available') {
@@ -936,7 +932,6 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
     });
   }
 
-  // Изменения (для воркеров/админа)
   if (role !== 'client') {
     newPayouts.forEach(p => {
       const prev = prevState.get(p.id);
@@ -990,7 +985,6 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
 updateModeUI();
 render();
 
-// Автозаполнение курса в форме, если курс уже задан
 setTimeout(() => {
   const rateInput = document.getElementById('rate');
   if (rateInput && shiftRate) rateInput.value = shiftRate;
