@@ -38,9 +38,35 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .add-form button:hover { opacity: 0.9; }
 @media (max-width: 1100px) { .add-form { grid-template-columns: 1fr 1fr 1fr; } }
 @media (max-width: 700px) { .add-form { grid-template-columns: 1fr 1fr; } }
+
+/* ===== ПОИСК ===== */
+.search-wrap {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 10px 14px; margin-bottom: 12px;
+  transition: border-color 0.2s;
+}
+.search-wrap:focus-within { border-color: var(--accent); }
+.search-icon { font-size: 16px; color: var(--text-mute); }
+.search-input {
+  flex: 1; padding: 6px 0; border: none; background: transparent; color: var(--text);
+  font-size: 14px; font-family: inherit; outline: none; min-width: 0;
+}
+.search-input::placeholder { color: var(--text-mute); }
+.search-clear {
+  padding: 4px 10px; border: none; border-radius: 5px; background: var(--text-mute);
+  color: #fff; cursor: pointer; font-size: 12px; font-weight: bold;
+}
+.search-clear:hover { background: var(--danger); }
+.search-count {
+  font-size: 11px; color: var(--accent); font-weight: bold; white-space: nowrap;
+}
+.search-count.no-results { color: var(--danger); }
+
 .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
 .tabs button { flex: 1; padding: 9px; border: none; border-radius: 6px; background: var(--bg-card); color: var(--text-dim); font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .tabs button.active { background: var(--accent); color: #fff; }
+.tabs button.hidden { display: none; }
 .card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--text-mute); border-radius: 8px; padding: 12px; margin-bottom: 8px; transition: all 0.2s; }
 .card.available { border-left-color: var(--accent); }
 .card.active { border-left-color: var(--accent-2); }
@@ -57,6 +83,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .card-row .card-num:hover { text-decoration: underline; }
 .card-row .rate-value { color: var(--warning); font-family: monospace; font-weight: bold; cursor: pointer; }
 .card-row .rate-value:hover { text-decoration: underline; }
+.card-row .highlight { background: rgba(168,85,247,0.35); padding: 0 2px; border-radius: 3px; }
 .timer { font-family: monospace; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 5px; background: var(--bg-inner); }
 .timer.green { color: var(--accent-2); }
 .timer.orange { color: var(--warning); }
@@ -126,12 +153,18 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 details[open] .shift-summary .arrow { transform: rotate(90deg); }
 details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); color: var(--accent); }
 .shift-content { padding-left: 0; }
+.admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
+.admin-info b { color: var(--accent); }
 </style>
 </head>
 <body>
 
 <h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span></h1>
 <div class="me" id="meInfo">Загрузка...</div>
+
+<div class="admin-info" id="adminInfo" style="display:none;">
+  👑 <b>Режим админа</b> — только просмотр архива всех воркеров. Создание, редактирование и удаление недоступны.
+</div>
 
 <div class="section" id="adminForm" style="display:none;">
   <h2>➕ Добавить заявку</h2>
@@ -144,6 +177,14 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
     <input id="bank" placeholder="Банк (опц.)">
     <button onclick="addPayout()">Добавить</button>
   </div>
+</div>
+
+<!-- ===== ПОИСК ===== -->
+<div class="search-wrap">
+  <span class="search-icon">🔍</span>
+  <input type="text" class="search-input" id="searchInput" placeholder="Поиск: карта, ID, клиент, банк, сумма..." oninput="onSearch()">
+  <span class="search-count" id="searchCount"></span>
+  <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">×</button>
 </div>
 
 <div class="tabs">
@@ -204,6 +245,80 @@ let isFirstSnapshot = true;
 let warnedPayouts = new Set();
 let audioCtx = null;
 let notifyPermissionAsked = false;
+let searchQuery = '';
+
+// ============ ПОИСК ============
+function onSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
+  render();
+}
+
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchCount').textContent = '';
+  render();
+}
+
+function matchSearch(p) {
+  if (!searchQuery) return true;
+  const q = searchQuery.replace(/\s+/g, '');
+  const qRaw = searchQuery;
+
+  // Карта (убираем пробелы и для запроса, и для карты)
+  const card = (p.cardNumber || '').replace(/\s+/g, '').toLowerCase();
+  if (card.includes(q)) return true;
+
+  // ID заявки
+  if ((p.id || '').toLowerCase().includes(qRaw)) return true;
+
+  // Клиент
+  if ((p.client || '').toLowerCase().includes(qRaw)) return true;
+
+  // Банк
+  if ((p.bank || '').toLowerCase().includes(qRaw)) return true;
+
+  // Сумма (только цифры)
+  const sumStr = String(p.totalSum || '');
+  if (sumStr.includes(qRaw)) return true;
+
+  // Воркер
+  if ((p.createdBy || '').toLowerCase().includes(qRaw)) return true;
+
+  // Смена
+  if ((p.shift || '').toLowerCase().includes(qRaw)) return true;
+
+  // Курс
+  if (p.rate && String(p.rate).includes(qRaw)) return true;
+
+  // Суммы чеков
+  if ((p.checks || []).some(c => String(c.sum).includes(qRaw))) return true;
+
+  return false;
+}
+
+function highlightMatch(text) {
+  if (!searchQuery || !text) return esc(text);
+  const s = String(text);
+  // Простой регистронезависимый поиск
+  const idx = s.toLowerCase().indexOf(searchQuery.toLowerCase());
+  if (idx === -1) {
+    // Пробуем без пробелов для карт
+    const sClean = s.replace(/\s+/g, '');
+    const qClean = searchQuery.replace(/\s+/g, '');
+    if (sClean.toLowerCase().includes(qClean.toLowerCase())) {
+      // Просто возвращаем без подсветки (сложно разметить с пробелами)
+      return esc(s);
+    }
+    return esc(s);
+  }
+  const before = s.substring(0, idx);
+  const match = s.substring(idx, idx + searchQuery.length);
+  const after = s.substring(idx + searchQuery.length);
+  return esc(before) + '<span class="highlight">' + esc(match) + '</span>' + esc(after);
+}
 
 // ============ ТЕМА ============
 function setTheme(t) {
@@ -318,6 +433,7 @@ function openLogin() {
       role = 'client'; workerName = ''; shiftName = ''; shiftRate = 0;
       sessionStorage.removeItem('role'); sessionStorage.removeItem('workerName');
       sessionStorage.removeItem('shiftName'); sessionStorage.removeItem('shiftRate');
+      currentTab = 'available';
       updateModeUI(); render();
       showToast('👤 Режим клиента');
     }
@@ -335,7 +451,7 @@ function showLoginStep1() {
       <p>Выбери, кто ты</p>
       <div class="worker-btns">
         ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
-        <button class="admin-btn" onclick="selectAdmin()">👑 Админ (тимлид)</button>
+        <button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button>
       </div>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
@@ -382,13 +498,22 @@ function submitPin(roleType, displayName) {
   sessionStorage.setItem('role', role);
   sessionStorage.setItem('workerName', workerName);
   closeLogin();
+
+  if (role === 'admin') {
+    currentTab = 'done';
+    updateModeUI(); render();
+    showToast('👑 Админ: только просмотр архива');
+    return;
+  }
+
   if (!shiftName) setTimeout(() => askShift(), 100);
   else if (!shiftRate) setTimeout(() => askRate(), 100);
   else {
     updateModeUI(); render();
-    document.getElementById('rate').value = shiftRate;
+    const r = document.getElementById('rate');
+    if (r) r.value = shiftRate;
   }
-  showToast('✅ ' + (roleType === 'admin' ? 'Админ' : workerName));
+  showToast('✅ ' + workerName);
 }
 
 function askShift() {
@@ -403,7 +528,7 @@ function askShift() {
 }
 
 function askRate() {
-  const txt = '💱 Введи курс USDT на эту смену:\n\n(например: 88.15 — курс за 1 USDT в рублях)\n\nМожно изменить позже в каждой заявке.';
+  const txt = '💱 Введи курс USDT на эту смену:\n\n(например: 88.15 — курс за 1 USDT в рублях)';
   const v = prompt(txt, shiftRate || '');
   if (v === null) return;
   const r = parseFloat(v);
@@ -420,9 +545,9 @@ function closeLogin() { document.getElementById('loginModal')?.remove(); }
 
 // ============ НАСТРОЙКИ ============
 function openSettings() {
-  const workerLabel = role === 'admin' ? 'Админ' : workerName;
+  if (role === 'admin') { showToast('👑 Админ: настройки недоступны'); return; }
   const txt = '⚙️ Настройки\n\n' +
-    'Пользователь: ' + workerLabel + '\n' +
+    'Пользователь: ' + workerName + '\n' +
     'Смена: ' + (shiftName || '—') + '\n' +
     'Курс: ' + (shiftRate ? shiftRate + ' ₽/USDT' : '—') + '\n\n' +
     '1. Сменить смену\n' +
@@ -444,32 +569,20 @@ function showStats() {
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   let myPayouts = payouts.filter(p => p.createdAt >= todayStart);
-  if (role === 'worker') myPayouts = myPayouts.filter(p => p.createdBy === workerName);
+  myPayouts = myPayouts.filter(p => p.createdBy === workerName);
   const done = myPayouts.filter(p => p.status === 'done');
   const active = myPayouts.filter(p => p.status === 'active');
   const cancelled = myPayouts.filter(p => p.status === 'cancelled');
   const totalSum = done.reduce((s, p) => s + p.totalSum, 0);
-  let byWorkerTxt = '';
-  if (role === 'admin') {
-    const byWorker = {};
-    myPayouts.forEach(p => {
-      const w = p.createdBy || 'Без воркера';
-      if (!byWorker[w]) byWorker[w] = { count: 0, sum: 0 };
-      byWorker[w].count++;
-      if (p.status === 'done') byWorker[w].sum += p.totalSum;
-    });
-    byWorkerTxt = '\n\nПо воркерам:\n' + Object.entries(byWorker)
-      .map(([w, d]) => `  ${w}: ${d.count} заявок, ${Math.round(d.sum).toLocaleString('ru-RU')} ₽`).join('\n');
-  }
   alert(
     `📊 Статистика за сегодня (${now.toLocaleDateString('ru-RU')})\n` +
-    `${role === 'worker' ? '👤 Воркер: ' + workerName + '\n' : ''}` +
+    `👤 Воркер: ${workerName}\n` +
     `⏰ Смена: ${shiftName || '—'}\n` +
     `💱 Курс: ${shiftRate || '—'} ₽/USDT\n\n` +
     `✅ Закрыто: ${done.length}\n` +
     `🔥 В работе: ${active.length}\n` +
     `❌ Отменено: ${cancelled.length}\n` +
-    `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽` + byWorkerTxt
+    `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`
   );
 }
 
@@ -478,46 +591,73 @@ function updateModeUI() {
   const btn = document.getElementById('modeBtn');
   const settingsBtn = document.getElementById('settingsBtn');
   const form = document.getElementById('adminForm');
+  const adminInfo = document.getElementById('adminInfo');
   const badge = document.getElementById('workerBadge');
   const rateBadge = document.getElementById('rateBadge');
   const meInfo = document.getElementById('meInfo');
+  const tabAvail = document.getElementById('tabAvailable');
+  const tabAct = document.getElementById('tabActive');
+  const tabDone = document.getElementById('tabDone');
+
+  tabAvail.classList.remove('hidden', 'active');
+  tabAct.classList.remove('hidden', 'active');
+  tabDone.classList.remove('hidden', 'active');
 
   if (role === 'admin') {
-    btn.textContent = '👑 Админ'; btn.className = 'admin';
-    form.style.display = 'block'; settingsBtn.style.display = 'block';
-    badge.textContent = '👑 Админ • ' + (shiftName || '?'); badge.className = 'badge admin';
-    meInfo.textContent = '👑 Админ • смена: ' + (shiftName || '—');
+    btn.textContent = '👑 Админ (просмотр)'; btn.className = 'admin';
+    form.style.display = 'none';
+    settingsBtn.style.display = 'none';
+    adminInfo.style.display = 'block';
+    badge.textContent = '👑 Админ • просмотр архива'; badge.className = 'badge admin';
+    rateBadge.textContent = ''; rateBadge.className = 'badge';
+    meInfo.textContent = '👑 Админ — просмотр архива всех воркеров';
+    tabAvail.classList.add('hidden');
+    tabAct.classList.add('hidden');
+    tabDone.classList.add('active');
   } else if (role === 'worker') {
     btn.textContent = '👤 ' + workerName; btn.className = 'worker';
-    form.style.display = 'block'; settingsBtn.style.display = 'block';
+    form.style.display = 'block';
+    settingsBtn.style.display = 'block';
+    adminInfo.style.display = 'none';
     badge.textContent = '👤 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
     meInfo.textContent = '👤 Воркер: ' + workerName + ' • смена: ' + (shiftName || '—');
+    if (currentTab === 'available') tabAvail.classList.add('active');
+    else if (currentTab === 'active') tabAct.classList.add('active');
+    else tabDone.classList.add('active');
+    if (shiftRate) {
+      rateBadge.textContent = '💱 ' + shiftRate + ' ₽'; rateBadge.className = 'badge rate';
+    } else {
+      rateBadge.textContent = ''; rateBadge.className = 'badge';
+    }
   } else {
     btn.textContent = '🔒 Войти'; btn.className = '';
-    form.style.display = 'none'; settingsBtn.style.display = 'none';
+    form.style.display = 'none';
+    settingsBtn.style.display = 'none';
+    adminInfo.style.display = 'none';
     badge.textContent = ''; badge.className = 'badge';
+    rateBadge.textContent = ''; rateBadge.className = 'badge';
     meInfo.textContent = myName ? '👤 Клиент: ' + myName : '👤 Введи имя при первой заявке';
-  }
-
-  if (shiftRate && role !== 'client') {
-    rateBadge.textContent = '💱 ' + shiftRate + ' ₽';
-    rateBadge.className = 'badge rate';
-  } else {
-    rateBadge.textContent = '';
-    rateBadge.className = 'badge';
+    if (currentTab === 'available') tabAvail.classList.add('active');
+    else if (currentTab === 'active') tabAct.classList.add('active');
+    else tabDone.classList.add('active');
   }
 }
 
 function setTab(tab) {
+  if (role === 'admin' && tab !== 'done') return;
   currentTab = tab;
   document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1)).classList.add('active');
+  const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
+  if (el) el.classList.add('active');
   render();
 }
 
 // ============ ФИЛЬТР ============
 function filterPayouts(list, tab) {
-  if (role === 'admin') return list;
+  if (role === 'admin') {
+    if (tab === 'done') return list;
+    return [];
+  }
   if (role === 'worker') {
     if (tab === 'available') return list;
     if (tab === 'active') return list.filter(p => p.createdBy === workerName || p.clientId === myClientId || p.client === myName);
@@ -531,6 +671,7 @@ function filterPayouts(list, tab) {
 
 // ============ ДОБАВЛЕНИЕ ============
 async function addPayout() {
+  if (role === 'admin') { alert('Админ не может создавать заявки'); return; }
   const cardNumber = document.getElementById('cardNumber').value.trim();
   const totalSum = parseFloat(document.getElementById('totalSum').value);
   const totalChecks = parseInt(document.getElementById('totalChecks').value);
@@ -540,7 +681,7 @@ async function addPayout() {
 
   if (!cardNumber || !totalSum || !totalChecks) { alert('Заполни поля'); return; }
   if (totalSum <= 0 || totalChecks <= 0) { alert('Сумма и чеки > 0'); return; }
-  if (rate <= 0) { alert('Введи курс (можно изменить в настройках)'); return; }
+  if (rate <= 0) { alert('Введи курс'); return; }
 
   try {
     await addDoc(payoutsRef, {
@@ -556,6 +697,7 @@ async function addPayout() {
 
 // ============ РЕДАКТИРОВАНИЕ КУРСА ============
 async function editRate(id) {
+  if (role === 'admin') { alert('Админ не может редактировать'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const v = prompt('💱 Изменить курс\n\nТекущий: ' + (p.rate || '—') + ' ₽/USDT\n\nНовый курс:', p.rate || '');
@@ -568,6 +710,7 @@ async function editRate(id) {
 
 // ============ ДЕЙСТВИЯ ============
 async function takePayout(id) {
+  if (role === 'admin') return;
   if (!ensureClient()) return;
   const p = payouts.find(x => x.id === id);
   if (!p || p.status !== 'available') return;
@@ -579,6 +722,7 @@ async function takePayout(id) {
 }
 
 async function uploadCheck(id, inputEl) {
+  if (role === 'admin') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const file = inputEl.files[0];
@@ -611,6 +755,7 @@ async function uploadCheck(id, inputEl) {
 }
 
 function openProblemModal(id) {
+  if (role === 'admin') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const overlay = document.createElement('div');
@@ -663,6 +808,7 @@ async function submitProblem(id) {
 }
 
 async function cancelByClient(id) {
+  if (role === 'admin') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const reason = prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
@@ -674,14 +820,17 @@ async function cancelByClient(id) {
 }
 
 async function finishPayout(id) {
+  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
   if (!confirm('Завершить заявку?')) return;
   await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: Date.now() });
 }
 async function returnToAvailable(id) {
+  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
   if (!confirm('Вернуть в доступные?')) return;
   await updateDoc(doc(db, 'payouts', id), { status: 'available', client: null, clientId: null, startedAt: null });
 }
 async function deletePayout(id) {
+  if (role === 'admin') { alert('Админ не может удалять заявки'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   if (role === 'worker' && p.createdBy !== workerName) { alert('Только свои заявки'); return; }
@@ -690,6 +839,7 @@ async function deletePayout(id) {
   await deleteDoc(doc(db, 'payouts', id));
 }
 async function extendTimer(id, minutes) {
+  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   await updateDoc(doc(db, 'payouts', id), { timerMin: p.timerMin + minutes });
@@ -726,7 +876,8 @@ function renderCard(p) {
   const pct = Math.min(100, (paid / p.totalSum) * 100);
   const checksCount = (p.checks || []).length;
   const isMine = p.clientId === myClientId;
-  const canEditRate = role === 'admin' || role === 'worker';
+  const isAdminView = role === 'admin';
+  const canEditRate = !isAdminView && (role === 'worker');
 
   let timerHtml = '';
   let cardExtraClass = '';
@@ -740,51 +891,48 @@ function renderCard(p) {
   }
 
   let actions = '';
-  if (p.status === 'available') {
-    actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">▶ Взять в работу</button>`;
-    if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-    if (role === 'admin' || (role === 'worker' && p.createdBy === workerName)) {
-      actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
-    }
-    actions += `</div>`;
-  } else if (p.status === 'active') {
-    const savedSum = checkInputs[p.id] || '';
-    const canUpload = role !== 'client' || isMine;
-    if (canUpload) {
-      actions = `
-        <div class="check-form">
-          <div class="check-form-title">💵 Загрузить чек</div>
-          <div class="check-form-row">
-            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01"
-                   value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
-            <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
-            <label for="checkFile_${p.id}">📎 Чек</label>
-          </div>
-        </div>`;
-    }
-    if (role === 'client' && isMine) {
-      actions += `<div class="card-actions">
-        <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
-        <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
-      </div>`;
-    }
-    if (role === 'admin' || role === 'worker') {
-      actions += `<div class="card-actions">`;
-      if (role === 'admin') {
-        actions += `<button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>`;
-        actions += `<button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>`;
-        actions += `<button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>`;
-      }
-      actions += `<button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>`;
+  if (!isAdminView) {
+    if (p.status === 'available') {
+      actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">▶ Взять в работу</button>`;
       if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-      if (role === 'admin' || (role === 'worker' && p.createdBy === workerName)) {
+      if (role === 'worker' && p.createdBy === workerName) {
         actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
       }
       actions += `</div>`;
-    }
-  } else if (p.status === 'done' || p.status === 'cancelled') {
-    if (role === 'admin' || (role === 'worker' && p.createdBy === workerName)) {
-      actions = `<div class="card-actions"><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
+    } else if (p.status === 'active') {
+      const savedSum = checkInputs[p.id] || '';
+      const canUpload = role !== 'client' || isMine;
+      if (canUpload) {
+        actions = `
+          <div class="check-form">
+            <div class="check-form-title">💵 Загрузить чек</div>
+            <div class="check-form-row">
+              <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01"
+                     value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
+              <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
+              <label for="checkFile_${p.id}">📎 Чек</label>
+            </div>
+          </div>`;
+      }
+      if (role === 'client' && isMine) {
+        actions += `<div class="card-actions">
+          <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
+          <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
+        </div>`;
+      }
+      if (role === 'worker') {
+        actions += `<div class="card-actions">`;
+        actions += `<button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>`;
+        if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
+        if (p.createdBy === workerName) {
+          actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
+        }
+        actions += `</div>`;
+      }
+    } else if (p.status === 'done' || p.status === 'cancelled') {
+      if (role === 'worker' && p.createdBy === workerName) {
+        actions = `<div class="card-actions"><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
+      }
     }
   }
 
@@ -825,10 +973,10 @@ function renderCard(p) {
   return `
     <div class="card ${p.status}${cardExtraClass}">
       <div class="card-header"><b>${formatMoney(p.totalSum)}</b>${timerHtml}</div>
-      <div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${esc(p.cardNumber)}</span></div>
+      <div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>
       ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
       ${rateHtml}
-      ${p.client ? `<div class="card-row small">👤 Клиент: ${esc(p.client)}</div>` : ''}
+      ${p.client ? `<div class="card-row small">👤 Клиент: ${highlightMatch(p.client)}</div>` : ''}
       ${metaHtml}
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
@@ -844,8 +992,14 @@ function renderArchive(list) {
   list.forEach(p => {
     const d = new Date(p.createdAt);
     const dateKey = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
-    const key = (p.shift || 'Без смены') + ' • ' + dateKey + ' • rate_' + (p.rate || 0);
-    if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
+    let key, group;
+    if (role === 'admin') {
+      key = (p.createdBy || '—') + ' • ' + (p.shift || '—') + ' • ' + dateKey;
+      if (!groups[key]) groups[key] = { worker: p.createdBy || '—', shift: p.shift || '—', date: dateKey, items: [], latestAt: 0 };
+    } else {
+      key = (p.shift || 'Без смены') + ' • ' + dateKey + ' • rate_' + (p.rate || 0);
+      if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
+    }
     groups[key].items.push(p);
     if (p.createdAt > groups[key].latestAt) groups[key].latestAt = p.createdAt;
   });
@@ -856,15 +1010,23 @@ function renderArchive(list) {
   let html = '';
   sortedKeys.forEach((key, idx) => {
     const g = groups[key];
-    const isCurrent = (g.shift === currentShift && g.date === todayStr);
-    const openAttr = (idx === 0 || isCurrent) ? ' open' : '';
+    const isCurrent = role !== 'admin' && (g.shift === currentShift && g.date === todayStr);
+    const openAttr = (idx === 0 || isCurrent || !!searchQuery) ? ' open' : '';
     const doneSum = g.items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
     const cancelCount = g.items.filter(p => p.status === 'cancelled').length;
-    const rateTxt = g.rate ? ` • 💱 ${g.rate}` : '';
+
+    let title;
+    if (role === 'admin') {
+      title = `👤 ${esc(g.worker)} • ⏰ ${esc(g.shift)} • 📅 ${g.date}`;
+    } else {
+      const rateTxt = g.rate ? ` • 💱 ${g.rate}` : '';
+      title = `${isCurrent ? '🔥 ' : '📦 '}${g.shift} • ${g.date}${rateTxt}`;
+    }
+
     html += `
       <details class="shift-group"${openAttr}>
         <summary class="shift-summary">
-          <span>${isCurrent ? '🔥 ' : '📦 '}${g.shift} • ${g.date}${rateTxt}</span>
+          <span>${title}</span>
           <span>${g.items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽ ${cancelCount ? '• ❌' + cancelCount : ''}</span>
           <span class="arrow">▶</span>
         </summary>
@@ -882,11 +1044,31 @@ function render() {
   if (currentTab === 'available') baseList = payouts.filter(p => p.status === 'available');
   else if (currentTab === 'active') baseList = payouts.filter(p => p.status === 'active');
   else baseList = payouts.filter(p => p.status === 'done' || p.status === 'cancelled');
-  const list = filterPayouts(baseList, currentTab);
+  let list = filterPayouts(baseList, currentTab);
+
+  // ПРИМЕНЯЕМ ПОИСК
+  if (searchQuery) {
+    list = list.filter(matchSearch);
+  }
+
+  // Обновляем счётчик
+  const countEl = document.getElementById('searchCount');
+  if (countEl) {
+    if (searchQuery) {
+      countEl.textContent = list.length ? '🔍 ' + list.length : '❌ 0';
+      countEl.className = 'search-count' + (list.length ? '' : ' no-results');
+    } else {
+      countEl.textContent = '';
+      countEl.className = 'search-count';
+    }
+  }
+
   if (!list.length) {
     el.innerHTML = `<div class="empty">${
+      searchQuery ? '🔍 Ничего не найдено по запросу "' + esc(searchQuery) + '"' :
       currentTab === 'available' ? 'Нет доступных заявок' :
-      currentTab === 'active' ? 'Нет заявок в работе' : 'Архив пуст'}</div>`;
+      currentTab === 'active' ? 'Нет заявок в работе' :
+      'Архив пуст'}</div>`;
     return;
   }
   if (currentTab === 'done') el.innerHTML = renderArchive(list);
@@ -932,14 +1114,14 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
     });
   }
 
-  if (role !== 'client') {
+  if (role === 'worker') {
     newPayouts.forEach(p => {
       const prev = prevState.get(p.id);
       const checksCount = (p.checks || []).length;
       const problemsCount = (p.problems || []).length;
 
       if (prev) {
-        const isMyPayout = (role === 'admin') || (p.createdBy === workerName);
+        const isMyPayout = (p.createdBy === workerName);
 
         if (isMyPayout && checksCount > prev.checksCount) {
           const lastCheck = p.checks[checksCount - 1];
@@ -995,7 +1177,7 @@ Object.assign(window, {
   addPayout, setTab, copyText, openLogin, extendTimer, saveCheckInput,
   openSettings, selectWorker, selectAdmin, submitPin, closeLogin,
   setTheme, switchClient, openProblemModal, closeProblemModal, submitProblem,
-  cancelByClient, editRate, askRate
+  cancelByClient, editRate, askRate, onSearch, clearSearch
 });
 </script>
 </body>
