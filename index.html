@@ -77,7 +77,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .card-row .rate-value:hover { text-decoration: underline; }
 .card-row .highlight { background: rgba(168,85,247,0.35); padding: 0 2px; border-radius: 3px; }
 
-/* ═══ ТАЙМЕР: новые стили с красивым пульсом ═══ */
+/* ═══ ТАЙМЕР ═══ */
 .timer {
   font-family: monospace;
   font-size: 15px;
@@ -349,6 +349,66 @@ const db = getFirestore(app);
 const payoutsRef = collection(db, 'payouts');
 const clientsRef = collection(db, 'clients');
 
+// ═══════════════════════════════════════════════════════════
+//  🕐 ЕДИНОЕ СЕРВЕРНОЕ ВРЕМЯ
+//  Все клиенты синхронизируются с публичным HTTP-API времени.
+//  Смещение хранится в sessionStorage, применяется через now().
+// ═══════════════════════════════════════════════════════════
+let clockOffset = parseInt(sessionStorage.getItem('clockOffset')) || 0;
+let clockSynced = sessionStorage.getItem('clockSynced') === '1';
+
+async function syncClock(silent = false) {
+  const endpoints = [
+    {
+      url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
+      parse: d => new Date(d.dateTime.endsWith('Z') ? d.dateTime : d.dateTime + 'Z').getTime()
+    },
+    {
+      url: 'https://worldtimeapi.org/api/timezone/Etc/UTC',
+      parse: d => new Date(d.datetime).getTime()
+    },
+    {
+      url: 'https://worldtimeapi.org/api/ip',
+      parse: d => new Date(d.datetime).getTime()
+    }
+  ];
+  for (const ep of endpoints) {
+    try {
+      const t0 = Date.now();
+      const ctrl = new AbortController();
+      const to = setTimeout(() => ctrl.abort(), 6000);
+      const r = await fetch(ep.url, { cache: 'no-store', signal: ctrl.signal });
+      clearTimeout(to);
+      const t1 = Date.now();
+      if (!r.ok) continue;
+      const data = await r.json();
+      const serverMs = ep.parse(data);
+      if (!serverMs || isNaN(serverMs)) continue;
+      // Компенсация сетевой задержки: берём середину запроса
+      const newOffset = serverMs - Math.round((t0 + t1) / 2);
+      // Защита от бредовых ответов (>24ч смещение — точно неверно)
+      if (Math.abs(newOffset) > 24 * 3600 * 1000) continue;
+      clockOffset = newOffset;
+      clockSynced = true;
+      sessionStorage.setItem('clockOffset', String(clockOffset));
+      sessionStorage.setItem('clockSynced', '1');
+      console.log('🕐 Clock synced. Offset:', clockOffset, 'ms (local−server:' + (-clockOffset) + ' ms)');
+      if (!silent) showToast('🕐 Время синхронизировано (Δ ' + (clockOffset >= 0 ? '+' : '') + Math.round(clockOffset / 1000) + 'с)');
+      return true;
+    } catch(e) { /* try next endpoint */ }
+  }
+  if (!silent) console.warn('🕐 Clock sync failed — using local time');
+  return false;
+}
+
+function now() { return Date.now() + clockOffset; }
+
+// Автосинк при загрузке (если в сессии ещё не было) + периодически каждые 30 мин
+if (!clockSynced) syncClock(true);
+setInterval(() => syncClock(true), 30 * 60 * 1000);
+
+// ═══════════════════════════════════════════════════════════
+
 let payouts = [];
 let allClients = [];
 let currentTab = 'available';
@@ -364,9 +424,6 @@ let prevState = new Map();
 let seenPayoutIds = new Set();
 let isFirstSnapshot = true;
 
-// ═══════════════════════════════════════════════════════════
-//  WARNED-СЕТЫ: персистентные в рамках сессии (не спамим после F5)
-// ═══════════════════════════════════════════════════════════
 let warned15 = new Set(JSON.parse(sessionStorage.getItem('warned15') || '[]'));
 let warned10 = new Set(JSON.parse(sessionStorage.getItem('warned10') || '[]'));
 let warned5  = new Set(JSON.parse(sessionStorage.getItem('warned5')  || '[]'));
@@ -543,48 +600,48 @@ function playSound(type) {
   if (!soundEnabled) return;
   initAudio();
   if (!audioCtx) return;
-  const now = audioCtx.currentTime;
+  const nowTs = audioCtx.currentTime;
   if (type === 'check') {
     [0, 0.15, 0.3].forEach(d => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, now + d);
-      gain.gain.setValueAtTime(0.4, now + d);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + d + 0.1);
-      osc.start(now + d); osc.stop(now + d + 0.1);
+      osc.frequency.setValueAtTime(880, nowTs + d);
+      gain.gain.setValueAtTime(0.4, nowTs + d);
+      gain.gain.exponentialRampToValueAtTime(0.01, nowTs + d + 0.1);
+      osc.start(nowTs + d); osc.stop(nowTs + d + 0.1);
     });
   } else if (type === 'warning') {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, now);
-    gain.gain.setValueAtTime(0.15, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
-    osc.start(now); osc.stop(now + 0.25);
+    osc.frequency.setValueAtTime(440, nowTs);
+    gain.gain.setValueAtTime(0.15, nowTs);
+    gain.gain.exponentialRampToValueAtTime(0.01, nowTs + 0.25);
+    osc.start(nowTs); osc.stop(nowTs + 0.25);
   } else if (type === 'new') {
     [0, 0.2].forEach(d => {
       const osc = audioCtx.createOscillator();
       const gain = audioCtx.createGain();
       osc.connect(gain); gain.connect(audioCtx.destination);
       osc.type = 'triangle';
-      osc.frequency.setValueAtTime(1100, now + d);
-      gain.gain.setValueAtTime(0.3, now + d);
-      gain.gain.exponentialRampToValueAtTime(0.01, now + d + 0.15);
-      osc.start(now + d); osc.stop(now + d + 0.15);
+      osc.frequency.setValueAtTime(1100, nowTs + d);
+      gain.gain.setValueAtTime(0.3, nowTs + d);
+      gain.gain.exponentialRampToValueAtTime(0.01, nowTs + d + 0.15);
+      osc.start(nowTs + d); osc.stop(nowTs + d + 0.15);
     });
   } else if (type === 'taken') {
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, now);
-    osc.frequency.linearRampToValueAtTime(950, now + 0.3);
-    gain.gain.setValueAtTime(0.3, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-    osc.start(now); osc.stop(now + 0.3);
+    osc.frequency.setValueAtTime(600, nowTs);
+    osc.frequency.linearRampToValueAtTime(950, nowTs + 0.3);
+    gain.gain.setValueAtTime(0.3, nowTs);
+    gain.gain.exponentialRampToValueAtTime(0.01, nowTs + 0.3);
+    osc.start(nowTs); osc.stop(nowTs + 0.3);
   }
 }
 document.addEventListener('click', function askNotify() {
@@ -818,7 +875,7 @@ async function registerClient(username) {
   if (!/^\d+$/.test(pin1)) { err.textContent = '❌ Только цифры'; return; }
   try {
     const pinHash = await hashPin(pin1);
-    await addDoc(clientsRef, { username: username, pinHash, createdAt: Date.now() });
+    await addDoc(clientsRef, { username: username, pinHash, createdAt: now() });
     showToast('❤️ Добро пожаловать, ' + username + '!', 'heart');
     loginClient(username);
   } catch(e) { err.textContent = '❌ Ошибка: ' + e.message; }
@@ -1020,9 +1077,11 @@ function openSettings() {
     <div class="modal-box">
       <h3>⚙️ Настройки</h3>
       <p>🛠 ${esc(workerName)} • ${esc(shiftName || '—')} • 💱 ${shiftRate || '—'}</p>
+      <p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset >= 0 ? '+' : ''}${Math.round(clockOffset / 1000)}с</b> ${clockSynced ? '✅' : '⚠️ (не синхронизировано)'}</p>
       <div class="choice-btns">
         <button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button>
         <button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button>
+        <button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button>
         <button onclick="toggleSound()">${soundEnabled ? '🔊 Выключить звук' : '🔇 Включить звук'}</button>
         <button onclick="closeSettings(); showStats()">📊 Статистика за смену</button>
       </div>
@@ -1039,8 +1098,8 @@ function toggleSound() {
   if (role === 'worker') openSettings();
 }
 function showStats() {
-  const now = new Date();
-  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const todayDate = new Date(now());
+  const todayStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
   let myPayouts = payouts.filter(p => p.createdAt >= todayStart);
   myPayouts = myPayouts.filter(p => p.createdBy === workerName);
   const done = myPayouts.filter(p => p.status === 'done');
@@ -1048,7 +1107,7 @@ function showStats() {
   const cancelled = myPayouts.filter(p => p.status === 'cancelled');
   const totalSum = done.reduce((s, p) => s + p.totalSum, 0);
   alert(
-    `📊 Статистика за сегодня (${now.toLocaleDateString('ru-RU')})\n` +
+    `📊 Статистика за сегодня (${todayDate.toLocaleDateString('ru-RU')})\n` +
     `👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName || '—'}\n💱 Курс: ${shiftRate || '—'} ₽/USDT\n\n` +
     `✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n❌ Отменено: ${cancelled.length}\n` +
     `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`
@@ -1157,14 +1216,15 @@ async function addPayout() {
   if (rate <= 0) errors.push('💱 Укажи курс (или задай в настройках смены)');
   if (errors.length > 0) { alert('⚠️ Заполни поля:\n\n' + errors.join('\n')); return; }
 
-  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
+  const todayDate = new Date(now());
+  const todayStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
   const normCard = (s) => (s || '').replace(/\s+/g, '');
   const normPhone = (s) => (s || '').replace(/\D/g, '');
   const cardClean = normCard(cardNumber);
   const phoneClean = normPhone(phone);
 
-  const sameCardPayouts = cardClean ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normCard(x.cardNumber) === cardClean) : [];
-  const samePhonePayouts = phoneClean ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normPhone(x.phone) === phoneClean) : [];
+  const sameCardPayouts = cardClean ? payouts.filter(x => x.createdAt >= todayStart && normCard(x.cardNumber) === cardClean) : [];
+  const samePhonePayouts = phoneClean ? payouts.filter(x => x.createdAt >= todayStart && normPhone(x.phone) === phoneClean) : [];
 
   const lines = [];
   if (sameCardPayouts.length > 0) {
@@ -1198,7 +1258,7 @@ async function addPayout() {
       phone, cardNumber, bank, totalSum, totalChecks, timerMin, rate,
       createdBy: workerName || 'Unknown', creatorRole: 'worker', shift: shiftName || '',
       status: 'available', client: null, checks: [],
-      createdAt: Date.now(), startedAt: null, finishedAt: null
+      createdAt: now(), startedAt: null, finishedAt: null
     });
     ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id => document.getElementById(id).value = '');
     showToast('✅ Заявка создана (' + rate + ' ₽/USDT)');
@@ -1222,7 +1282,7 @@ async function takePayout(id) {
   const p = payouts.find(x => x.id === id);
   if (!p || p.status !== 'available') return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'active', client: clientUsername, startedAt: Date.now()
+    status: 'active', client: clientUsername, startedAt: now()
   });
   setTab('active');
   showToast('❤️ Взято в работу!', 'heart');
@@ -1249,10 +1309,10 @@ async function uploadCheck(id, inputEl) {
       reader.onerror = reject;
       reader.readAsDataURL(file);
     });
-    const newChecks = [...(p.checks || []), { data: base64, fileName: file.name, fileType: file.type, sum, uploadedAt: Date.now() }];
+    const newChecks = [...(p.checks || []), { data: base64, fileName: file.name, fileType: file.type, sum, uploadedAt: now() }];
     const totalPaid = newChecks.reduce((s, c) => s + c.sum, 0);
     const update = { checks: newChecks };
-    if (totalPaid >= p.totalSum) { update.status = 'done'; update.finishedAt = Date.now(); }
+    if (totalPaid >= p.totalSum) { update.status = 'done'; update.finishedAt = now(); }
     await updateDoc(doc(db, 'payouts', id), update);
     delete checkInputs[id];
     localStorage.setItem('checkInputs', JSON.stringify(checkInputs));
@@ -1306,7 +1366,7 @@ async function submitProblem(id) {
         reader.readAsDataURL(file);
       });
     }
-    const problems = [...(p.problems || []), { text, file: fileData, createdAt: Date.now(), by: role === 'client' ? clientUsername : workerName }];
+    const problems = [...(p.problems || []), { text, file: fileData, createdAt: now(), by: role === 'client' ? clientUsername : workerName }];
     await updateDoc(doc(db, 'payouts', id), { problems, hasProblem: true });
     closeProblemModal();
     showToast('✅ Отправлено');
@@ -1321,7 +1381,7 @@ async function cancelByClient(id) {
   const reason = prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
   if (reason === null) return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'cancelled', cancelledAt: Date.now(), cancelledBy: clientUsername, cancelReason: reason || 'без причины'
+    status: 'cancelled', cancelledAt: now(), cancelledBy: clientUsername, cancelReason: reason || 'без причины'
   });
   showToast('❌ Отменено');
 }
@@ -1329,7 +1389,7 @@ async function cancelByClient(id) {
 async function finishPayout(id) {
   if (role !== 'worker') return;
   if (!confirm('Завершить заявку?')) return;
-  await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: Date.now() });
+  await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: now() });
 }
 async function returnToAvailable(id) {
   if (role !== 'worker') return;
@@ -1369,7 +1429,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'
 function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано')).catch(()=>{}); }
 function saveCheckInput(id, value) { checkInputs[id] = value; localStorage.setItem('checkInputs', JSON.stringify(checkInputs)); }
 function getCurrentShift() {
-  const h = new Date().getHours();
+  const h = new Date(now()).getHours();
   if (h >= 6 && h < 14) return 'Утро';
   if (h >= 14 && h < 22) return 'Вечер';
   return 'Ночь';
@@ -1399,9 +1459,8 @@ function renderCard(p) {
   let cardExtraClass = '';
   if ((p.status === 'available' || p.status === 'active') && p.createdAt) {
     const limitMs = p.timerMin * 60000;
-    const leftMs = limitMs - (Date.now() - p.createdAt);
+    const leftMs = limitMs - (now() - p.createdAt);
 
-    // ═══ Классы таймера: gray / green / yellow / orange / red ═══
     let cls;
     if (p.status === 'available') {
       cls = 'gray';
@@ -1528,7 +1587,7 @@ function renderArchive(list) {
 
   const sortedDates = Object.keys(byDate).sort((a, b) => byDate[b].latestAt - byDate[a].latestAt);
   const currentShift = getCurrentShift();
-  const todayStr = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
+  const todayStr = new Date(now()).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
 
   let html = '';
   sortedDates.forEach((dateKey, dateIdx) => {
@@ -1673,19 +1732,19 @@ function render() {
 
 // ═══════════════════════════════════════════════════════════
 //  ГЛАВНЫЙ ТИК: обновляет таймеры + шлёт уведомления правильно
+//  Использует now() (серверное время), а не Date.now()
 // ═══════════════════════════════════════════════════════════
 setInterval(() => {
   document.querySelectorAll('[data-timer-start]').forEach(el => {
     const start = parseInt(el.dataset.timerStart);
     const limit = parseInt(el.dataset.timerLimit);
     const id = el.dataset.payoutId;
-    const left = limit - (Date.now() - start);
+    const left = limit - (now() - start);
     el.textContent = formatTime(left);
 
     const p = payouts.find(x => x.id === id);
     if (!p) return;
 
-    // Класс таймера
     let cls;
     if (p.status === 'available') {
       cls = 'gray';
@@ -1700,12 +1759,10 @@ setInterval(() => {
     }
     el.className = 'timer ' + cls;
 
-    // Уведомления только для собственных активных заявок воркера
     if (role !== 'worker') return;
     if (p.createdBy !== workerName) return;
     if (p.status !== 'active') return;
 
-    // ═══ КАСКАДНЫЙ ФИКС: помечаем все старшие пороги как пройденные ═══
     if (left > 0 && left < 5 * 60000 && !warned5.has(id)) {
       warned15.add(id); warned10.add(id); warned5.add(id);
       persistWarned();
@@ -1736,8 +1793,8 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   if (role === 'client' && !isFirstSnapshot) {
     newPayouts.forEach(p => {
       if (!seenPayoutIds.has(p.id) && p.status === 'available') {
-        const age = Date.now() - p.createdAt;
-        if (age < 120000) {
+        const age = now() - p.createdAt;
+        if (age >= 0 && age < 120000) {
           const rateTxt = p.rate ? ' • 💱 ' + p.rate : '';
           const bankTxt = p.bank ? ' • ' + p.bank : '';
           strongNotify('❤️ Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt, { sound: 'new', toastType: 'heart', vibrate: [100, 50, 100] });
@@ -1805,7 +1862,7 @@ Object.assign(window, {
   openProblemModal, closeProblemModal, submitProblem, cancelByClient,
   editRate, onSearch, clearSearch, proceedClientUsername, verifyClientPin,
   registerClient, askShiftModal, askRateModal, pickShift, confirmShift,
-  cancelShift, confirmRate, cancelRate
+  cancelShift, confirmRate, cancelRate, syncClock
 });
 </script>
 </body>
