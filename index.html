@@ -5,275 +5,199 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Панель заявок</title>
 <style>
-:root {
-  --bg: #0d0d15; --bg-card: #1a1a2a; --bg-inner: #0d0d15; --bg-input: #000;
-  --text: #fff; --text-dim: #888; --text-mute: #555; --border: #2a2a3a;
-  --accent: #a855f7; --accent-2: #10b981; --danger: #ef4444; --warning: #f59e0b;
-  --heart: #ff4d6d; --info: #0ea5e9;
-}
-[data-theme="light"] {
-  --bg: #f0f0f5; --bg-card: #ffffff; --bg-inner: #f7f7fa; --bg-input: #fff;
-  --text: #1a1a2a; --text-dim: #666; --text-mute: #999; --border: #e0e0e8;
-  --accent: #7c3aed; --accent-2: #059669;
-}
-[data-theme="ocean"] {
-  --bg: #0a1628; --bg-card: #122236; --bg-inner: #0a1628; --bg-input: #0a1628;
-  --text: #e0f2fe; --text-dim: #7dd3fc; --text-mute: #475569; --border: #1e3a5f;
-  --accent: #0ea5e9; --accent-2: #14b8a6;
-}
-* { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: -apple-system, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; transition: background 0.3s, color 0.3s; }
-@keyframes pulseAlert {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.95; }
-}
-h1 { font-size: 16px; margin-bottom: 5px; color: var(--accent); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
-.badge { font-size: 10px; padding: 3px 8px; border-radius: 8px; background: var(--border); color: var(--text-dim); font-weight: 500; }
-.badge.admin { background: var(--accent); color: #fff; }
-.badge.worker { background: var(--accent-2); color: #fff; }
-.badge.client { background: var(--heart); color: #fff; }
-.badge.rate { background: var(--warning); color: #000; }
-.me { font-size: 11px; color: var(--text-dim); margin-bottom: 15px; }
-.section { background: var(--bg-card); border-radius: 10px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
-h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-.add-form { display: grid; grid-template-columns: 1.1fr 1.2fr 1fr 1fr 0.85fr 0.85fr 0.85fr auto; gap: 6px; align-items: center; }
-.add-form input { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-inner); color: var(--accent-2); font-size: 12px; font-family: monospace; width: 100%; min-width: 0; }
-.add-form input:focus { outline: none; border-color: var(--accent); }
-.add-form button { padding: 8px 14px; border: none; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 12px; }
-.add-form button:hover { opacity: 0.9; }
-@media (max-width: 1300px) { .add-form { grid-template-columns: 1fr 1fr 1fr 1fr; } }
-@media (max-width: 700px) { .add-form { grid-template-columns: 1fr 1fr; } }
-.search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; transition: border-color 0.2s; }
-.search-wrap:focus-within { border-color: var(--accent); }
-.search-icon { font-size: 16px; color: var(--text-mute); }
-.search-input { flex: 1; padding: 6px 0; border: none; background: transparent; color: var(--text); font-size: 14px; font-family: inherit; outline: none; min-width: 0; }
-.search-input::placeholder { color: var(--text-mute); }
-.search-clear { padding: 4px 10px; border: none; border-radius: 5px; background: var(--text-mute); color: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
-.search-clear:hover { background: var(--danger); }
-.search-count { font-size: 11px; color: var(--accent); font-weight: bold; white-space: nowrap; }
-.search-count.no-results { color: var(--danger); }
-.tabs { display: flex; gap: 4px; margin-bottom: 12px; }
-.tabs button { flex: 1; padding: 9px; border: none; border-radius: 6px; background: var(--bg-card); color: var(--text-dim); font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.2s; }
-.tabs button.active { background: var(--accent); color: #fff; }
-.tabs button.hidden { display: none; }
-.card { background: var(--bg-card); border: 1px solid var(--border); border-left: 3px solid var(--text-mute); border-radius: 8px; padding: 12px; margin-bottom: 8px; transition: all 0.2s; }
-.card.available { border-left-color: var(--accent); }
-.card.active { border-left-color: var(--accent-2); }
-.card.active.warning { border-left-color: var(--warning); }
-.card.active.expired { border-left-color: var(--danger); }
-.card.done { border-left-color: var(--text-mute); opacity: 0.7; }
-.card.cancelled { border-left-color: var(--danger); opacity: 0.6; }
-.card.mine { box-shadow: 0 0 0 2px var(--heart); }
-.card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
-.card-header b { font-size: 15px; color: var(--text); font-weight: 700; }
-.card-row { font-size: 12px; margin-bottom: 4px; }
-.card-row.small { font-size: 10px; color: var(--text-dim); }
-.card-row b { color: var(--accent); }
-.card-row .card-num { cursor: pointer; color: var(--accent-2); font-family: monospace; }
-.card-row .card-num:hover { text-decoration: underline; }
-.card-row .phone-num { cursor: pointer; color: var(--info); font-family: monospace; }
-.card-row .phone-num:hover { text-decoration: underline; }
-.card-row .rate-value { color: var(--warning); font-family: monospace; font-weight: bold; cursor: pointer; }
-.card-row .rate-value:hover { text-decoration: underline; }
-.card-row .highlight { background: rgba(168,85,247,0.35); padding: 0 2px; border-radius: 3px; }
-
-/* ═══ ТАЙМЕР ═══ */
-.timer {
-  font-family: monospace;
-  font-size: 15px;
-  font-weight: bold;
-  padding: 5px 12px;
-  border-radius: 6px;
-  background: var(--bg-inner);
-  border: 1px solid var(--border);
-  letter-spacing: 0.5px;
-  transition: color 0.3s, border-color 0.3s, background 0.3s;
-}
-.timer.gray   { color: var(--text-mute); }
-.timer.green  { color: var(--accent-2); border-color: rgba(16,185,129,0.3); }
-.timer.yellow {
-  color: var(--warning);
-  border-color: rgba(245,158,11,0.45);
-  animation: timerPulseSlow 2.4s ease-in-out infinite;
-}
-.timer.orange {
-  color: #ff8c00;
-  border-color: rgba(255,140,0,0.65);
-  animation: timerPulseMedium 1.6s ease-in-out infinite;
-}
-.timer.red {
-  color: var(--danger);
-  border-color: var(--danger);
-  animation: timerPulseFast 0.9s ease-in-out infinite;
-}
-@keyframes timerPulseSlow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0);        background: var(--bg-inner); }
-  50%      { box-shadow: 0 0 14px 1px rgba(245,158,11,0.55); background: rgba(245,158,11,0.12); }
-}
-@keyframes timerPulseMedium {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255,140,0,0);         background: var(--bg-inner);      transform: scale(1); }
-  50%      { box-shadow: 0 0 18px 2px rgba(255,140,0,0.65); background: rgba(255,140,0,0.18); transform: scale(1.04); }
-}
-@keyframes timerPulseFast {
-  0%, 100% { box-shadow: 0 0 4px 0 rgba(239,68,68,0.35);    background: var(--bg-inner);      transform: scale(1); }
-  50%      { box-shadow: 0 0 24px 3px rgba(239,68,68,0.85); background: rgba(239,68,68,0.22); transform: scale(1.07); }
-}
-
-.progress-bar { height: 8px; background: var(--bg-inner); border-radius: 4px; overflow: hidden; margin: 6px 0; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), #00ff88); transition: width 0.3s; }
-.checks-list { margin: 6px 0; }
-.check-item { display: flex; justify-content: space-between; align-items: center; padding: 6px 8px; background: var(--bg-inner); border-radius: 5px; margin-bottom: 3px; font-size: 11px; }
-.check-item a { color: var(--accent-2); text-decoration: none; }
-.check-item a:hover { text-decoration: underline; }
-.card-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
-.card-actions button { padding: 6px 12px; border: none; border-radius: 5px; background: var(--accent); color: #fff; font-size: 11px; cursor: pointer; font-weight: 600; }
-.card-actions button:hover { opacity: 0.85; }
-.card-actions button.green { background: var(--accent-2); }
-.card-actions button.red { background: var(--danger); }
-.card-actions button.gray { background: var(--text-mute); }
-.card-actions button.orange { background: var(--warning); color: #000; }
-.card-actions button.rate-btn { background: transparent; border: 1px solid var(--warning); color: var(--warning); }
-.empty { text-align: center; color: var(--text-mute); padding: 25px; font-size: 12px; }
-.check-form { background: var(--bg-inner); border: 1px solid var(--accent-2); border-radius: 8px; padding: 10px; margin-top: 8px; }
-.check-form-title { font-size: 11px; color: var(--accent-2); margin-bottom: 6px; font-weight: bold; }
-.check-form-row { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
-.check-form input[type="number"] { padding: 8px 12px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--accent-2); font-size: 15px; font-family: monospace; width: 130px; font-weight: bold; }
-.check-form input[type="number"]:focus { outline: none; border-color: var(--accent-2); }
-.check-form input[type="file"] { display: none; }
-.check-form label { padding: 8px 14px; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; font-size: 12px; }
-.check-form label:hover { opacity: 0.9; }
-.mode-toggle { position: fixed; bottom: 15px; right: 15px; display: flex; gap: 6px; z-index: 100; }
-.mode-toggle button { padding: 10px 16px; border-radius: 20px; border: none; background: var(--accent-2); color: #fff; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 12px; }
-.mode-toggle button.admin { background: var(--accent); }
-.mode-toggle button.worker { background: var(--accent-2); }
-.mode-toggle button.client { background: var(--heart); }
-.mode-toggle button.settings { background: var(--text-mute); padding: 10px 14px; }
-.loading { text-align: center; padding: 25px; color: var(--text-mute); }
-.toast { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: var(--accent-2); color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: bold; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 13px; max-width: 90%; text-align: center; }
-.toast.warn { background: var(--warning); color: #000; }
-.toast.err { background: var(--danger); }
-.toast.info { background: var(--accent); }
-.toast.heart { background: var(--heart); }
-.toast.blue { background: var(--info); }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
-.modal-box { background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 22px; max-width: 420px; width: 100%; color: var(--text); margin: auto; }
-.modal-box.heart { border-color: var(--heart); }
-.modal-box h3 { font-size: 15px; margin-bottom: 15px; color: var(--accent); text-align: center; }
-.modal-box.heart h3 { color: var(--heart); }
-.modal-box p { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
-.choice-btns { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
-.choice-btns button { padding: 16px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-inner); color: var(--text); font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-.choice-btns button:hover { border-color: var(--accent-2); transform: translateY(-1px); }
-.choice-btns button.client-btn { border-color: var(--heart); color: var(--heart); }
-.choice-btns button.client-btn:hover { background: rgba(255,77,109,0.1); }
-.choice-btns button.bt7-btn { border-color: var(--accent-2); color: var(--accent-2); }
-.choice-btns button.bt7-btn:hover { background: rgba(16,185,129,0.1); }
-.worker-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-.worker-btns button { padding: 14px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inner); color: var(--text); font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-.worker-btns button:hover { border-color: var(--accent-2); background: rgba(16,185,129,0.1); transform: translateY(-1px); }
-.worker-btns button.admin-btn { grid-column: 1 / -1; border-color: var(--accent); color: var(--accent); }
-.pin-row { display: flex; gap: 6px; margin-top: 10px; }
-.pin-row input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--accent-2); font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 6px; }
-.pin-row input:focus { outline: none; border-color: var(--accent); }
-.pin-row input.heart { border-color: var(--heart); color: var(--heart); }
-.pin-row button { padding: 10px 18px; border: none; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px; }
-.pin-row button.heart { background: var(--heart); }
-.pin-error { color: var(--danger); font-size: 11px; margin-top: 6px; min-height: 14px; text-align: center; }
-.uname-wrap { position: relative; margin-bottom: 10px; }
-.uname-input {
-  width: 100%; padding: 14px 16px 14px 42px; border-radius: 10px;
-  border: 2px solid var(--heart); background: var(--bg-input); color: var(--text);
-  font-size: 16px; font-family: monospace; outline: none; font-weight: bold;
-}
-.uname-input:focus { border-color: var(--heart); box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
-.uname-input::placeholder { color: var(--text-mute); font-weight: normal; }
-.uname-icon {
-  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
-  font-size: 18px; color: #229ED9; pointer-events: none;
-}
-.uname-dropdown {
-  position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-  background: var(--bg-card); border: 1px solid var(--heart); border-radius: 10px;
-  max-height: 240px; overflow-y: auto; z-index: 100; display: none;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-}
-.uname-dropdown.show { display: block; }
-.uname-item {
-  padding: 12px 16px; cursor: pointer; font-size: 15px;
-  border-bottom: 1px solid var(--border); color: var(--text);
-  font-family: monospace; transition: background 0.15s;
-  display: flex; align-items: center; gap: 8px;
-}
-.uname-item:last-child { border-bottom: none; }
-.uname-item:hover, .uname-item.active { background: rgba(255,77,109,0.15); }
-.uname-item .heart-inline { color: var(--heart); }
-.uname-item .highlight-prefix { color: var(--accent-2); font-weight: bold; }
-.uname-new {
-  padding: 12px 16px; cursor: pointer; font-size: 13px;
-  color: var(--accent-2); font-weight: bold;
-  background: rgba(16,185,129,0.1); font-family: monospace;
-}
-.uname-new:hover { background: rgba(16,185,129,0.2); }
-.modal-cancel { margin-top: 10px; padding: 6px 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 12px; display: block; margin-left: auto; margin-right: auto; }
-.modal-cancel:hover { color: var(--text); }
-.modal-textarea, .modal-input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); font-size: 13px; margin-bottom: 8px; font-family: inherit; }
-.modal-textarea { min-height: 70px; resize: vertical; }
-.modal-file-label { display: block; padding: 10px; border-radius: 6px; background: var(--bg-inner); color: var(--accent-2); text-align: center; cursor: pointer; font-size: 12px; border: 1px dashed var(--accent-2); margin-bottom: 8px; }
-.modal-file-label:hover { background: var(--bg-card); }
-.modal-submit { width: 100%; padding: 11px; border: none; border-radius: 6px; background: var(--accent); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px; }
-.modal-submit.heart { background: var(--heart); }
-.modal-submit:hover { opacity: 0.9; }
-.shift-choice { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
-.shift-choice button { padding: 14px 12px; border: 2px solid var(--border); border-radius: 10px; background: var(--bg-inner); color: var(--text); font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 10px; }
-.shift-choice button:hover { transform: translateY(-1px); }
-.shift-choice button.morning { border-color: #f59e0b; }
-.shift-choice button.morning:hover { background: rgba(245,158,11,0.15); }
-.shift-choice button.evening { border-color: #a855f7; }
-.shift-choice button.evening:hover { background: rgba(168,85,247,0.15); }
-.shift-choice button.night { border-color: #3b82f6; }
-.shift-choice button.night:hover { background: rgba(59,130,246,0.15); }
-.shift-choice .time { font-size: 11px; color: var(--text-dim); font-weight: normal; }
-.shift-choice button.selected { box-shadow: 0 0 0 3px var(--accent-2); }
-.rate-input-wrap { margin-bottom: 10px; }
-.rate-input-wrap input { width: 100%; padding: 14px; border-radius: 8px; border: 2px solid var(--warning); background: var(--bg-input); color: var(--warning); font-size: 22px; font-family: monospace; font-weight: bold; text-align: center; outline: none; }
-.rate-input-wrap input:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
-.rate-hint { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 6px; }
-.date-group { margin-bottom: 10px; }
-.date-summary { padding: 12px 16px; background: var(--bg-card); border: 2px solid var(--accent); border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold; color: var(--accent); display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; user-select: none; }
-.date-summary:hover { background: rgba(168,85,247,0.1); }
-.date-summary .arrow { transition: transform 0.2s; }
-details[open] > .date-summary .arrow { transform: rotate(90deg); }
-details[open] > .date-summary { margin-bottom: 8px; }
-.date-content { padding-left: 12px; border-left: 2px solid var(--border); }
-.shift-group { margin-bottom: 8px; }
-.shift-summary { padding: 10px 14px; background: var(--bg-inner); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; gap: 8px; flex-wrap: wrap; user-select: none; }
-.shift-summary:hover { border-color: var(--accent-2); color: var(--text); }
-.shift-summary.shift-morning { border-left: 3px solid #f59e0b; }
-.shift-summary.shift-evening { border-left: 3px solid #a855f7; }
-.shift-summary.shift-night { border-left: 3px solid #3b82f6; }
-.shift-summary .arrow { transition: transform 0.2s; }
-details[open] > .shift-summary .arrow { transform: rotate(90deg); }
-details[open] > .shift-summary { margin-bottom: 6px; }
-.shift-content { padding-left: 0; }
-.client-group { margin-bottom: 6px; }
-.client-summary {
-  padding: 10px 14px 10px 20px; background: var(--bg-card); border: 1px solid var(--border);
-  border-left: 3px solid #229ED9; border-radius: 8px; cursor: pointer;
-  font-size: 12px; color: var(--text); display: flex; justify-content: space-between;
-  align-items: center; gap: 8px; flex-wrap: wrap; user-select: none;
-}
-.client-summary:hover { background: rgba(34,158,217,0.1); border-color: #229ED9; }
-.client-summary .client-name { font-family: monospace; font-weight: bold; color: #229ED9; }
-.client-summary .client-stats { font-size: 11px; color: var(--text-dim); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
-.client-summary .client-stats .sum-done { color: var(--accent-2); font-weight: bold; }
-.client-summary .client-stats .sum-cancel { color: var(--danger); font-weight: bold; }
-.client-summary .client-stats .badge-count { background: var(--border); padding: 2px 6px; border-radius: 6px; font-size: 10px; }
-.client-summary .arrow { transition: transform 0.2s; }
-details[open] > .client-summary .arrow { transform: rotate(90deg); }
-details[open] > .client-summary { margin-bottom: 6px; border-left-color: #229ED9; }
-.client-content { padding-left: 20px; border-left: 2px dashed var(--border); margin-left: 8px; }
-.admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
-.admin-info b { color: var(--accent); }
+:root{--bg:#0d0d15;--bg-card:#1a1a2a;--bg-inner:#0d0d15;--bg-input:#000;--text:#fff;--text-dim:#888;--text-mute:#555;--border:#2a2a3a;--accent:#a855f7;--accent-2:#10b981;--danger:#ef4444;--warning:#f59e0b;--heart:#ff4d6d;--info:#0ea5e9}
+[data-theme="light"]{--bg:#f0f0f5;--bg-card:#fff;--bg-inner:#f7f7fa;--bg-input:#fff;--text:#1a1a2a;--text-dim:#666;--text-mute:#999;--border:#e0e0e8;--accent:#7c3aed;--accent-2:#059669}
+[data-theme="ocean"]{--bg:#0a1628;--bg-card:#122236;--bg-inner:#0a1628;--bg-input:#0a1628;--text:#e0f2fe;--text-dim:#7dd3fc;--text-mute:#475569;--border:#1e3a5f;--accent:#0ea5e9;--accent-2:#14b8a6}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);padding:15px;min-height:100vh;transition:background .3s,color .3s}
+@keyframes pulseAlert{0%,100%{opacity:1}50%{opacity:.95}}
+h1{font-size:16px;margin-bottom:5px;color:var(--accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600}
+.badge{font-size:10px;padding:3px 8px;border-radius:8px;background:var(--border);color:var(--text-dim);font-weight:500}
+.badge.admin{background:var(--accent);color:#fff}
+.badge.worker{background:var(--accent-2);color:#fff}
+.badge.client{background:var(--heart);color:#fff}
+.badge.rate{background:var(--warning);color:#000}
+.me{font-size:11px;color:var(--text-dim);margin-bottom:15px}
+.section{background:var(--bg-card);border-radius:10px;padding:14px;margin-bottom:12px;border:1px solid var(--border)}
+h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:uppercase;letter-spacing:1px;font-weight:600}
+.add-form{display:grid;grid-template-columns:1.1fr 1.2fr 1fr 1fr .85fr .85fr .85fr auto;gap:6px;align-items:center}
+.add-form input{padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-inner);color:var(--accent-2);font-size:12px;font-family:monospace;width:100%;min-width:0}
+.add-form input:focus{outline:none;border-color:var(--accent)}
+.add-form button{padding:8px 14px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap;font-size:12px}
+.add-form button:hover{opacity:.9}
+@media(max-width:1300px){.add-form{grid-template-columns:1fr 1fr 1fr 1fr}}
+@media(max-width:700px){.add-form{grid-template-columns:1fr 1fr}}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px;transition:border-color .2s}
+.search-wrap:focus-within{border-color:var(--accent)}
+.search-icon{font-size:16px;color:var(--text-mute)}
+.search-input{flex:1;padding:6px 0;border:none;background:transparent;color:var(--text);font-size:14px;font-family:inherit;outline:none;min-width:0}
+.search-input::placeholder{color:var(--text-mute)}
+.search-clear{padding:4px 10px;border:none;border-radius:5px;background:var(--text-mute);color:#fff;cursor:pointer;font-size:12px;font-weight:bold}
+.search-clear:hover{background:var(--danger)}
+.search-count{font-size:11px;color:var(--accent);font-weight:bold;white-space:nowrap}
+.search-count.no-results{color:var(--danger)}
+.tabs{display:flex;gap:4px;margin-bottom:12px}
+.tabs button{flex:1;padding:9px;border:none;border-radius:6px;background:var(--bg-card);color:var(--text-dim);font-weight:bold;cursor:pointer;font-size:12px;transition:all .2s}
+.tabs button.active{background:var(--accent);color:#fff}
+.tabs button.hidden{display:none}
+.card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--text-mute);border-radius:8px;padding:12px;margin-bottom:8px;transition:all .2s}
+.card.available{border-left-color:var(--accent)}
+.card.active{border-left-color:var(--accent-2)}
+.card.active.warning{border-left-color:var(--warning)}
+.card.active.expired{border-left-color:var(--danger)}
+.card.done{border-left-color:var(--text-mute);opacity:.7}
+.card.cancelled{border-left-color:var(--danger);opacity:.6}
+.card.mine{box-shadow:0 0 0 2px var(--heart)}
+.card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:5px}
+.card-header b{font-size:15px;color:var(--text);font-weight:700}
+.card-row{font-size:12px;margin-bottom:4px}
+.card-row.small{font-size:10px;color:var(--text-dim)}
+.card-row b{color:var(--accent)}
+.card-row .card-num{cursor:pointer;color:var(--accent-2);font-family:monospace}
+.card-row .card-num:hover{text-decoration:underline}
+.card-row .phone-num{cursor:pointer;color:var(--info);font-family:monospace}
+.card-row .phone-num:hover{text-decoration:underline}
+.card-row .rate-value{color:var(--warning);font-family:monospace;font-weight:bold;cursor:pointer}
+.card-row .rate-value:hover{text-decoration:underline}
+.card-row .highlight{background:rgba(168,85,247,.35);padding:0 2px;border-radius:3px}
+.timer{font-family:monospace;font-size:15px;font-weight:bold;padding:5px 12px;border-radius:6px;background:var(--bg-inner);border:1px solid var(--border);letter-spacing:.5px;transition:color .3s,border-color .3s,background .3s}
+.timer.gray{color:var(--text-mute)}
+.timer.green{color:var(--accent-2);border-color:rgba(16,185,129,.3)}
+.timer.yellow{color:var(--warning);border-color:rgba(245,158,11,.45);animation:timerPulseSlow 2.4s ease-in-out infinite}
+.timer.orange{color:#ff8c00;border-color:rgba(255,140,0,.65);animation:timerPulseMedium 1.6s ease-in-out infinite}
+.timer.red{color:var(--danger);border-color:var(--danger);animation:timerPulseFast .9s ease-in-out infinite}
+@keyframes timerPulseSlow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);background:var(--bg-inner)}50%{box-shadow:0 0 14px 1px rgba(245,158,11,.55);background:rgba(245,158,11,.12)}}
+@keyframes timerPulseMedium{0%,100%{box-shadow:0 0 0 0 rgba(255,140,0,0);background:var(--bg-inner);transform:scale(1)}50%{box-shadow:0 0 18px 2px rgba(255,140,0,.65);background:rgba(255,140,0,.18);transform:scale(1.04)}}
+@keyframes timerPulseFast{0%,100%{box-shadow:0 0 4px 0 rgba(239,68,68,.35);background:var(--bg-inner);transform:scale(1)}50%{box-shadow:0 0 24px 3px rgba(239,68,68,.85);background:rgba(239,68,68,.22);transform:scale(1.07)}}
+.progress-bar{height:8px;background:var(--bg-inner);border-radius:4px;overflow:hidden;margin:6px 0}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-2),#00ff88);transition:width .3s}
+.checks-list{margin:6px 0}
+.check-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--bg-inner);border-radius:5px;margin-bottom:3px;font-size:11px}
+.check-item a{color:var(--accent-2);text-decoration:none}
+.check-item a:hover{text-decoration:underline}
+.card-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
+.card-actions button{padding:6px 12px;border:none;border-radius:5px;background:var(--accent);color:#fff;font-size:11px;cursor:pointer;font-weight:600}
+.card-actions button:hover{opacity:.85}
+.card-actions button.green{background:var(--accent-2)}
+.card-actions button.red{background:var(--danger)}
+.card-actions button.gray{background:var(--text-mute)}
+.card-actions button.orange{background:var(--warning);color:#000}
+.card-actions button.rate-btn{background:transparent;border:1px solid var(--warning);color:var(--warning)}
+.empty{text-align:center;color:var(--text-mute);padding:25px;font-size:12px}
+.check-form{background:var(--bg-inner);border:1px solid var(--accent-2);border-radius:8px;padding:10px;margin-top:8px}
+.check-form-title{font-size:11px;color:var(--accent-2);margin-bottom:6px;font-weight:bold}
+.check-form-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.check-form input[type="number"]{padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--accent-2);font-size:15px;font-family:monospace;width:130px;font-weight:bold}
+.check-form input[type="number"]:focus{outline:none;border-color:var(--accent-2)}
+.check-form input[type="file"]{display:none}
+.check-form label{padding:8px 14px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
+.check-form label:hover{opacity:.9}
+.mode-toggle{position:fixed;bottom:15px;right:15px;display:flex;gap:6px;z-index:100}
+.mode-toggle button{padding:10px 16px;border-radius:20px;border:none;background:var(--accent-2);color:#fff;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.3);font-size:12px}
+.mode-toggle button.admin{background:var(--accent)}
+.mode-toggle button.worker{background:var(--accent-2)}
+.mode-toggle button.client{background:var(--heart)}
+.mode-toggle button.settings{background:var(--text-mute);padding:10px 14px}
+.loading{text-align:center;padding:25px;color:var(--text-mute)}
+.toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--accent-2);color:#fff;padding:10px 18px;border-radius:8px;font-weight:bold;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);font-size:13px;max-width:90%;text-align:center}
+.toast.warn{background:var(--warning);color:#000}
+.toast.err{background:var(--danger)}
+.toast.info{background:var(--accent)}
+.toast.heart{background:var(--heart)}
+.toast.blue{background:var(--info)}
+.modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.85);z-index:10000;display:flex;align-items:center;justify-content:center;padding:20px;overflow-y:auto}
+.modal-box{background:var(--bg-card);border:1px solid var(--accent);border-radius:12px;padding:22px;max-width:420px;width:100%;color:var(--text);margin:auto}
+.modal-box.heart{border-color:var(--heart)}
+.modal-box h3{font-size:15px;margin-bottom:15px;color:var(--accent);text-align:center}
+.modal-box.heart h3{color:var(--heart)}
+.modal-box p{font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
+.choice-btns{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
+.choice-btns button{padding:16px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:15px;font-weight:bold;cursor:pointer;transition:all .2s}
+.choice-btns button:hover{border-color:var(--accent-2);transform:translateY(-1px)}
+.choice-btns button.client-btn{border-color:var(--heart);color:var(--heart)}
+.choice-btns button.client-btn:hover{background:rgba(255,77,109,.1)}
+.choice-btns button.bt7-btn{border-color:var(--accent-2);color:var(--accent-2)}
+.choice-btns button.bt7-btn:hover{background:rgba(16,185,129,.1)}
+.worker-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
+.worker-btns button{padding:14px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s}
+.worker-btns button:hover{border-color:var(--accent-2);background:rgba(16,185,129,.1);transform:translateY(-1px)}
+.worker-btns button.admin-btn{grid-column:1/-1;border-color:var(--accent);color:var(--accent)}
+.pin-row{display:flex;gap:6px;margin-top:10px}
+.pin-row input{flex:1;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--accent-2);font-family:monospace;font-size:18px;text-align:center;letter-spacing:6px}
+.pin-row input:focus{outline:none;border-color:var(--accent)}
+.pin-row input.heart{border-color:var(--heart);color:var(--heart)}
+.pin-row button{padding:10px 18px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
+.pin-row button.heart{background:var(--heart)}
+.pin-error{color:var(--danger);font-size:11px;margin-top:6px;min-height:14px;text-align:center}
+.uname-wrap{position:relative;margin-bottom:10px}
+.uname-input{width:100%;padding:14px 16px 14px 42px;border-radius:10px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:16px;font-family:monospace;outline:none;font-weight:bold}
+.uname-input:focus{border-color:var(--heart);box-shadow:0 0 0 3px rgba(255,77,109,.2)}
+.uname-input::placeholder{color:var(--text-mute);font-weight:normal}
+.uname-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;color:#229ED9;pointer-events:none}
+.uname-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--bg-card);border:1px solid var(--heart);border-radius:10px;max-height:240px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+.uname-dropdown.show{display:block}
+.uname-item{padding:12px 16px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--border);color:var(--text);font-family:monospace;transition:background .15s;display:flex;align-items:center;gap:8px}
+.uname-item:last-child{border-bottom:none}
+.uname-item:hover,.uname-item.active{background:rgba(255,77,109,.15)}
+.uname-item .heart-inline{color:var(--heart)}
+.uname-item .highlight-prefix{color:var(--accent-2);font-weight:bold}
+.uname-new{padding:12px 16px;cursor:pointer;font-size:13px;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,.1);font-family:monospace}
+.uname-new:hover{background:rgba(16,185,129,.2)}
+.modal-cancel{margin-top:10px;padding:6px 12px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;display:block;margin-left:auto;margin-right:auto}
+.modal-cancel:hover{color:var(--text)}
+.modal-textarea,.modal-input{width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--text);font-size:13px;margin-bottom:8px;font-family:inherit}
+.modal-textarea{min-height:70px;resize:vertical}
+.modal-file-label{display:block;padding:10px;border-radius:6px;background:var(--bg-inner);color:var(--accent-2);text-align:center;cursor:pointer;font-size:12px;border:1px dashed var(--accent-2);margin-bottom:8px}
+.modal-file-label:hover{background:var(--bg-card)}
+.modal-submit{width:100%;padding:11px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
+.modal-submit.heart{background:var(--heart)}
+.modal-submit:hover{opacity:.9}
+.shift-choice{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
+.shift-choice button{padding:14px 12px;border:2px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.shift-choice button:hover{transform:translateY(-1px)}
+.shift-choice button.morning{border-color:#f59e0b}
+.shift-choice button.morning:hover{background:rgba(245,158,11,.15)}
+.shift-choice button.evening{border-color:#a855f7}
+.shift-choice button.evening:hover{background:rgba(168,85,247,.15)}
+.shift-choice button.night{border-color:#3b82f6}
+.shift-choice button.night:hover{background:rgba(59,130,246,.15)}
+.shift-choice .time{font-size:11px;color:var(--text-dim);font-weight:normal}
+.shift-choice button.selected{box-shadow:0 0 0 3px var(--accent-2)}
+.rate-input-wrap{margin-bottom:10px}
+.rate-input-wrap input{width:100%;padding:14px;border-radius:8px;border:2px solid var(--warning);background:var(--bg-input);color:var(--warning);font-size:22px;font-family:monospace;font-weight:bold;text-align:center;outline:none}
+.rate-input-wrap input:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
+.rate-hint{font-size:11px;color:var(--text-dim);text-align:center;margin-top:6px}
+.date-group{margin-bottom:10px}
+.date-summary{padding:12px 16px;background:var(--bg-card);border:2px solid var(--accent);border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;user-select:none}
+.date-summary:hover{background:rgba(168,85,247,.1)}
+.date-summary .arrow{transition:transform .2s}
+details[open]>.date-summary .arrow{transform:rotate(90deg)}
+details[open]>.date-summary{margin-bottom:8px}
+.date-content{padding-left:12px;border-left:2px solid var(--border)}
+.shift-group{margin-bottom:8px}
+.shift-summary{padding:10px 14px;background:var(--bg-inner);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
+.shift-summary:hover{border-color:var(--accent-2);color:var(--text)}
+.shift-summary.shift-morning{border-left:3px solid #f59e0b}
+.shift-summary.shift-evening{border-left:3px solid #a855f7}
+.shift-summary.shift-night{border-left:3px solid #3b82f6}
+.shift-summary .arrow{transition:transform .2s}
+details[open]>.shift-summary .arrow{transform:rotate(90deg)}
+details[open]>.shift-summary{margin-bottom:6px}
+.shift-content{padding-left:0}
+.client-group{margin-bottom:6px}
+.client-summary{padding:10px 14px 10px 20px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #229ED9;border-radius:8px;cursor:pointer;font-size:12px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
+.client-summary:hover{background:rgba(34,158,217,.1);border-color:#229ED9}
+.client-summary .client-name{font-family:monospace;font-weight:bold;color:#229ED9}
+.client-summary .client-stats{font-size:11px;color:var(--text-dim);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.client-summary .client-stats .sum-done{color:var(--accent-2);font-weight:bold}
+.client-summary .client-stats .sum-cancel{color:var(--danger);font-weight:bold}
+.client-summary .client-stats .badge-count{background:var(--border);padding:2px 6px;border-radius:6px;font-size:10px}
+.client-summary .arrow{transition:transform .2s}
+details[open]>.client-summary .arrow{transform:rotate(90deg)}
+details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
+.client-content{padding-left:20px;border-left:2px dashed var(--border);margin-left:8px}
+.admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
+.admin-info b{color:var(--accent)}
 </style>
 </head>
 <body>
@@ -329,228 +253,186 @@ details[open] > .client-summary { margin-bottom: 6px; border-left-color: #229ED9
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const ADMIN_PIN = '0927';
-const WORKERS = { 'Denis': '1111', 'Dmitriy': '2222', 'Artem': '3333', 'Evgeniy': '4444' };
-const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
-const SHIFT_TIMES = { 'Утро': '06:00 - 14:00', 'Вечер': '14:00 - 22:00', 'Ночь': '22:00 - 06:00' };
+const ADMIN_PIN='0927';
+const WORKERS={'Denis':'1111','Dmitriy':'2222','Artem':'3333','Evgeniy':'4444'};
+const SHIFTS=['Утро','Вечер','Ночь'];
+const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",
-  authDomain: "p2ppro-77db8.firebaseapp.com",
-  projectId: "p2ppro-77db8",
-  storageBucket: "p2ppro-77db8.firebasestorage.app",
-  messagingSenderId: "11682384845",
-  appId: "1:11682384845:web:e593073c123912adc45284",
-  measurementId: "GZ-B7JPRP7ZF"
-};
+const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const payoutsRef = collection(db, 'payouts');
-const clientsRef = collection(db, 'clients');
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const payoutsRef=collection(db,'payouts');
+const clientsRef=collection(db,'clients');
 
-// ═══════════════════════════════════════════════════════════
-//  🕐 ЕДИНОЕ СЕРВЕРНОЕ ВРЕМЯ
-// ═══════════════════════════════════════════════════════════
-let clockOffset = parseInt(sessionStorage.getItem('clockOffset')) || 0;
-let clockSynced = sessionStorage.getItem('clockSynced') === '1';
+// ═══ СЕРВЕРНОЕ ВРЕМЯ ═══
+let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
+let clockSynced=sessionStorage.getItem('clockSynced')==='1';
 
-async function syncClock(silent = false) {
-  const endpoints = [
-    {
-      url: 'https://timeapi.io/api/Time/current/zone?timeZone=UTC',
-      parse: d => new Date(d.dateTime.endsWith('Z') ? d.dateTime : d.dateTime + 'Z').getTime()
-    },
-    {
-      url: 'https://worldtimeapi.org/api/timezone/Etc/UTC',
-      parse: d => new Date(d.datetime).getTime()
-    },
-    {
-      url: 'https://worldtimeapi.org/api/ip',
-      parse: d => new Date(d.datetime).getTime()
-    }
+async function syncClock(silent=false){
+  const endpoints=[
+    {url:'https://timeapi.io/api/Time/current/zone?timeZone=UTC',parse:d=>new Date(d.dateTime.endsWith('Z')?d.dateTime:d.dateTime+'Z').getTime()},
+    {url:'https://worldtimeapi.org/api/timezone/Etc/UTC',parse:d=>new Date(d.datetime).getTime()},
+    {url:'https://worldtimeapi.org/api/ip',parse:d=>new Date(d.datetime).getTime()}
   ];
-  for (const ep of endpoints) {
-    try {
-      const t0 = Date.now();
-      const ctrl = new AbortController();
-      const to = setTimeout(() => ctrl.abort(), 6000);
-      const r = await fetch(ep.url, { cache: 'no-store', signal: ctrl.signal });
+  for(const ep of endpoints){
+    try{
+      const t0=Date.now();
+      const ctrl=new AbortController();
+      const to=setTimeout(()=>ctrl.abort(),6000);
+      const r=await fetch(ep.url,{cache:'no-store',signal:ctrl.signal});
       clearTimeout(to);
-      const t1 = Date.now();
-      if (!r.ok) continue;
-      const data = await r.json();
-      const serverMs = ep.parse(data);
-      if (!serverMs || isNaN(serverMs)) continue;
-      const newOffset = serverMs - Math.round((t0 + t1) / 2);
-      if (Math.abs(newOffset) > 24 * 3600 * 1000) continue;
-      clockOffset = newOffset;
-      clockSynced = true;
-      sessionStorage.setItem('clockOffset', String(clockOffset));
-      sessionStorage.setItem('clockSynced', '1');
-      console.log('🕐 Clock synced. Offset:', clockOffset, 'ms');
-      if (!silent) showToast('🕐 Время синхронизировано (Δ ' + (clockOffset >= 0 ? '+' : '') + Math.round(clockOffset / 1000) + 'с)');
+      const t1=Date.now();
+      if(!r.ok)continue;
+      const data=await r.json();
+      const serverMs=ep.parse(data);
+      if(!serverMs||isNaN(serverMs))continue;
+      const newOffset=serverMs-Math.round((t0+t1)/2);
+      if(Math.abs(newOffset)>24*3600*1000)continue;
+      clockOffset=newOffset;
+      clockSynced=true;
+      sessionStorage.setItem('clockOffset',String(clockOffset));
+      sessionStorage.setItem('clockSynced','1');
+      console.log('🕐 Clock synced. Offset:',clockOffset,'ms');
+      if(!silent)showToast('🕐 Время синхронизировано (Δ '+(clockOffset>=0?'+':'')+Math.round(clockOffset/1000)+'с)');
       return true;
-    } catch(e) { /* next */ }
+    }catch(e){}
   }
-  if (!silent) console.warn('🕐 Clock sync failed — using local time');
+  if(!silent)console.warn('🕐 Clock sync failed — using local time');
   return false;
 }
+function now(){return Date.now()+clockOffset;}
+if(!clockSynced)syncClock(true);
+setInterval(()=>syncClock(true),30*60*1000);
 
-function now() { return Date.now() + clockOffset; }
+let payouts=[];
+let allClients=[];
+let currentTab='available';
+let role=sessionStorage.getItem('role')||'guest';
+let workerName=sessionStorage.getItem('workerName')||'';
+let shiftName=sessionStorage.getItem('shiftName')||'';
+let shiftRate=parseFloat(sessionStorage.getItem('shiftRate'))||0;
+let clientUsername=sessionStorage.getItem('clientUsername')||'';
+let soundEnabled=localStorage.getItem('soundEnabled')!=='0';
+let theme=localStorage.getItem('theme')||'dark';
+let checkInputs=JSON.parse(localStorage.getItem('checkInputs')||'{}');
+let prevState=new Map();
+let seenPayoutIds=new Set();
+let isFirstSnapshot=true;
 
-if (!clockSynced) syncClock(true);
-setInterval(() => syncClock(true), 30 * 60 * 1000);
-
-let payouts = [];
-let allClients = [];
-let currentTab = 'available';
-let role = sessionStorage.getItem('role') || 'guest';
-let workerName = sessionStorage.getItem('workerName') || '';
-let shiftName = sessionStorage.getItem('shiftName') || '';
-let shiftRate = parseFloat(sessionStorage.getItem('shiftRate')) || 0;
-let clientUsername = sessionStorage.getItem('clientUsername') || '';
-let soundEnabled = localStorage.getItem('soundEnabled') !== '0';
-let theme = localStorage.getItem('theme') || 'dark';
-let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
-let prevState = new Map();
-let seenPayoutIds = new Set();
-let isFirstSnapshot = true;
-
-let warned15 = new Set(JSON.parse(sessionStorage.getItem('warned15') || '[]'));
-let warned10 = new Set(JSON.parse(sessionStorage.getItem('warned10') || '[]'));
-let warned5  = new Set(JSON.parse(sessionStorage.getItem('warned5')  || '[]'));
-function persistWarned() {
-  sessionStorage.setItem('warned15', JSON.stringify([...warned15]));
-  sessionStorage.setItem('warned10', JSON.stringify([...warned10]));
-  sessionStorage.setItem('warned5',  JSON.stringify([...warned5]));
+let warned15=new Set(JSON.parse(sessionStorage.getItem('warned15')||'[]'));
+let warned10=new Set(JSON.parse(sessionStorage.getItem('warned10')||'[]'));
+let warned5=new Set(JSON.parse(sessionStorage.getItem('warned5')||'[]'));
+function persistWarned(){
+  sessionStorage.setItem('warned15',JSON.stringify([...warned15]));
+  sessionStorage.setItem('warned10',JSON.stringify([...warned10]));
+  sessionStorage.setItem('warned5',JSON.stringify([...warned5]));
 }
 
-let audioCtx = null;
-let notifyPermissionAsked = false;
-let searchQuery = '';
-let tempShiftChoice = null;
-let tempRate = '';
-let unreadCount = 0;
-let originalTitle = document.title;
-let titleFlashInterval = null;
-let originalFavicon = null;
+let audioCtx=null;
+let notifyPermissionAsked=false;
+let searchQuery='';
+let tempShiftChoice=null;
+let tempRate='';
+let unreadCount=0;
+let originalTitle=document.title;
+let titleFlashInterval=null;
+let originalFavicon=null;
 
-// ═══════════════════════════════════════════════════════════
-//  🚫 ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ
-//  Один и тот же ключ не отправляется чаще, чем WINDOW_MS.
-//  localStorage общий для всех вкладок одного origin — поэтому
-//  две вкладки не смогут продублировать одно событие.
-// ═══════════════════════════════════════════════════════════
-function shouldSendNotify(dedupeKey, windowMs = 8000) {
-  try {
-    const storageKey = 'notif_dedupe_' + dedupeKey;
-    const nowMs = Date.now();
-    const last = parseInt(localStorage.getItem(storageKey) || '0');
-    if (nowMs - last < windowMs) return false;
-    localStorage.setItem(storageKey, String(nowMs));
-    // Чистка старых ключей (> 1 час), чтобы localStorage не распухал
-    if (Math.random() < 0.05) {
-      const cutoff = nowMs - 3600 * 1000;
-      for (let i = localStorage.length - 1; i >= 0; i--) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith('notif_dedupe_')) {
-          const v = parseInt(localStorage.getItem(k) || '0');
-          if (v < cutoff) localStorage.removeItem(k);
+// ═══ ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ ═══
+function shouldSendNotify(dedupeKey,windowMs=8000){
+  try{
+    const storageKey='notif_dedupe_'+dedupeKey;
+    const nowMs=Date.now();
+    const last=parseInt(localStorage.getItem(storageKey)||'0');
+    if(nowMs-last<windowMs)return false;
+    localStorage.setItem(storageKey,String(nowMs));
+    if(Math.random()<0.05){
+      const cutoff=nowMs-3600*1000;
+      for(let i=localStorage.length-1;i>=0;i--){
+        const k=localStorage.key(i);
+        if(k&&k.startsWith('notif_dedupe_')){
+          const v=parseInt(localStorage.getItem(k)||'0');
+          if(v<cutoff)localStorage.removeItem(k);
         }
       }
     }
     return true;
-  } catch(e) { return true; }
+  }catch(e){return true;}
 }
 
-// ═══════════════════════════════════════════════════════════
-//  СИЛЬНАЯ СИСТЕМА УВЕДОМЛЕНИЙ
-// ═══════════════════════════════════════════════════════════
-function strongNotify(title, body, opts = {}) {
-  const dedupeKey = opts.dedupeKey || (title + '|' + body);
-  if (!shouldSendNotify(dedupeKey, opts.dedupeWindow || 8000)) {
-    // Уже отправляли недавно (в этой или другой вкладке) — молчим
-    return;
-  }
-  try { playSound(opts.sound || 'warning'); } catch(e) {}
-  try { if (navigator.vibrate) navigator.vibrate(opts.vibrate || [200, 100, 200]); } catch(e) {}
-  try { showToast('🔔 ' + title, opts.toastType || 'warn'); } catch(e) {}
-  try { addUnreadAndFlashTitle(title); } catch(e) {}
-  try { setUnreadFavicon(); } catch(e) {}
-  try {
-    if ('Notification' in window && Notification.permission === 'granted') {
-      // tag — стабильный ключ: система заменит предыдущее с тем же tag
-      new Notification(title, {
-        body,
-        tag: 'payout-' + dedupeKey,
-        renotify: false
-      });
+function strongNotify(title,body,opts={}){
+  const dedupeKey=opts.dedupeKey||(title+'|'+body);
+  if(!shouldSendNotify(dedupeKey,opts.dedupeWindow||8000))return;
+  try{playSound(opts.sound||'warning');}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate(opts.vibrate||[200,100,200]);}catch(e){}
+  try{showToast('🔔 '+title,opts.toastType||'warn');}catch(e){}
+  try{addUnreadAndFlashTitle(title);}catch(e){}
+  try{setUnreadFavicon();}catch(e){}
+  try{
+    if('Notification' in window&&Notification.permission==='granted'){
+      new Notification(title,{body,tag:'payout-'+dedupeKey,renotify:false});
     }
-  } catch(e) {}
-  try {
-    if (document.hidden && (!('Notification' in window) || Notification.permission !== 'granted')) {
-      showInPageAlert(title, body);
+  }catch(e){}
+  try{
+    if(document.hidden&&(!('Notification' in window)||Notification.permission!=='granted')){
+      showInPageAlert(title,body);
     }
-  } catch(e) {}
+  }catch(e){}
 }
 
-function addUnreadAndFlashTitle(newTitle) {
+function addUnreadAndFlashTitle(newTitle){
   unreadCount++;
-  if (titleFlashInterval) return;
-  let showOriginal = false;
-  titleFlashInterval = setInterval(() => {
-    document.title = showOriginal ? originalTitle : `🔴 (${unreadCount}) ${newTitle.substring(0, 30)}`;
-    showOriginal = !showOriginal;
-  }, 800);
+  if(titleFlashInterval)return;
+  let showOriginal=false;
+  titleFlashInterval=setInterval(()=>{
+    document.title=showOriginal?originalTitle:`🔴 (${unreadCount}) ${newTitle.substring(0,30)}`;
+    showOriginal=!showOriginal;
+  },800);
 }
-
-function resetTitleFlash() {
-  if (titleFlashInterval) { clearInterval(titleFlashInterval); titleFlashInterval = null; }
-  unreadCount = 0;
-  document.title = originalTitle;
+function resetTitleFlash(){
+  if(titleFlashInterval){clearInterval(titleFlashInterval);titleFlashInterval=null;}
+  unreadCount=0;
+  document.title=originalTitle;
   resetFavicon();
 }
-
-function setUnreadFavicon() {
-  try {
-    if (!originalFavicon) {
-      const link = document.querySelector("link[rel*='icon']");
-      if (link) originalFavicon = link.href;
+function setUnreadFavicon(){
+  try{
+    if(!originalFavicon){
+      const link=document.querySelector("link[rel*='icon']");
+      if(link)originalFavicon=link.href;
     }
-    const canvas = document.createElement('canvas');
-    canvas.width = 64; canvas.height = 64;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#ef4444';
-    ctx.beginPath(); ctx.arc(32, 32, 30, 0, 2 * Math.PI); ctx.fill();
-    ctx.fillStyle = '#fff';
-    ctx.font = 'bold 44px Arial';
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('!', 32, 34);
-    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
-    link.rel = 'icon';
-    link.href = canvas.toDataURL('image/png');
+    const canvas=document.createElement('canvas');
+    canvas.width=64;canvas.height=64;
+    const ctx=canvas.getContext('2d');
+    ctx.fillStyle='#ef4444';
+    ctx.beginPath();ctx.arc(32,32,30,0,2*Math.PI);ctx.fill();
+    ctx.fillStyle='#fff';
+    ctx.font='bold 44px Arial';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillText('!',32,34);
+    let link=document.querySelector("link[rel*='icon']")||document.createElement('link');
+    link.rel='icon';
+    link.href=canvas.toDataURL('image/png');
     document.head.appendChild(link);
-  } catch(e) {}
+  }catch(e){}
 }
-
-function resetFavicon() {
-  try {
-    if (originalFavicon) {
-      let link = document.querySelector("link[rel*='icon']");
-      if (link) link.href = originalFavicon;
+function resetFavicon(){
+  try{
+    if(originalFavicon){
+      let link=document.querySelector("link[rel*='icon']");
+      if(link)link.href=originalFavicon;
     }
-  } catch(e) {}
+  }catch(e){}
 }
-
-function showInPageAlert(title, body) {
-  const old = document.getElementById('inPageAlert');
-  if (old) old.remove();
-  const el = document.createElement('div');
-  el.id = 'inPageAlert';
-  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:pulseAlert 1s infinite;';
-  el.innerHTML = `
-    <div style="background:#1a1a2a;border:3px solid #ef4444;border-radius:16px;padding:30px;max-width:500px;text-align:center;color:#fff;box-shadow:0 0 60px rgba(239,68,68,0.8);">
+function showInPageAlert(title,body){
+  const old=document.getElementById('inPageAlert');
+  if(old)old.remove();
+  const el=document.createElement('div');
+  el.id='inPageAlert';
+  el.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:pulseAlert 1s infinite;';
+  el.innerHTML=`
+    <div style="background:#1a1a2a;border:3px solid #ef4444;border-radius:16px;padding:30px;max-width:500px;text-align:center;color:#fff;box-shadow:0 0 60px rgba(239,68,68,.8);">
       <div style="font-size:64px;margin-bottom:15px;">🔔</div>
       <div style="font-size:22px;font-weight:bold;margin-bottom:15px;color:#ef4444;">${esc(title)}</div>
       <div style="font-size:15px;margin-bottom:25px;color:#ddd;line-height:1.6;">${esc(body)}</div>
@@ -558,131 +440,115 @@ function showInPageAlert(title, body) {
       <div style="font-size:11px;color:#666;margin-top:15px;">💡 Разрешите уведомления, чтобы получать пуши в фоне</div>
     </div>`;
   document.body.appendChild(el);
-  setTimeout(() => { el.remove(); }, 30000);
+  setTimeout(()=>{el.remove();},30000);
 }
 
-document.addEventListener('visibilitychange', () => { if (!document.hidden) resetTitleFlash(); });
-window.addEventListener('focus', () => { resetTitleFlash(); });
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetTitleFlash();});
+window.addEventListener('focus',()=>{resetTitleFlash();});
 
-async function hashPin(pin) {
-  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('p2p_salt_' + pin));
-  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
+async function hashPin(pin){
+  const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('p2p_salt_'+pin));
+  return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
 
-function setTheme(t) {
-  theme = t;
-  localStorage.setItem('theme', t);
-  document.body.setAttribute('data-theme', t);
-  document.querySelectorAll('[data-theme-btn]').forEach(b => {
-    b.classList.toggle('active', b.dataset.themeBtn === t);
+function setTheme(t){
+  theme=t;
+  localStorage.setItem('theme',t);
+  document.body.setAttribute('data-theme',t);
+  document.querySelectorAll('[data-theme-btn]').forEach(b=>{
+    b.classList.toggle('active',b.dataset.themeBtn===t);
   });
 }
 setTheme(theme);
 
-function onSearch() {
-  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-  document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
+function onSearch(){
+  searchQuery=document.getElementById('searchInput').value.trim().toLowerCase();
+  document.getElementById('searchClear').style.display=searchQuery?'block':'none';
   render();
 }
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  searchQuery = '';
-  document.getElementById('searchClear').style.display = 'none';
-  document.getElementById('searchCount').textContent = '';
+function clearSearch(){
+  document.getElementById('searchInput').value='';
+  searchQuery='';
+  document.getElementById('searchClear').style.display='none';
+  document.getElementById('searchCount').textContent='';
   render();
 }
-function matchSearch(p) {
-  if (!searchQuery) return true;
-  const q = searchQuery.replace(/\s+/g, '').replace(/^@/, '');
-  const qRaw = searchQuery;
-  const card = (p.cardNumber || '').replace(/\s+/g, '').toLowerCase();
-  const phone = (p.phone || '').replace(/\s+/g, '').toLowerCase();
-  const uname = (p.client || '').replace(/^@/, '').toLowerCase();
-  if (card.includes(q)) return true;
-  if (phone.includes(q)) return true;
-  if (uname.includes(q)) return true;
-  if ((p.id || '').toLowerCase().includes(qRaw)) return true;
-  if ((p.bank || '').toLowerCase().includes(qRaw)) return true;
-  if (String(p.totalSum || '').includes(qRaw)) return true;
-  if ((p.createdBy || '').toLowerCase().includes(qRaw)) return true;
-  if ((p.shift || '').toLowerCase().includes(qRaw)) return true;
-  if (p.rate && String(p.rate).includes(qRaw)) return true;
-  if ((p.checks || []).some(c => String(c.sum).includes(qRaw))) return true;
+function matchSearch(p){
+  if(!searchQuery)return true;
+  const q=searchQuery.replace(/\s+/g,'').replace(/^@/,'');
+  const qRaw=searchQuery;
+  const card=(p.cardNumber||'').replace(/\s+/g,'').toLowerCase();
+  const phone=(p.phone||'').replace(/\s+/g,'').toLowerCase();
+  const uname=(p.client||'').replace(/^@/,'').toLowerCase();
+  if(card.includes(q))return true;
+  if(phone.includes(q))return true;
+  if(uname.includes(q))return true;
+  if((p.id||'').toLowerCase().includes(qRaw))return true;
+  if((p.bank||'').toLowerCase().includes(qRaw))return true;
+  if(String(p.totalSum||'').includes(qRaw))return true;
+  if((p.createdBy||'').toLowerCase().includes(qRaw))return true;
+  if((p.shift||'').toLowerCase().includes(qRaw))return true;
+  if(p.rate&&String(p.rate).includes(qRaw))return true;
+  if((p.checks||[]).some(c=>String(c.sum).includes(qRaw)))return true;
   return false;
 }
-function highlightMatch(text) {
-  if (!searchQuery || !text) return esc(text);
-  const s = String(text);
-  const idx = s.toLowerCase().indexOf(searchQuery.toLowerCase());
-  if (idx === -1) return esc(s);
-  const before = s.substring(0, idx);
-  const match = s.substring(idx, idx + searchQuery.length);
-  const after = s.substring(idx + searchQuery.length);
-  return esc(before) + '<span class="highlight">' + esc(match) + '</span>' + esc(after);
+function highlightMatch(text){
+  if(!searchQuery||!text)return esc(text);
+  const s=String(text);
+  const idx=s.toLowerCase().indexOf(searchQuery.toLowerCase());
+  if(idx===-1)return esc(s);
+  return esc(s.substring(0,idx))+'<span class="highlight">'+esc(s.substring(idx,idx+searchQuery.length))+'</span>'+esc(s.substring(idx+searchQuery.length));
 }
 
-function initAudio() {
-  if (!audioCtx) {
-    try { audioCtx = new (window.AudioContext || window.webkitAudioContext)(); } catch(e) {}
+function initAudio(){
+  if(!audioCtx){
+    try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}
   }
-  if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
 }
-function playSound(type) {
-  if (!soundEnabled) return;
+function playSound(type){
+  if(!soundEnabled)return;
   initAudio();
-  if (!audioCtx) return;
-  const nowTs = audioCtx.currentTime;
-  if (type === 'check') {
-    [0, 0.15, 0.3].forEach(d => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(880, nowTs + d);
-      gain.gain.setValueAtTime(0.4, nowTs + d);
-      gain.gain.exponentialRampToValueAtTime(0.01, nowTs + d + 0.1);
-      osc.start(nowTs + d); osc.stop(nowTs + d + 0.1);
+  if(!audioCtx)return;
+  const t=audioCtx.currentTime;
+  if(type==='check'){
+    [0,.15,.3].forEach(d=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);
+      o.type='sine';o.frequency.setValueAtTime(880,t+d);
+      g.gain.setValueAtTime(.4,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.1);
+      o.start(t+d);o.stop(t+d+.1);
     });
-  } else if (type === 'warning') {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(440, nowTs);
-    gain.gain.setValueAtTime(0.15, nowTs);
-    gain.gain.exponentialRampToValueAtTime(0.01, nowTs + 0.25);
-    osc.start(nowTs); osc.stop(nowTs + 0.25);
-  } else if (type === 'new') {
-    [0, 0.2].forEach(d => {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.type = 'triangle';
-      osc.frequency.setValueAtTime(1100, nowTs + d);
-      gain.gain.setValueAtTime(0.3, nowTs + d);
-      gain.gain.exponentialRampToValueAtTime(0.01, nowTs + d + 0.15);
-      osc.start(nowTs + d); osc.stop(nowTs + d + 0.15);
+  }else if(type==='warning'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.type='sine';o.frequency.setValueAtTime(440,t);
+    g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.01,t+.25);
+    o.start(t);o.stop(t+.25);
+  }else if(type==='new'){
+    [0,.2].forEach(d=>{
+      const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+      o.connect(g);g.connect(audioCtx.destination);
+      o.type='triangle';o.frequency.setValueAtTime(1100,t+d);
+      g.gain.setValueAtTime(.3,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.15);
+      o.start(t+d);o.stop(t+d+.15);
     });
-  } else if (type === 'taken') {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.connect(gain); gain.connect(audioCtx.destination);
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(600, nowTs);
-    osc.frequency.linearRampToValueAtTime(950, nowTs + 0.3);
-    gain.gain.setValueAtTime(0.3, nowTs);
-    gain.gain.exponentialRampToValueAtTime(0.01, nowTs + 0.3);
-    osc.start(nowTs); osc.stop(nowTs + 0.3);
+  }else if(type==='taken'){
+    const o=audioCtx.createOscillator(),g=audioCtx.createGain();
+    o.connect(g);g.connect(audioCtx.destination);
+    o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(950,t+.3);
+    g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.01,t+.3);
+    o.start(t);o.stop(t+.3);
   }
 }
-document.addEventListener('click', function askNotify() {
-  if (notifyPermissionAsked) return;
-  notifyPermissionAsked = true;
+document.addEventListener('click',function askNotify(){
+  if(notifyPermissionAsked)return;
+  notifyPermissionAsked=true;
   initAudio();
-  if ('Notification' in window && Notification.permission === 'default') {
-    const overlay = document.createElement('div');
-    overlay.className = 'modal-overlay'; overlay.id = 'notifyPreModal';
-    overlay.innerHTML = `
+  if('Notification' in window&&Notification.permission==='default'){
+    const overlay=document.createElement('div');
+    overlay.className='modal-overlay';overlay.id='notifyPreModal';
+    overlay.innerHTML=`
       <div class="modal-box">
         <h3>🔔 Включить уведомления</h3>
         <p>Чтобы не пропускать заявки и важные события, разрешите уведомления.</p>
@@ -691,40 +557,34 @@ document.addEventListener('click', function askNotify() {
         <button class="modal-cancel" id="notifyNo">Позже</button>
       </div>`;
     document.body.appendChild(overlay);
-    document.getElementById('notifyYes').onclick = async () => {
+    document.getElementById('notifyYes').onclick=async()=>{
       document.getElementById('notifyPreModal')?.remove();
-      try { await Notification.requestPermission(); } catch(e) {}
+      try{await Notification.requestPermission();}catch(e){}
     };
-    document.getElementById('notifyNo').onclick = () => {
+    document.getElementById('notifyNo').onclick=()=>{
       document.getElementById('notifyPreModal')?.remove();
     };
   }
-  document.removeEventListener('click', askNotify);
-}, { once: true });
-async function showNotification(title, body) {
-  if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') { try { await Notification.requestPermission(); } catch(e) {} }
-  if (Notification.permission === 'granted') {
-    try { new Notification(title, { body, tag: 'payout-' + Date.now() }); } catch(e) {}
-  }
-}
-function showToast(msg, type = '') {
-  const el = document.createElement('div');
-  el.className = 'toast ' + type;
-  el.textContent = msg;
+  document.removeEventListener('click',askNotify);
+},{once:true});
+
+function showToast(msg,type=''){
+  const el=document.createElement('div');
+  el.className='toast '+type;
+  el.textContent=msg;
   document.body.appendChild(el);
-  setTimeout(() => el.remove(), 3000);
+  setTimeout(()=>el.remove(),3000);
 }
 
-function openLogin() {
-  if (role !== 'guest') {
-    if (confirm('Выйти из аккаунта?')) {
-      role = 'guest'; workerName = ''; shiftName = ''; shiftRate = 0; clientUsername = '';
-      sessionStorage.removeItem('role'); sessionStorage.removeItem('workerName');
-      sessionStorage.removeItem('shiftName'); sessionStorage.removeItem('shiftRate');
+function openLogin(){
+  if(role!=='guest'){
+    if(confirm('Выйти из аккаунта?')){
+      role='guest';workerName='';shiftName='';shiftRate=0;clientUsername='';
+      sessionStorage.removeItem('role');sessionStorage.removeItem('workerName');
+      sessionStorage.removeItem('shiftName');sessionStorage.removeItem('shiftRate');
       sessionStorage.removeItem('clientUsername');
-      currentTab = 'available';
-      updateModeUI(); render();
+      currentTab='available';
+      updateModeUI();render();
       showToast('👋 Вы вышли');
     }
     return;
@@ -732,10 +592,10 @@ function openLogin() {
   showLoginChoice();
 }
 
-function showLoginChoice() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+function showLoginChoice(){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>🔐 Вход в систему</h3>
       <p>Выбери, кто ты</p>
@@ -748,12 +608,12 @@ function showLoginChoice() {
   document.body.appendChild(overlay);
 }
 
-function selectClientType() { closeLogin(); showClientUsernameInput(); }
+function selectClientType(){closeLogin();showClientUsernameInput();}
 
-function showClientUsernameInput() {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+function showClientUsernameInput(){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box heart">
       <h3>❤️ Вход для клиента</h3>
       <p>Введи свой <b>@username</b> из Telegram</p>
@@ -767,80 +627,70 @@ function showClientUsernameInput() {
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-
-  const input = document.getElementById('unameInput');
-  const dropdown = document.getElementById('unameDropdown');
+  const input=document.getElementById('unameInput');
+  const dropdown=document.getElementById('unameDropdown');
   input.focus();
-
-  input.addEventListener('input', () => {
-    let v = input.value;
-    if (v.length > 0 && v[0] !== '@') { input.value = '@' + v.replace(/@/g, ''); }
-    const q = input.value.trim().toLowerCase().replace(/^@/, '');
-    if (!q) { dropdown.classList.remove('show'); return; }
-
-    const matches = allClients
-      .filter(c => c.username && c.username.toLowerCase().replace(/^@/, '').startsWith(q))
-      .slice(0, 20);
-
-    if (matches.length === 0) {
-      const clean = '@' + q.replace(/[^a-z0-9_]/gi, '');
-      dropdown.innerHTML = `<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+  input.addEventListener('input',()=>{
+    let v=input.value;
+    if(v.length>0&&v[0]!=='@'){input.value='@'+v.replace(/@/g,'');}
+    const q=input.value.trim().toLowerCase().replace(/^@/,'');
+    if(!q){dropdown.classList.remove('show');return;}
+    const matches=allClients.filter(c=>c.username&&c.username.toLowerCase().replace(/^@/,'').startsWith(q)).slice(0,20);
+    if(matches.length===0){
+      const clean='@'+q.replace(/[^a-z0-9_]/gi,'');
+      dropdown.innerHTML=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
       dropdown.classList.add('show');
       return;
     }
-
-    let html = matches.map(c => {
-      const uname = c.username;
-      const prefix = uname.slice(0, q.length + 1);
-      const rest = uname.slice(q.length + 1);
+    let html=matches.map(c=>{
+      const uname=c.username;
+      const prefix=uname.slice(0,q.length+1);
+      const rest=uname.slice(q.length+1);
       return `<div class="uname-item" onclick="proceedClientUsername('${esc(uname)}')">
         <span class="heart-inline">❤️</span>
         <span><span class="highlight-prefix">${esc(prefix)}</span>${esc(rest)}</span>
       </div>`;
     }).join('');
-
-    const exactMatch = matches.some(c => c.username.toLowerCase() === input.value.toLowerCase());
-    if (!exactMatch) {
-      const clean = '@' + q.replace(/[^a-z0-9_]/gi, '');
-      html += `<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+    const exactMatch=matches.some(c=>c.username.toLowerCase()===input.value.toLowerCase());
+    if(!exactMatch){
+      const clean='@'+q.replace(/[^a-z0-9_]/gi,'');
+      html+=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
     }
-    dropdown.innerHTML = html;
+    dropdown.innerHTML=html;
     dropdown.classList.add('show');
   });
-
-  input.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const v = input.value.trim();
-      if (v && v.length > 1) proceedClientUsername(v);
-    } else if (e.key === 'Escape') { dropdown.classList.remove('show'); }
+  input.addEventListener('keydown',e=>{
+    if(e.key==='Enter'){
+      const v=input.value.trim();
+      if(v&&v.length>1)proceedClientUsername(v);
+    }else if(e.key==='Escape'){dropdown.classList.remove('show');}
   });
-
-  setTimeout(() => {
-    document.addEventListener('click', function hideDD(e) {
-      if (!overlay.contains(e.target)) {
+  setTimeout(()=>{
+    document.addEventListener('click',function hideDD(e){
+      if(!overlay.contains(e.target)){
         dropdown.classList.remove('show');
-        document.removeEventListener('click', hideDD);
+        document.removeEventListener('click',hideDD);
       }
     });
-  }, 100);
+  },100);
 }
 
-async function proceedClientUsername(username) {
-  username = username.trim();
-  if (username[0] !== '@') username = '@' + username;
-  username = '@' + username.slice(1).replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
-  if (username.length < 3) { alert('❌ Слишком короткий username'); return; }
-  if (username.length > 33) { alert('❌ Слишком длинный username'); return; }
-  const existing = allClients.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
+async function proceedClientUsername(username){
+  username=username.trim();
+  if(username[0]!=='@')username='@'+username;
+  username='@'+username.slice(1).replace(/[^a-zA-Z0-9_]/g,'').toLowerCase();
+  if(username.length<3){alert('❌ Слишком короткий username');return;}
+  if(username.length>33){alert('❌ Слишком длинный username');return;}
+  const existing=allClients.find(c=>c.username&&c.username.toLowerCase()===username.toLowerCase());
   closeLogin();
-  if (existing) showClientPinInput(existing.username);
+  if(existing)showClientPinInput(existing.username);
   else showClientRegister(username);
 }
 
-function showClientPinInput(username) {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+function showClientPinInput(username){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box heart">
       <h3>❤️ ${esc(username)}</h3>
       <p>Введи свой PIN-код</p>
@@ -852,30 +702,30 @@ function showClientPinInput(username) {
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-  setTimeout(() => {
-    const f = document.getElementById('pinField');
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
     f?.focus();
-    f?.addEventListener('keydown', e => { if (e.key === 'Enter') verifyClientPin(username); });
-  }, 50);
+    f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyClientPin(username);});
+  },50);
 }
 
-async function verifyClientPin(username) {
-  const pin = document.getElementById('pinField')?.value;
-  if (!pin) return;
-  const hashed = await hashPin(pin);
-  const existing = allClients.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
-  if (!existing || existing.pinHash !== hashed) {
-    document.getElementById('pinError').textContent = '❌ Неверный PIN';
-    document.getElementById('pinField').value = '';
+async function verifyClientPin(username){
+  const pin=document.getElementById('pinField')?.value;
+  if(!pin)return;
+  const hashed=await hashPin(pin);
+  const existing=allClients.find(c=>c.username&&c.username.toLowerCase()===username.toLowerCase());
+  if(!existing||existing.pinHash!==hashed){
+    document.getElementById('pinError').textContent='❌ Неверный PIN';
+    document.getElementById('pinField').value='';
     return;
   }
   loginClient(existing.username);
 }
 
-function showClientRegister(username) {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+function showClientRegister(username){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box heart">
       <h3>❤️ Регистрация</h3>
       <p>Новый клиент: <b>${esc(username)}</b></p>
@@ -891,61 +741,61 @@ function showClientRegister(username) {
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-  setTimeout(() => {
+  setTimeout(()=>{
     document.getElementById('pinField')?.focus();
-    document.getElementById('pinField2')?.addEventListener('keydown', e => { if (e.key === 'Enter') registerClient(username); });
-  }, 50);
+    document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerClient(username);});
+  },50);
 }
 
-async function registerClient(username) {
-  const pin1 = document.getElementById('pinField')?.value;
-  const pin2 = document.getElementById('pinField2')?.value;
-  const err = document.getElementById('pinError');
-  if (!pin1 || pin1.length < 4) { err.textContent = '❌ PIN минимум 4 цифры'; return; }
-  if (pin1 !== pin2) { err.textContent = '❌ PIN не совпадает'; return; }
-  if (!/^\d+$/.test(pin1)) { err.textContent = '❌ Только цифры'; return; }
-  try {
-    const pinHash = await hashPin(pin1);
-    await addDoc(clientsRef, { username: username, pinHash, createdAt: now() });
-    showToast('❤️ Добро пожаловать, ' + username + '!', 'heart');
+async function registerClient(username){
+  const pin1=document.getElementById('pinField')?.value;
+  const pin2=document.getElementById('pinField2')?.value;
+  const err=document.getElementById('pinError');
+  if(!pin1||pin1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}
+  if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}
+  if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}
+  try{
+    const pinHash=await hashPin(pin1);
+    await addDoc(clientsRef,{username:username,pinHash,createdAt:now()});
+    showToast('❤️ Добро пожаловать, '+username+'!','heart');
     loginClient(username);
-  } catch(e) { err.textContent = '❌ Ошибка: ' + e.message; }
+  }catch(e){err.textContent='❌ Ошибка: '+e.message;}
 }
 
-function loginClient(username) {
-  role = 'client';
-  clientUsername = username;
-  sessionStorage.setItem('role', 'client');
-  sessionStorage.setItem('clientUsername', username);
+function loginClient(username){
+  role='client';
+  clientUsername=username;
+  sessionStorage.setItem('role','client');
+  sessionStorage.setItem('clientUsername',username);
   closeLogin();
-  currentTab = 'available';
-  updateModeUI(); render();
-  showToast('❤️ Привет, ' + username + '!', 'heart');
+  currentTab='available';
+  updateModeUI();render();
+  showToast('❤️ Привет, '+username+'!','heart');
 }
 
-function selectBT7Type() {
+function selectBT7Type(){
   closeLogin();
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>🛠 BT7</h3>
       <p>Кто работает?</p>
       <div class="worker-btns">
-        ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
+        ${Object.keys(WORKERS).map(w=>`<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
         <button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button>
       </div>
       <button class="modal-cancel" onclick="closeLogin()">Назад</button>
     </div>`;
   document.body.appendChild(overlay);
 }
-function selectWorker(name) { closeLogin(); showLoginPin(name, 'worker'); }
-function selectAdmin() { closeLogin(); showLoginPin('Админ', 'admin'); }
+function selectWorker(name){closeLogin();showLoginPin(name,'worker');}
+function selectAdmin(){closeLogin();showLoginPin('Админ','admin');}
 
-function showLoginPin(displayName, roleType) {
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
-  overlay.innerHTML = `
+function showLoginPin(displayName,roleType){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>🔐 Вход: ${displayName}</h3>
       <p>Введи PIN-код</p>
@@ -957,53 +807,53 @@ function showLoginPin(displayName, roleType) {
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-  setTimeout(() => {
-    const f = document.getElementById('pinField');
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
     f?.focus();
-    f?.addEventListener('keydown', e => { if (e.key === 'Enter') submitPin(roleType, displayName); });
-  }, 50);
+    f?.addEventListener('keydown',e=>{if(e.key==='Enter')submitPin(roleType,displayName);});
+  },50);
 }
 
-function submitPin(roleType, displayName) {
-  const pin = document.getElementById('pinField')?.value;
-  if (!pin) return;
-  let correct = (roleType === 'admin') ? (pin === ADMIN_PIN) : (WORKERS[displayName] === pin);
-  if (!correct) {
-    document.getElementById('pinError').textContent = '❌ Неверный PIN';
-    document.getElementById('pinField').value = '';
+function submitPin(roleType,displayName){
+  const pin=document.getElementById('pinField')?.value;
+  if(!pin)return;
+  let correct=(roleType==='admin')?(pin===ADMIN_PIN):(WORKERS[displayName]===pin);
+  if(!correct){
+    document.getElementById('pinError').textContent='❌ Неверный PIN';
+    document.getElementById('pinField').value='';
     return;
   }
-  role = roleType;
-  workerName = (roleType === 'worker') ? displayName : 'Админ';
-  sessionStorage.setItem('role', role);
-  sessionStorage.setItem('workerName', workerName);
+  role=roleType;
+  workerName=(roleType==='worker')?displayName:'Админ';
+  sessionStorage.setItem('role',role);
+  sessionStorage.setItem('workerName',workerName);
   closeLogin();
-  if (role === 'admin') {
-    currentTab = 'done';
-    updateModeUI(); render();
+  if(role==='admin'){
+    currentTab='done';
+    updateModeUI();render();
     showToast('👑 Админ: просмотр архива');
     return;
   }
-  if (!shiftName) askShiftModal();
-  else if (!shiftRate) askRateModal();
-  else {
-    updateModeUI(); render();
-    const r = document.getElementById('rate');
-    if (r) r.value = shiftRate;
-    showToast('✅ ' + workerName);
+  if(!shiftName)askShiftModal();
+  else if(!shiftRate)askRateModal();
+  else{
+    updateModeUI();render();
+    const r=document.getElementById('rate');
+    if(r)r.value=shiftRate;
+    showToast('✅ '+workerName);
   }
 }
 
-function askShiftModal() {
-  tempShiftChoice = shiftName || null;
+function askShiftModal(){
+  tempShiftChoice=shiftName||null;
   renderShiftModal();
 }
-function renderShiftModal() {
-  const existing = document.getElementById('shiftModal');
-  if (existing) existing.remove();
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'shiftModal';
-  overlay.innerHTML = `
+function renderShiftModal(){
+  const existing=document.getElementById('shiftModal');
+  if(existing)existing.remove();
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='shiftModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>⏰ Выбери смену</h3>
       <p>Смена определит группировку в архиве</p>
@@ -1019,42 +869,40 @@ function renderShiftModal() {
   document.body.appendChild(overlay);
   updateShiftButtonHighlight();
 }
-function pickShift(s) { tempShiftChoice = s; updateShiftButtonHighlight(); }
-function updateShiftButtonHighlight() {
-  const overlay = document.getElementById('shiftModal');
-  if (!overlay) return;
-  const btns = overlay.querySelectorAll('.shift-choice button');
-  btns.forEach(b => b.classList.remove('selected'));
-  if (tempShiftChoice === 'Утро') btns[0].classList.add('selected');
-  else if (tempShiftChoice === 'Вечер') btns[1].classList.add('selected');
-  else if (tempShiftChoice === 'Ночь') btns[2].classList.add('selected');
-  const info = document.getElementById('shiftSelected');
-  if (info) {
-    info.innerHTML = tempShiftChoice
-      ? '✅ Выбрано: <b style="color:var(--accent-2)">' + tempShiftChoice + '</b> (' + SHIFT_TIMES[tempShiftChoice] + ')'
-      : 'Нажми на смену выше';
+function pickShift(s){tempShiftChoice=s;updateShiftButtonHighlight();}
+function updateShiftButtonHighlight(){
+  const overlay=document.getElementById('shiftModal');
+  if(!overlay)return;
+  const btns=overlay.querySelectorAll('.shift-choice button');
+  btns.forEach(b=>b.classList.remove('selected'));
+  if(tempShiftChoice==='Утро')btns[0].classList.add('selected');
+  else if(tempShiftChoice==='Вечер')btns[1].classList.add('selected');
+  else if(tempShiftChoice==='Ночь')btns[2].classList.add('selected');
+  const info=document.getElementById('shiftSelected');
+  if(info){
+    info.innerHTML=tempShiftChoice?'✅ Выбрано: <b style="color:var(--accent-2)">'+tempShiftChoice+'</b> ('+SHIFT_TIMES[tempShiftChoice]+')':'Нажми на смену выше';
   }
 }
-function cancelShift() {
+function cancelShift(){
   document.getElementById('shiftModal')?.remove();
-  if (!shiftName) showToast('❌ Смена не выбрана', 'err');
+  if(!shiftName)showToast('❌ Смена не выбрана','err');
 }
-function confirmShift() {
-  if (!tempShiftChoice) { showToast('❌ Выбери смену', 'err'); return; }
-  shiftName = tempShiftChoice;
-  sessionStorage.setItem('shiftName', shiftName);
+function confirmShift(){
+  if(!tempShiftChoice){showToast('❌ Выбери смену','err');return;}
+  shiftName=tempShiftChoice;
+  sessionStorage.setItem('shiftName',shiftName);
   document.getElementById('shiftModal')?.remove();
-  if (!shiftRate) askRateModal();
-  else { updateModeUI(); render(); showToast('✅ Смена: ' + shiftName); }
+  if(!shiftRate)askRateModal();
+  else{updateModeUI();render();showToast('✅ Смена: '+shiftName);}
 }
 
-function askRateModal() {
-  tempRate = shiftRate ? String(shiftRate) : '';
-  const existing = document.getElementById('rateModal');
-  if (existing) existing.remove();
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'rateModal';
-  overlay.innerHTML = `
+function askRateModal(){
+  tempRate=shiftRate?String(shiftRate):'';
+  const existing=document.getElementById('rateModal');
+  if(existing)existing.remove();
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='rateModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>💱 Курс USDT</h3>
       <p>Курс на смену. Можно изменить в каждой заявке.</p>
@@ -1063,302 +911,290 @@ function askRateModal() {
       </div>
       <div class="rate-hint">Сколько ₽ за 1 USDT</div>
       <button class="modal-submit" style="margin-top:10px;" onclick="confirmRate()">Сохранить</button>
-      <button class="modal-cancel" onclick="cancelRate()">${shiftRate ? 'Отмена' : 'Пропустить'}</button>
+      <button class="modal-cancel" onclick="cancelRate()">${shiftRate?'Отмена':'Пропустить'}</button>
     </div>`;
   document.body.appendChild(overlay);
-  setTimeout(() => {
-    const inp = document.getElementById('rateInput');
-    inp?.focus(); inp?.select();
-    inp?.addEventListener('keydown', e => { if (e.key === 'Enter') confirmRate(); });
-  }, 50);
+  setTimeout(()=>{
+    const inp=document.getElementById('rateInput');
+    inp?.focus();inp?.select();
+    inp?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRate();});
+  },50);
 }
-function cancelRate() {
+function cancelRate(){
   document.getElementById('rateModal')?.remove();
-  updateModeUI(); render();
+  updateModeUI();render();
 }
-function confirmRate() {
-  const v = parseFloat(document.getElementById('rateInput')?.value);
-  if (!v || v <= 0) { showToast('❌ Введи курс > 0', 'err'); return; }
-  shiftRate = v;
-  sessionStorage.setItem('shiftRate', shiftRate);
+function confirmRate(){
+  const v=parseFloat(document.getElementById('rateInput')?.value);
+  if(!v||v<=0){showToast('❌ Введи курс > 0','err');return;}
+  shiftRate=v;
+  sessionStorage.setItem('shiftRate',shiftRate);
   document.getElementById('rateModal')?.remove();
-  updateModeUI(); render();
-  const r = document.getElementById('rate');
-  if (r) r.value = shiftRate;
-  showToast('💱 Курс: ' + shiftRate + ' ₽/USDT');
+  updateModeUI();render();
+  const r=document.getElementById('rate');
+  if(r)r.value=shiftRate;
+  showToast('💱 Курс: '+shiftRate+' ₽/USDT');
 }
 
-function closeLogin() { document.getElementById('loginModal')?.remove(); }
+function closeLogin(){document.getElementById('loginModal')?.remove();}
 
-function openSettings() {
-  if (role === 'admin') { showToast('👑 Админ: настройки недоступны'); return; }
-  if (role === 'client') {
-    if (confirm('Выйти из аккаунта ❤️ ' + clientUsername + '?')) {
-      role = 'guest'; clientUsername = '';
-      sessionStorage.removeItem('role'); sessionStorage.removeItem('clientUsername');
-      currentTab = 'available';
-      updateModeUI(); render();
+function openSettings(){
+  if(role==='admin'){showToast('👑 Админ: настройки недоступны');return;}
+  if(role==='client'){
+    if(confirm('Выйти из аккаунта ❤️ '+clientUsername+'?')){
+      role='guest';clientUsername='';
+      sessionStorage.removeItem('role');sessionStorage.removeItem('clientUsername');
+      currentTab='available';
+      updateModeUI();render();
       showToast('👋 Вы вышли');
     }
     return;
   }
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'settingsModal';
-  overlay.innerHTML = `
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='settingsModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>⚙️ Настройки</h3>
-      <p>🛠 ${esc(workerName)} • ${esc(shiftName || '—')} • 💱 ${shiftRate || '—'}</p>
-      <p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset >= 0 ? '+' : ''}${Math.round(clockOffset / 1000)}с</b> ${clockSynced ? '✅' : '⚠️ (не синхронизировано)'}</p>
+      <p>🛠 ${esc(workerName)} • ${esc(shiftName||'—')} • 💱 ${shiftRate||'—'}</p>
+      <p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p>
       <div class="choice-btns">
         <button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button>
         <button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button>
         <button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button>
-        <button onclick="toggleSound()">${soundEnabled ? '🔊 Выключить звук' : '🔇 Включить звук'}</button>
+        <button onclick="toggleSound()">${soundEnabled?'🔊 Выключить звук':'🔇 Включить звук'}</button>
         <button onclick="closeSettings(); showStats()">📊 Статистика за смену</button>
       </div>
       <button class="modal-cancel" onclick="closeSettings()">Закрыть</button>
     </div>`;
   document.body.appendChild(overlay);
 }
-function closeSettings() { document.getElementById('settingsModal')?.remove(); }
-function toggleSound() {
-  soundEnabled = !soundEnabled;
-  localStorage.setItem('soundEnabled', soundEnabled ? '1' : '0');
-  showToast(soundEnabled ? '🔊 ВКЛ' : '🔇 ВЫКЛ');
+function closeSettings(){document.getElementById('settingsModal')?.remove();}
+function toggleSound(){
+  soundEnabled=!soundEnabled;
+  localStorage.setItem('soundEnabled',soundEnabled?'1':'0');
+  showToast(soundEnabled?'🔊 ВКЛ':'🔇 ВЫКЛ');
   closeSettings();
-  if (role === 'worker') openSettings();
+  if(role==='worker')openSettings();
 }
-function showStats() {
-  const todayDate = new Date(now());
-  const todayStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
-  let myPayouts = payouts.filter(p => p.createdAt >= todayStart);
-  myPayouts = myPayouts.filter(p => p.createdBy === workerName);
-  const done = myPayouts.filter(p => p.status === 'done');
-  const active = myPayouts.filter(p => p.status === 'active');
-  const cancelled = myPayouts.filter(p => p.status === 'cancelled');
-  const totalSum = done.reduce((s, p) => s + p.totalSum, 0);
-  alert(
-    `📊 Статистика за сегодня (${todayDate.toLocaleDateString('ru-RU')})\n` +
-    `👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName || '—'}\n💱 Курс: ${shiftRate || '—'} ₽/USDT\n\n` +
-    `✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n❌ Отменено: ${cancelled.length}\n` +
-    `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`
-  );
+function showStats(){
+  const todayDate=new Date(now());
+  const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
+  let myPayouts=payouts.filter(p=>p.createdAt>=todayStart);
+  myPayouts=myPayouts.filter(p=>p.createdBy===workerName);
+  const done=myPayouts.filter(p=>p.status==='done');
+  const active=myPayouts.filter(p=>p.status==='active');
+  const cancelled=myPayouts.filter(p=>p.status==='cancelled');
+  const totalSum=done.reduce((s,p)=>s+p.totalSum,0);
+  alert(`📊 Статистика за сегодня (${todayDate.toLocaleDateString('ru-RU')})\n👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName||'—'}\n💱 Курс: ${shiftRate||'—'} ₽/USDT\n\n✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n❌ Отменено: ${cancelled.length}\n💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`);
 }
 
-function updateModeUI() {
-  const btn = document.getElementById('modeBtn');
-  const settingsBtn = document.getElementById('settingsBtn');
-  const form = document.getElementById('adminForm');
-  const adminInfo = document.getElementById('adminInfo');
-  const badge = document.getElementById('workerBadge');
-  const rateBadge = document.getElementById('rateBadge');
-  const meInfo = document.getElementById('meInfo');
-  const tabAvail = document.getElementById('tabAvailable');
-  const tabAct = document.getElementById('tabActive');
-  const tabDone = document.getElementById('tabDone');
+function updateModeUI(){
+  const btn=document.getElementById('modeBtn');
+  const settingsBtn=document.getElementById('settingsBtn');
+  const form=document.getElementById('adminForm');
+  const adminInfo=document.getElementById('adminInfo');
+  const badge=document.getElementById('workerBadge');
+  const rateBadge=document.getElementById('rateBadge');
+  const meInfo=document.getElementById('meInfo');
+  const tabAvail=document.getElementById('tabAvailable');
+  const tabAct=document.getElementById('tabActive');
+  const tabDone=document.getElementById('tabDone');
 
-  tabAvail.classList.remove('hidden', 'active');
-  tabAct.classList.remove('hidden', 'active');
-  tabDone.classList.remove('hidden', 'active');
+  tabAvail.classList.remove('hidden','active');
+  tabAct.classList.remove('hidden','active');
+  tabDone.classList.remove('hidden','active');
 
-  if (role === 'admin') {
-    btn.textContent = '👑 Админ (просмотр)'; btn.className = 'admin';
-    form.style.display = 'none'; settingsBtn.style.display = 'none';
-    adminInfo.style.display = 'block';
-    badge.textContent = '👑 Админ'; badge.className = 'badge admin';
-    rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '👑 Просмотр архива всех воркеров';
-    tabAvail.classList.add('hidden'); tabAct.classList.add('hidden');
+  if(role==='admin'){
+    btn.textContent='👑 Админ (просмотр)';btn.className='admin';
+    form.style.display='none';settingsBtn.style.display='none';
+    adminInfo.style.display='block';
+    badge.textContent='👑 Админ';badge.className='badge admin';
+    rateBadge.textContent='';rateBadge.className='badge';
+    meInfo.textContent='👑 Просмотр архива всех воркеров';
+    tabAvail.classList.add('hidden');tabAct.classList.add('hidden');
     tabDone.classList.add('active');
-  } else if (role === 'worker') {
-    btn.textContent = '🛠 ' + workerName; btn.className = 'worker';
-    form.style.display = 'block'; settingsBtn.style.display = 'block';
-    adminInfo.style.display = 'none';
-    badge.textContent = '🛠 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
-    meInfo.textContent = '🛠 ' + workerName + ' • ' + (shiftName || 'смена не выбрана');
-    if (currentTab === 'available') tabAvail.classList.add('active');
-    else if (currentTab === 'active') tabAct.classList.add('active');
+  }else if(role==='worker'){
+    btn.textContent='🛠 '+workerName;btn.className='worker';
+    form.style.display='block';settingsBtn.style.display='block';
+    adminInfo.style.display='none';
+    badge.textContent='🛠 '+workerName+' • '+(shiftName||'?');badge.className='badge worker';
+    meInfo.textContent='🛠 '+workerName+' • '+(shiftName||'смена не выбрана');
+    if(currentTab==='available')tabAvail.classList.add('active');
+    else if(currentTab==='active')tabAct.classList.add('active');
     else tabDone.classList.add('active');
-    if (shiftRate) { rateBadge.textContent = '💱 ' + shiftRate + ' ₽'; rateBadge.className = 'badge rate'; }
-    else { rateBadge.textContent = ''; rateBadge.className = 'badge'; }
-  } else if (role === 'client') {
-    btn.textContent = '❤️ ' + clientUsername; btn.className = 'client';
-    form.style.display = 'none'; settingsBtn.style.display = 'block';
-    adminInfo.style.display = 'none';
-    badge.textContent = '❤️ ' + clientUsername; badge.className = 'badge client';
-    rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '❤️ ' + clientUsername + ' — твои заявки с сердечком';
-    if (currentTab === 'available') tabAvail.classList.add('active');
-    else if (currentTab === 'active') tabAct.classList.add('active');
+    if(shiftRate){rateBadge.textContent='💱 '+shiftRate+' ₽';rateBadge.className='badge rate';}
+    else{rateBadge.textContent='';rateBadge.className='badge';}
+  }else if(role==='client'){
+    btn.textContent='❤️ '+clientUsername;btn.className='client';
+    form.style.display='none';settingsBtn.style.display='block';
+    adminInfo.style.display='none';
+    badge.textContent='❤️ '+clientUsername;badge.className='badge client';
+    rateBadge.textContent='';rateBadge.className='badge';
+    meInfo.textContent='❤️ '+clientUsername+' — твои заявки с сердечком';
+    if(currentTab==='available')tabAvail.classList.add('active');
+    else if(currentTab==='active')tabAct.classList.add('active');
     else tabDone.classList.add('active');
-  } else {
-    btn.textContent = '🔒 Войти'; btn.className = '';
-    form.style.display = 'none'; settingsBtn.style.display = 'none';
-    adminInfo.style.display = 'none';
-    badge.textContent = ''; badge.className = 'badge';
-    rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '👤 Режим гостя — войди для работы';
-    if (currentTab === 'available') tabAvail.classList.add('active');
-    else if (currentTab === 'active') tabAct.classList.add('active');
+  }else{
+    btn.textContent='🔒 Войти';btn.className='';
+    form.style.display='none';settingsBtn.style.display='none';
+    adminInfo.style.display='none';
+    badge.textContent='';badge.className='badge';
+    rateBadge.textContent='';rateBadge.className='badge';
+    meInfo.textContent='👤 Режим гостя — войди для работы';
+    if(currentTab==='available')tabAvail.classList.add('active');
+    else if(currentTab==='active')tabAct.classList.add('active');
     else tabDone.classList.add('active');
   }
 }
 
-function setTab(tab) {
-  if (role === 'admin' && tab !== 'done') return;
-  if (role === 'guest' && tab !== 'available') return;
-  currentTab = tab;
-  document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
-  const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
-  if (el) el.classList.add('active');
+function setTab(tab){
+  if(role==='admin'&&tab!=='done')return;
+  if(role==='guest'&&tab!=='available')return;
+  currentTab=tab;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(el)el.classList.add('active');
   render();
 }
 
-function filterPayouts(list, tab) {
-  if (role === 'admin') return tab === 'done' ? list : [];
-  if (role === 'worker') {
-    if (tab === 'available') return list;
-    if (tab === 'active') return list.filter(p => p.createdBy === workerName || (p.client && p.client === workerName));
-    if (tab === 'done') return list.filter(p => p.createdBy === workerName);
+function filterPayouts(list,tab){
+  if(role==='admin')return tab==='done'?list:[];
+  if(role==='worker'){
+    if(tab==='available')return list;
+    if(tab==='active')return list.filter(p=>p.createdBy===workerName||(p.client&&p.client===workerName));
+    if(tab==='done')return list.filter(p=>p.createdBy===workerName);
   }
-  if (role === 'client') {
-    if (tab === 'available') return list;
-    if (tab === 'active') return list.filter(p => p.client === clientUsername);
-    if (tab === 'done') return list.filter(p => p.client === clientUsername);
+  if(role==='client'){
+    if(tab==='available')return list;
+    if(tab==='active')return list.filter(p=>p.client===clientUsername);
+    if(tab==='done')return list.filter(p=>p.client===clientUsername);
   }
-  if (tab === 'available') return list;
+  if(tab==='available')return list;
   return [];
 }
 
-async function addPayout() {
-  if (role !== 'worker') { alert('❌ Только воркер может создавать заявки'); return; }
-  const phone = document.getElementById('phone').value.trim();
-  const cardNumber = document.getElementById('cardNumber').value.trim();
-  const bank = document.getElementById('bank').value.trim();
-  const totalSum = parseFloat(document.getElementById('totalSum').value);
-  const totalChecks = parseInt(document.getElementById('totalChecks').value);
-  const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
-  const rate = parseFloat(document.getElementById('rate').value) || shiftRate || 0;
+async function addPayout(){
+  if(role!=='worker'){alert('❌ Только воркер может создавать заявки');return;}
+  const phone=document.getElementById('phone').value.trim();
+  const cardNumber=document.getElementById('cardNumber').value.trim();
+  const bank=document.getElementById('bank').value.trim();
+  const totalSum=parseFloat(document.getElementById('totalSum').value);
+  const totalChecks=parseInt(document.getElementById('totalChecks').value);
+  const timerMin=parseInt(document.getElementById('timerMin').value)||60;
+  const rate=parseFloat(document.getElementById('rate').value)||shiftRate||0;
 
-  const errors = [];
-  if (!phone && !cardNumber) errors.push('📱 Заполни телефон ИЛИ 💳 карту (хотя бы одно)');
-  if (!totalSum || totalSum <= 0) errors.push('💰 Укажи сумму');
-  if (!totalChecks || totalChecks <= 0) errors.push('📄 Укажи количество чеков');
-  if (rate <= 0) errors.push('💱 Укажи курс (или задай в настройках смены)');
-  if (errors.length > 0) { alert('⚠️ Заполни поля:\n\n' + errors.join('\n')); return; }
+  const errors=[];
+  if(!phone&&!cardNumber)errors.push('📱 Заполни телефон ИЛИ 💳 карту');
+  if(!totalSum||totalSum<=0)errors.push('💰 Укажи сумму');
+  if(!totalChecks||totalChecks<=0)errors.push('📄 Укажи количество чеков');
+  if(rate<=0)errors.push('💱 Укажи курс');
+  if(errors.length>0){alert('⚠️ Заполни поля:\n\n'+errors.join('\n'));return;}
 
-  const todayDate = new Date(now());
-  const todayStart = new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate()).getTime();
-  const normCard = (s) => (s || '').replace(/\s+/g, '');
-  const normPhone = (s) => (s || '').replace(/\D/g, '');
-  const cardClean = normCard(cardNumber);
-  const phoneClean = normPhone(phone);
-
-  const sameCardPayouts = cardClean ? payouts.filter(x => x.createdAt >= todayStart && normCard(x.cardNumber) === cardClean) : [];
-  const samePhonePayouts = phoneClean ? payouts.filter(x => x.createdAt >= todayStart && normPhone(x.phone) === phoneClean) : [];
-
-  const lines = [];
-  if (sameCardPayouts.length > 0) {
-    lines.push('💳 КАРТА уже выдавалась (' + sameCardPayouts.length + ' раз):');
-    sameCardPayouts.forEach(x => {
-      const t = new Date(x.createdAt).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
-      const who = x.createdBy || '—';
-      const client = x.client ? ' • ' + x.client : ' • в пуле';
-      const status = x.status === 'done' ? ' ✅' : x.status === 'cancelled' ? ' ❌' : '';
-      lines.push(`   • ${t} • ${who}${client} • ${formatMoney(x.totalSum)}${status}`);
+  const todayDate=new Date(now());
+  const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
+  const normCard=s=>(s||'').replace(/\s+/g,'');
+  const normPhone=s=>(s||'').replace(/\D/g,'');
+  const cardClean=normCard(cardNumber);
+  const phoneClean=normPhone(phone);
+  const sameCardPayouts=cardClean?payouts.filter(x=>x.createdAt>=todayStart&&normCard(x.cardNumber)===cardClean):[];
+  const samePhonePayouts=phoneClean?payouts.filter(x=>x.createdAt>=todayStart&&normPhone(x.phone)===phoneClean):[];
+  const lines=[];
+  if(sameCardPayouts.length>0){
+    lines.push('💳 КАРТА уже выдавалась ('+sameCardPayouts.length+' раз):');
+    sameCardPayouts.forEach(x=>{
+      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+      const client=x.client?' • '+x.client:' • в пуле';
+      const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':'';
+      lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);
     });
   }
-  if (samePhonePayouts.length > 0) {
-    if (lines.length) lines.push('');
-    lines.push('📱 ТЕЛЕФОН уже выдавался (' + samePhonePayouts.length + ' раз):');
-    samePhonePayouts.forEach(x => {
-      const t = new Date(x.createdAt).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
-      const who = x.createdBy || '—';
-      const client = x.client ? ' • ' + x.client : ' • в пуле';
-      const status = x.status === 'done' ? ' ✅' : x.status === 'cancelled' ? ' ❌' : '';
-      lines.push(`   • ${t} • ${who}${client} • ${formatMoney(x.totalSum)}${status}`);
+  if(samePhonePayouts.length>0){
+    if(lines.length)lines.push('');
+    lines.push('📱 ТЕЛЕФОН уже выдавался ('+samePhonePayouts.length+' раз):');
+    samePhonePayouts.forEach(x=>{
+      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
+      const client=x.client?' • '+x.client:' • в пуле';
+      const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':'';
+      lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);
     });
   }
-  if (lines.length) {
-    const ok = confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);
-    if (!ok) return;
+  if(lines.length){
+    const ok=confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);
+    if(!ok)return;
   }
-
-  try {
-    await addDoc(payoutsRef, {
-      phone, cardNumber, bank, totalSum, totalChecks, timerMin, rate,
-      createdBy: workerName || 'Unknown', creatorRole: 'worker', shift: shiftName || '',
-      status: 'available', client: null, checks: [],
-      createdAt: now(), startedAt: null, finishedAt: null
+  try{
+    await addDoc(payoutsRef,{
+      phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,
+      createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',
+      status:'available',client:null,checks:[],
+      createdAt:now(),startedAt:null,finishedAt:null
     });
-    ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id => document.getElementById(id).value = '');
-    showToast('✅ Заявка создана (' + rate + ' ₽/USDT)');
-  } catch(e) { alert('Ошибка: ' + e.message); }
+    ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id=>document.getElementById(id).value='');
+    showToast('✅ Заявка создана ('+rate+' ₽/USDT)');
+  }catch(e){alert('Ошибка: '+e.message);}
 }
 
-async function editRate(id) {
-  if (role !== 'worker') { alert('Только воркер'); return; }
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  const v = prompt('💱 Изменить курс\n\nТекущий: ' + (p.rate || '—') + ' ₽/USDT\n\nНовый курс:', p.rate || '');
-  if (v === null) return;
-  const r = parseFloat(v);
-  if (!r || r <= 0) { alert('Курс должен быть > 0'); return; }
-  await updateDoc(doc(db, 'payouts', id), { rate: r });
-  showToast('💱 Курс: ' + r + ' ₽/USDT');
+async function editRate(id){
+  if(role!=='worker'){alert('Только воркер');return;}
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  const v=prompt('💱 Изменить курс\n\nТекущий: '+(p.rate||'—')+' ₽/USDT\n\nНовый курс:',p.rate||'');
+  if(v===null)return;
+  const r=parseFloat(v);
+  if(!r||r<=0){alert('Курс должен быть > 0');return;}
+  await updateDoc(doc(db,'payouts',id),{rate:r});
+  showToast('💱 Курс: '+r+' ₽/USDT');
 }
 
-async function takePayout(id) {
-  if (role !== 'client') { alert('❌ Только клиент'); return; }
-  const p = payouts.find(x => x.id === id);
-  if (!p || p.status !== 'available') return;
-  await updateDoc(doc(db, 'payouts', id), {
-    status: 'active', client: clientUsername, startedAt: now()
-  });
+async function takePayout(id){
+  if(role!=='client'){alert('❌ Только клиент');return;}
+  const p=payouts.find(x=>x.id===id);
+  if(!p||p.status!=='available')return;
+  await updateDoc(doc(db,'payouts',id),{status:'active',client:clientUsername,startedAt:now()});
   setTab('active');
-  showToast('❤️ Взято в работу!', 'heart');
+  showToast('❤️ Взято в работу!','heart');
 }
 
-async function uploadCheck(id, inputEl) {
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  const isOwner = (role === 'client' && p.client === clientUsername) || (role === 'worker');
-  if (!isOwner) { alert('❌ Нельзя'); return; }
-  const file = inputEl.files[0];
-  const sumEl = document.getElementById('checkSum_' + id);
-  const sum = parseFloat(sumEl.value);
-  if (!file) { alert('Выбери файл'); return; }
-  if (!sum || sum <= 0) { alert('Введи сумму чека'); return; }
-  if (file.size > 900000) { alert('Файл > 900 KB'); return; }
-  const btn = inputEl.parentElement.querySelector('label');
-  const oldText = btn.textContent;
-  btn.textContent = '⏳...';
-  try {
-    const base64 = await new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
+async function uploadCheck(id,inputEl){
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  const isOwner=(role==='client'&&p.client===clientUsername)||(role==='worker');
+  if(!isOwner){alert('❌ Нельзя');return;}
+  const file=inputEl.files[0];
+  const sumEl=document.getElementById('checkSum_'+id);
+  const sum=parseFloat(sumEl.value);
+  if(!file){alert('Выбери файл');return;}
+  if(!sum||sum<=0){alert('Введи сумму чека');return;}
+  if(file.size>900000){alert('Файл > 900 KB');return;}
+  const btn=inputEl.parentElement.querySelector('label');
+  const oldText=btn.textContent;
+  btn.textContent='⏳...';
+  try{
+    const base64=await new Promise((resolve,reject)=>{
+      const reader=new FileReader();
+      reader.onload=()=>resolve(reader.result);
+      reader.onerror=reject;
       reader.readAsDataURL(file);
     });
-    const newChecks = [...(p.checks || []), { data: base64, fileName: file.name, fileType: file.type, sum, uploadedAt: now() }];
-    const totalPaid = newChecks.reduce((s, c) => s + c.sum, 0);
-    const update = { checks: newChecks };
-    if (totalPaid >= p.totalSum) { update.status = 'done'; update.finishedAt = now(); }
-    await updateDoc(doc(db, 'payouts', id), update);
+    const newChecks=[...(p.checks||[]),{data:base64,fileName:file.name,fileType:file.type,sum,uploadedAt:now()}];
+    const totalPaid=newChecks.reduce((s,c)=>s+c.sum,0);
+    const update={checks:newChecks};
+    if(totalPaid>=p.totalSum){update.status='done';update.finishedAt=now();}
+    await updateDoc(doc(db,'payouts',id),update);
     delete checkInputs[id];
-    localStorage.setItem('checkInputs', JSON.stringify(checkInputs));
-    sumEl.value = ''; inputEl.value = '';
-    showToast('✅ Чек на ' + Math.round(sum).toLocaleString('ru-RU') + ' ₽');
-  } catch(e) { alert('Ошибка: ' + e.message); }
-  finally { btn.textContent = oldText; }
+    localStorage.setItem('checkInputs',JSON.stringify(checkInputs));
+    sumEl.value='';inputEl.value='';
+    showToast('✅ Чек на '+Math.round(sum).toLocaleString('ru-RU')+' ₽');
+  }catch(e){alert('Ошибка: '+e.message);}
+  finally{btn.textContent=oldText;}
 }
 
-function openProblemModal(id) {
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  const overlay = document.createElement('div');
-  overlay.className = 'modal-overlay'; overlay.id = 'problemModal';
-  overlay.innerHTML = `
+function openProblemModal(id){
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='problemModal';
+  overlay.innerHTML=`
     <div class="modal-box">
       <h3>⚠️ Проблема</h3>
       <p>Заявка на ${formatMoney(p.totalSum)}</p>
@@ -1370,160 +1206,529 @@ function openProblemModal(id) {
       <button class="modal-cancel" onclick="closeProblemModal()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-  document.getElementById('problemFile')?.addEventListener('change', e => {
-    const f = e.target.files[0];
-    if (f) document.getElementById('problemFileName').textContent = '✓ ' + f.name;
+  document.getElementById('problemFile')?.addEventListener('change',e=>{
+    const f=e.target.files[0];
+    if(f)document.getElementById('problemFileName').textContent='✓ '+f.name;
   });
 }
-function closeProblemModal() { document.getElementById('problemModal')?.remove(); }
+function closeProblemModal(){document.getElementById('problemModal')?.remove();}
 
-async function submitProblem(id) {
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  const text = document.getElementById('problemText').value.trim();
-  const fileEl = document.getElementById('problemFile');
-  const file = fileEl?.files[0];
-  if (!text && !file) { alert('Напиши или прикрепи'); return; }
-  const btn = document.querySelector('#problemModal .modal-submit');
-  btn.textContent = '⏳...'; btn.disabled = true;
-  try {
-    let fileData = null;
-    if (file) {
-      if (file.size > 900000) throw new Error('Файл > 900 KB');
-      fileData = await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve({ data: reader.result, name: file.name, type: file.type });
-        reader.onerror = reject;
+async function submitProblem(id){
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  const text=document.getElementById('problemText').value.trim();
+  const fileEl=document.getElementById('problemFile');
+  const file=fileEl?.files[0];
+  if(!text&&!file){alert('Напиши или прикрепи');return;}
+  const btn=document.querySelector('#problemModal .modal-submit');
+  btn.textContent='⏳...';btn.disabled=true;
+  try{
+    let fileData=null;
+    if(file){
+      if(file.size>900000)throw new Error('Файл > 900 KB');
+      fileData=await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve({data:reader.result,name:file.name,type:file.type});
+        reader.onerror=reject;
         reader.readAsDataURL(file);
       });
     }
-    const problems = [...(p.problems || []), { text, file: fileData, createdAt: now(), by: role === 'client' ? clientUsername : workerName }];
-    await updateDoc(doc(db, 'payouts', id), { problems, hasProblem: true });
+    const problems=[...(p.problems||[]),{text,file:fileData,createdAt:now(),by:role==='client'?clientUsername:workerName}];
+    await updateDoc(doc(db,'payouts',id),{problems,hasProblem:true});
     closeProblemModal();
     showToast('✅ Отправлено');
-  } catch(e) { alert('Ошибка: ' + e.message); }
-  finally { if (btn) { btn.textContent = 'Отправить'; btn.disabled = false; } }
+  }catch(e){alert('Ошибка: '+e.message);}
+  finally{if(btn){btn.textContent='Отправить';btn.disabled=false;}}
 }
 
-async function cancelByClient(id) {
-  if (role !== 'client') return;
-  const p = payouts.find(x => x.id === id);
-  if (!p || p.client !== clientUsername) return;
-  const reason = prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
-  if (reason === null) return;
-  await updateDoc(doc(db, 'payouts', id), {
-    status: 'cancelled', cancelledAt: now(), cancelledBy: clientUsername, cancelReason: reason || 'без причины'
-  });
+async function cancelByClient(id){
+  if(role!=='client')return;
+  const p=payouts.find(x=>x.id===id);
+  if(!p||p.client!==clientUsername)return;
+  const reason=prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
+  if(reason===null)return;
+  await updateDoc(doc(db,'payouts',id),{status:'cancelled',cancelledAt:now(),cancelledBy:clientUsername,cancelReason:reason||'без причины'});
   showToast('❌ Отменено');
 }
 
-async function finishPayout(id) {
-  if (role !== 'worker') return;
-  if (!confirm('Завершить заявку?')) return;
-  await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: now() });
+async function finishPayout(id){
+  if(role!=='worker')return;
+  if(!confirm('Завершить заявку?'))return;
+  await updateDoc(doc(db,'payouts',id),{status:'done',finishedAt:now()});
 }
-async function returnToAvailable(id) {
-  if (role !== 'worker') return;
-  if (!confirm('Вернуть в доступные?')) return;
-  await updateDoc(doc(db, 'payouts', id), { status: 'available', client: null, startedAt: null });
+async function returnToAvailable(id){
+  if(role!=='worker')return;
+  if(!confirm('Вернуть в доступные?'))return;
+  await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null});
 }
-async function deletePayout(id) {
-  if (role !== 'worker') return;
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  if (p.createdBy !== workerName) { alert('Только свои заявки'); return; }
-  if (!confirm('Удалить навсегда?')) return;
-  await deleteDoc(doc(db, 'payouts', id));
+async function deletePayout(id){
+  if(role!=='worker')return;
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  if(p.createdBy!==workerName){alert('Только свои заявки');return;}
+  if(!confirm('Удалить навсегда?'))return;
+  await deleteDoc(doc(db,'payouts',id));
 }
-async function extendTimer(id, minutes) {
-  if (role !== 'worker') return;
-  const p = payouts.find(x => x.id === id);
-  if (!p) return;
-  await updateDoc(doc(db, 'payouts', id), { timerMin: p.timerMin + minutes });
-  warned15.delete(id); warned10.delete(id); warned5.delete(id);
+async function extendTimer(id,minutes){
+  if(role!=='worker')return;
+  const p=payouts.find(x=>x.id===id);
+  if(!p)return;
+  await updateDoc(doc(db,'payouts',id),{timerMin:p.timerMin+minutes});
+  warned15.delete(id);warned10.delete(id);warned5.delete(id);
   persistWarned();
-  showToast('⏰ +' + minutes + ' мин');
+  showToast('⏰ +'+minutes+' мин');
 }
 
-function paidSum(p) { return (p.checks || []).reduce((s, c) => s + c.sum, 0); }
-function formatMoney(n) { return Math.round(n).toLocaleString('ru-RU') + ' ₽'; }
-function formatTime(ms) {
-  if (ms < 0) ms = 0;
-  const total = Math.floor(ms / 1000);
-  const h = Math.floor(total / 3600);
-  const m = Math.floor((total % 3600) / 60);
-  const s = total % 60;
-  if (h > 0) return String(h).padStart(2,'0') + ':' + String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
-  return String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+function paidSum(p){return (p.checks||[]).reduce((s,c)=>s+c.sum,0);}
+function formatMoney(n){return Math.round(n).toLocaleString('ru-RU')+' ₽';}
+function formatTime(ms){
+  if(ms<0)ms=0;
+  const total=Math.floor(ms/1000);
+  const h=Math.floor(total/3600);
+  const m=Math.floor((total%3600)/60);
+  const s=total%60;
+  if(h>0)return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
 }
-function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function copyText(text) { navigator.clipboard.writeText(text).then(() => showToast('📋 Скопировано')).catch(()=>{}); }
-function saveCheckInput(id, value) { checkInputs[id] = value; localStorage.setItem('checkInputs', JSON.stringify(checkInputs)); }
-function getCurrentShift() {
-  const h = new Date(now()).getHours();
-  if (h >= 6 && h < 14) return 'Утро';
-  if (h >= 14 && h < 22) return 'Вечер';
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано')).catch(()=>{});}
+function saveCheckInput(id,value){checkInputs[id]=value;localStorage.setItem('checkInputs',JSON.stringify(checkInputs));}
+function getCurrentShift(){
+  const h=new Date(now()).getHours();
+  if(h>=6&&h<14)return 'Утро';
+  if(h>=14&&h<22)return 'Вечер';
   return 'Ночь';
 }
-function getShiftEmoji(s) {
-  if (s === 'Утро') return '🌅';
-  if (s === 'Вечер') return '🌆';
-  if (s === 'Ночь') return '🌙';
+function getShiftEmoji(s){
+  if(s==='Утро')return '🌅';
+  if(s==='Вечер')return '🌆';
+  if(s==='Ночь')return '🌙';
   return '⏰';
 }
-function getShiftClass(s) {
-  if (s === 'Утро') return 'shift-morning';
-  if (s === 'Вечер') return 'shift-evening';
-  if (s === 'Ночь') return 'shift-night';
+function getShiftClass(s){
+  if(s==='Утро')return 'shift-morning';
+  if(s==='Вечер')return 'shift-evening';
+  if(s==='Ночь')return 'shift-night';
   return '';
 }
 
-function renderCard(p) {
-  const paid = paidSum(p);
-  const left = Math.max(0, p.totalSum - paid);
-  const pct = Math.min(100, (paid / p.totalSum) * 100);
-  const checksCount = (p.checks || []).length;
-  const isMine = (role === 'client' && p.client === clientUsername);
-  const canEditRate = role === 'worker';
+function renderCard(p){
+  const paid=paidSum(p);
+  const left=Math.max(0,p.totalSum-paid);
+  const pct=Math.min(100,(paid/p.totalSum)*100);
+  const checksCount=(p.checks||[]).length;
+  const isMine=(role==='client'&&p.client===clientUsername);
+  const canEditRate=role==='worker';
 
-  let timerHtml = '';
-  let cardExtraClass = '';
-  if ((p.status === 'available' || p.status === 'active') && p.createdAt) {
-    const limitMs = p.timerMin * 60000;
-    const leftMs = limitMs - (now() - p.createdAt);
-
+  let timerHtml='';
+  let cardExtraClass='';
+  if((p.status==='available'||p.status==='active')&&p.createdAt){
+    const limitMs=p.timerMin*60000;
+    const leftMs=limitMs-(now()-p.createdAt);
     let cls;
-    if (p.status === 'available') {
-      cls = 'gray';
-    } else {
-      if (leftMs < 0)              cls = 'red';
-      else if (leftMs < 5*60000)   cls = 'red';
-      else if (leftMs < 10*60000)  cls = 'orange';
-      else if (leftMs < 15*60000)  cls = 'yellow';
-      else                         cls = 'green';
+    if(p.status==='available'){
+      if(leftMs<0)cls='red';
+      else if(leftMs<5*60000)cls='red';
+      else if(leftMs<10*60000)cls='orange';
+      else if(leftMs<15*60000)cls='yellow';
+      else cls='gray';
+    }else{
+      if(leftMs<0)cls='red';
+      else if(leftMs<5*60000)cls='red';
+      else if(leftMs<10*60000)cls='orange';
+      else if(leftMs<15*60000)cls='yellow';
+      else cls='green';
     }
-
-    if (p.status === 'active') {
-      if (leftMs < 0)              cardExtraClass = ' expired';
-      else if (leftMs < 10*60000)  cardExtraClass = ' warning';
+    if(p.status==='active'){
+      if(leftMs<0)cardExtraClass=' expired';
+      else if(leftMs<10*60000)cardExtraClass=' warning';
     }
-
-    timerHtml = `<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
+    timerHtml=`<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
 
-  let actions = '';
-  if (p.status === 'available') {
-    if (role === 'client') {
-      actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;
-    } else if (role === 'worker') {
-      actions = `<div class="card-actions">`;
-      if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-      if (p.createdBy === workerName) actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
-      actions += `</div>`;
+  let actions='';
+  if(p.status==='available'){
+    if(role==='client'){
+      actions=`<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;
+    }else if(role==='worker'){
+      actions=`<div class="card-actions">`;
+      if(canEditRate)actions+=`<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
+      if(p.createdBy===workerName)actions+=`<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
+      actions+=`</div>`;
     }
-  } else if (p.status === 'active') {
-    const savedSum = checkInputs[p.id] || '';
-    const canUpload = isMine || role === 'worker';
-    if (canUpload) {
-      actions = `<div class="check-form">
-          <div class="check-form-title">💵 За
+  }else if(p.status==='active'){
+    const savedSum=checkInputs[p.id]||'';
+    const canUpload=isMine||role==='worker';
+    if(canUpload){
+      actions=`<div class="check-form">
+          <div class="check-form-title">💵 Загрузить чек</div>
+          <div class="check-form-row">
+            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
+            <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
+            <label for="checkFile_${p.id}">📎 Чек</label>
+          </div>
+        </div>`;
+    }
+    if(isMine){
+      actions+=`<div class="card-actions">
+        <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
+        <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
+      </div>`;
+    }
+    if(role==='worker'){
+      actions+=`<div class="card-actions">
+        <button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>
+        <button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>
+        <button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>
+        <button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>
+      </div>`;
+    }
+  }
+
+  let checksHtml='';
+  if((p.checks||[]).length){
+    checksHtml=`<div class="checks-list">`+p.checks.map((c,i)=>`
+      <div class="check-item">
+        <span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b> <span style="color:var(--text-mute);font-size:10px">${new Date(c.uploadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>
+        <a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a>
+      </div>`).join('')+`</div>`;
+  }
+
+  let problemsHtml='';
+  if((p.problems||[]).length){
+    problemsHtml=`<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;">
+      <div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>
+      ${p.problems.map(pr=>`<div class="check-item" style="background:rgba(239,68,68,0.1);">
+          <span style="font-size:11px;">${esc(pr.text||'(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>
+          ${pr.file?`<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>`:''}
+        </div>`).join('')}
+    </div>`;
+  }
+
+  let cancelHtml='';
+  if(p.status==='cancelled'){
+    cancelHtml=`<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason||'')}</div>`;
+  }
+
+  let metaHtml='';
+  if(role!=='guest'&&(p.createdBy||p.shift)){
+    const dateStr=new Date(p.createdAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
+    metaHtml=`<div class="card-row small">🛠 ${esc(p.createdBy||'—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift||'—')} • ${dateStr}</div>`;
+  }
+
+  const rateHtml=p.rate?`<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate?`onclick="editRate('${p.id}')"`:''}>${p.rate} ₽/USDT</span>${canEditRate?' ✏️':''}</div>`:'';
+  const cardHtml=p.cardNumber?`<div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>`:'';
+  const phoneHtml=p.phone?`<div class="card-row">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>`:'';
+  const heartPrefix=isMine?'❤️ ':'';
+
+  return `
+    <div class="card ${p.status}${cardExtraClass}${isMine?' mine':''}">
+      <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
+      ${cardHtml}
+      ${phoneHtml}
+      ${p.bank?`<div class="card-row small">🏦 ${esc(p.bank)}</div>`:''}
+      ${rateHtml}
+      ${p.client?`<div class="card-row small">❤️ Клиент: ✈️ ${highlightMatch(p.client)}</div>`:''}
+      ${metaHtml}
+      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
+      <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
+      ${checksHtml}
+      ${problemsHtml}
+      ${cancelHtml}
+      ${actions}
+    </div>`;
+}
+
+function renderArchive(list){
+  const byDate={};
+  list.forEach(p=>{
+    const d=new Date(p.createdAt);
+    const dateKey=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+    const shift=p.shift||'Без смены';
+    if(!byDate[dateKey])byDate[dateKey]={date:dateKey,latestAt:0,shifts:{}};
+    if(!byDate[dateKey].shifts[shift])byDate[dateKey].shifts[shift]=[];
+    byDate[dateKey].shifts[shift].push(p);
+    if(p.createdAt>byDate[dateKey].latestAt)byDate[dateKey].latestAt=p.createdAt;
+  });
+  const sortedDates=Object.keys(byDate).sort((a,b)=>byDate[b].latestAt-byDate[a].latestAt);
+  const currentShift=getCurrentShift();
+  const todayStr=new Date(now()).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let html='';
+  sortedDates.forEach((dateKey,dateIdx)=>{
+    const dayData=byDate[dateKey];
+    const isToday=dateKey===todayStr;
+    const totalCount=Object.values(dayData.shifts).reduce((s,arr)=>s+arr.length,0);
+    const totalDone=Object.values(dayData.shifts).flat().filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+    const dateOpenAttr=(dateIdx===0||isToday||!!searchQuery)?' open':'';
+    html+=`<details class="date-group"${dateOpenAttr}>
+      <summary class="date-summary">
+        <span>${isToday?'🔥 ':'📅 '}${dateKey}</span>
+        <span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span>
+        <span class="arrow">▶</span>
+      </summary>
+      <div class="date-content">`;
+    SHIFTS.forEach(shift=>{
+      const items=dayData.shifts[shift]||[];
+      if(!items.length)return;
+      const isCurrentShift=isToday&&shift===currentShift;
+      const shiftOpenAttr=(isCurrentShift||!!searchQuery)?' open':'';
+      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+      const byClient={};
+      items.forEach(p=>{
+        const client=p.client||'(без клиента)';
+        if(!byClient[client])byClient[client]=[];
+        byClient[client].push(p);
+      });
+      const clientKeys=Object.keys(byClient).sort((a,b)=>{
+        const sumA=byClient[a].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+        const sumB=byClient[b].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+        if(sumB!==sumA)return sumB-sumA;
+        return a.localeCompare(b,'ru');
+      });
+      html+=`<details class="shift-group"${shiftOpenAttr}>
+        <summary class="shift-summary ${getShiftClass(shift)}">
+          <span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift]||''}</span></span>
+          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="shift-content">`;
+      clientKeys.forEach(clientKey=>{
+        const clientPayouts=byClient[clientKey];
+        const clientDone=clientPayouts.filter(p=>p.status==='done');
+        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
+        const clientActive=clientPayouts.filter(p=>p.status==='active');
+        const clientAvailable=clientPayouts.filter(p=>p.status==='available');
+        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
+        const isClient=clientKey!=='(без клиента)';
+        html+=`<details class="client-group">
+          <summary class="client-summary">
+            <span>${isClient?'✈️ ':'👤 '}<span class="client-name">${esc(clientKey)}</span></span>
+            <span class="client-stats">
+              <span class="badge-count">${clientPayouts.length} заявок</span>
+              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
+              ${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}
+              ${clientActive.length?`<span style="color:var(--warning)">🔥 ${clientActive.length}</span>`:''}
+              ${clientAvailable.length?`<span style="color:var(--accent)">⏳ ${clientAvailable.length}</span>`:''}
+            </span>
+            <span class="arrow">▶</span>
+          </summary>
+          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
+        </details>`;
+      });
+      html+=`</div></details>`;
+    });
+    if(dayData.shifts['Без смены']&&dayData.shifts['Без смены'].length){
+      const items=dayData.shifts['Без смены'];
+      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+      const byClient={};
+      items.forEach(p=>{
+        const client=p.client||'(без клиента)';
+        if(!byClient[client])byClient[client]=[];
+        byClient[client].push(p);
+      });
+      const clientKeys=Object.keys(byClient).sort();
+      html+=`<details class="shift-group">
+        <summary class="shift-summary">
+          <span>❓ Без смены</span>
+          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="shift-content">`;
+      clientKeys.forEach(clientKey=>{
+        const clientPayouts=byClient[clientKey];
+        const clientDone=clientPayouts.filter(p=>p.status==='done');
+        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
+        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
+        html+=`<details class="client-group">
+          <summary class="client-summary">
+            <span>✈️ <span class="client-name">${esc(clientKey)}</span></span>
+            <span class="client-stats">
+              <span class="badge-count">${clientPayouts.length} заявок</span>
+              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
+              ${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}
+            </span>
+            <span class="arrow">▶</span>
+          </summary>
+          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
+        </details>`;
+      });
+      html+=`</div></details>`;
+    }
+    html+=`</div></details>`;
+  });
+  return html;
+}
+
+function render(){
+  const el=document.getElementById('content');
+  let baseList=[];
+  if(currentTab==='available')baseList=payouts.filter(p=>p.status==='available');
+  else if(currentTab==='active')baseList=payouts.filter(p=>p.status==='active');
+  else baseList=payouts.filter(p=>p.status==='done'||p.status==='cancelled');
+  let list=filterPayouts(baseList,currentTab);
+  if(searchQuery)list=list.filter(matchSearch);
+  const countEl=document.getElementById('searchCount');
+  if(countEl){
+    if(searchQuery){
+      countEl.textContent=list.length?'🔍 '+list.length:'❌ 0';
+      countEl.className='search-count'+(list.length?'':' no-results');
+    }else{countEl.textContent='';countEl.className='search-count';}
+  }
+  if(!list.length){
+    el.innerHTML=`<div class="empty">${
+      searchQuery?'🔍 Ничего не найдено':
+      currentTab==='available'?'Нет доступных заявок':
+      currentTab==='active'?(role==='guest'?'Войди, чтобы видеть':'Нет заявок в работе'):
+      (role==='guest'?'Войди, чтобы видеть архив':'Архив пуст')}</div>`;
+    return;
+  }
+  if(currentTab==='done')el.innerHTML=renderArchive(list);
+  else el.innerHTML=list.map(renderCard).join('');
+}
+
+// ═══════════════════════════════════════════════════════════
+//  ГЛАВНЫЙ ТИК
+//  ✅ Уведомления теперь для available И active (убран блок p.status)
+// ═══════════════════════════════════════════════════════════
+setInterval(()=>{
+  document.querySelectorAll('[data-timer-start]').forEach(el=>{
+    const start=parseInt(el.dataset.timerStart);
+    const limit=parseInt(el.dataset.timerLimit);
+    const id=el.dataset.payoutId;
+    const left=limit-(now()-start);
+    el.textContent=formatTime(left);
+
+    const p=payouts.find(x=>x.id===id);
+    if(!p)return;
+
+    let cls;
+    if(p.status==='available'){
+      if(left<0)cls='red';
+      else if(left<5*60000)cls='red';
+      else if(left<10*60000)cls='orange';
+      else if(left<15*60000)cls='yellow';
+      else cls='gray';
+    }else if(p.status==='active'){
+      if(left<0)cls='red';
+      else if(left<5*60000)cls='red';
+      else if(left<10*60000)cls='orange';
+      else if(left<15*60000)cls='yellow';
+      else cls='green';
+    }else{
+      cls='gray';
+    }
+    el.className='timer '+cls;
+
+    if(role!=='worker')return;
+    if(p.createdBy!==workerName)return;
+    // ✅ Больше НЕТ проверки p.status !== 'active' — уведомления для available тоже
+
+    if(left>0&&left<5*60000&&!warned5.has(id)){
+      warned15.add(id);warned10.add(id);warned5.add(id);
+      persistWarned();
+      strongNotify('🔴 5 МИНУТ!',formatMoney(p.totalSum)+' — срочно!',
+        {sound:'warning',toastType:'err',vibrate:[500,200,500,200,500],dedupeKey:'w5_'+id});
+    }else if(left>0&&left<10*60000&&!warned10.has(id)){
+      warned15.add(id);warned10.add(id);
+      persistWarned();
+      strongNotify('🟠 10 минут',formatMoney(p.totalSum),
+        {sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'w10_'+id});
+    }else if(left>0&&left<15*60000&&!warned15.has(id)){
+      warned15.add(id);
+      persistWarned();
+      strongNotify('🟡 15 минут',formatMoney(p.totalSum),
+        {sound:'warning',toastType:'warn',vibrate:[200,100,200],dedupeKey:'w15_'+id});
+    }
+  });
+},1000);
+
+onSnapshot(clientsRef,snapshot=>{
+  allClients=snapshot.docs.map(d=>d.data());
+  allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
+},err=>{console.warn('Clients snapshot error:',err.message);});
+
+onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
+  const newPayouts=snapshot.docs.map(d=>({id:d.id,...d.data()}));
+
+  if(role==='client'&&!isFirstSnapshot){
+    newPayouts.forEach(p=>{
+      if(!seenPayoutIds.has(p.id)&&p.status==='available'){
+        const age=now()-p.createdAt;
+        if(age>=0&&age<120000){
+          const rateTxt=p.rate?' • 💱 '+p.rate:'';
+          const bankTxt=p.bank?' • '+p.bank:'';
+          strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,
+            {sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});
+        }
+      }
+    });
+  }
+
+  if(role==='worker'){
+    newPayouts.forEach(p=>{
+      const prev=prevState.get(p.id);
+      const checksCount=(p.checks||[]).length;
+      const problemsCount=(p.problems||[]).length;
+      if(prev){
+        const isMyPayout=(p.createdBy===workerName);
+        if(isMyPayout&&prev.status==='available'&&p.status==='active'){
+          strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),
+            {sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status});
+        }
+        if(isMyPayout&&checksCount>prev.checksCount){
+          const lastCheck=p.checks[checksCount-1];
+          strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),
+            {sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount});
+        }
+        if(isMyPayout&&problemsCount>prev.problemsCount){
+          strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),
+            {sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount});
+        }
+        if(isMyPayout&&prev.status!=='cancelled'&&p.status==='cancelled'){
+          strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),
+            {sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id});
+        }
+        if(isMyPayout&&prev.status==='active'&&p.status==='done'){
+          strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),
+            {sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id});
+        }
+      }
+    });
+  }
+
+  prevState.clear();
+  newPayouts.forEach(p=>prevState.set(p.id,{
+    status:p.status,
+    checksCount:(p.checks||[]).length,
+    problemsCount:(p.problems||[]).length,
+    client:p.client||null
+  }));
+  newPayouts.forEach(p=>seenPayoutIds.add(p.id));
+  isFirstSnapshot=false;
+  payouts=newPayouts;
+  render();
+},err=>{
+  document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;
+});
+
+updateModeUI();
+render();
+
+setTimeout(()=>{
+  const rateInput=document.getElementById('rate');
+  if(rateInput&&shiftRate)rateInput.value=shiftRate;
+},200);
+
+Object.assign(window,{
+  takePayout,uploadCheck,finishPayout,returnToAvailable,deletePayout,
+  addPayout,setTab,copyText,openLogin,extendTimer,saveCheckInput,
+  openSettings,closeSettings,toggleSound,selectClientType,selectBT7Type,
+  selectWorker,selectAdmin,submitPin,closeLogin,setTheme,
+  openProblemModal,closeProblemModal,submitProblem,cancelByClient,
+  editRate,onSearch,clearSearch,proceedClientUsername,verifyClientPin,
+  registerClient,askShiftModal,askRateModal,pickShift,confirmShift,
+  cancelShift,confirmRate,cancelRate,syncClock
+});
+</script>
+</body>
+</html>
