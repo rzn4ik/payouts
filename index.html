@@ -351,8 +351,6 @@ const clientsRef = collection(db, 'clients');
 
 // ═══════════════════════════════════════════════════════════
 //  🕐 ЕДИНОЕ СЕРВЕРНОЕ ВРЕМЯ
-//  Все клиенты синхронизируются с публичным HTTP-API времени.
-//  Смещение хранится в sessionStorage, применяется через now().
 // ═══════════════════════════════════════════════════════════
 let clockOffset = parseInt(sessionStorage.getItem('clockOffset')) || 0;
 let clockSynced = sessionStorage.getItem('clockSynced') === '1';
@@ -384,18 +382,16 @@ async function syncClock(silent = false) {
       const data = await r.json();
       const serverMs = ep.parse(data);
       if (!serverMs || isNaN(serverMs)) continue;
-      // Компенсация сетевой задержки: берём середину запроса
       const newOffset = serverMs - Math.round((t0 + t1) / 2);
-      // Защита от бредовых ответов (>24ч смещение — точно неверно)
       if (Math.abs(newOffset) > 24 * 3600 * 1000) continue;
       clockOffset = newOffset;
       clockSynced = true;
       sessionStorage.setItem('clockOffset', String(clockOffset));
       sessionStorage.setItem('clockSynced', '1');
-      console.log('🕐 Clock synced. Offset:', clockOffset, 'ms (local−server:' + (-clockOffset) + ' ms)');
+      console.log('🕐 Clock synced. Offset:', clockOffset, 'ms');
       if (!silent) showToast('🕐 Время синхронизировано (Δ ' + (clockOffset >= 0 ? '+' : '') + Math.round(clockOffset / 1000) + 'с)');
       return true;
-    } catch(e) { /* try next endpoint */ }
+    } catch(e) { /* next */ }
   }
   if (!silent) console.warn('🕐 Clock sync failed — using local time');
   return false;
@@ -403,11 +399,8 @@ async function syncClock(silent = false) {
 
 function now() { return Date.now() + clockOffset; }
 
-// Автосинк при загрузке (если в сессии ещё не было) + периодически каждые 30 мин
 if (!clockSynced) syncClock(true);
 setInterval(() => syncClock(true), 30 * 60 * 1000);
-
-// ═══════════════════════════════════════════════════════════
 
 let payouts = [];
 let allClients = [];
@@ -444,9 +437,42 @@ let titleFlashInterval = null;
 let originalFavicon = null;
 
 // ═══════════════════════════════════════════════════════════
+//  🚫 ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ
+//  Один и тот же ключ не отправляется чаще, чем WINDOW_MS.
+//  localStorage общий для всех вкладок одного origin — поэтому
+//  две вкладки не смогут продублировать одно событие.
+// ═══════════════════════════════════════════════════════════
+function shouldSendNotify(dedupeKey, windowMs = 8000) {
+  try {
+    const storageKey = 'notif_dedupe_' + dedupeKey;
+    const nowMs = Date.now();
+    const last = parseInt(localStorage.getItem(storageKey) || '0');
+    if (nowMs - last < windowMs) return false;
+    localStorage.setItem(storageKey, String(nowMs));
+    // Чистка старых ключей (> 1 час), чтобы localStorage не распухал
+    if (Math.random() < 0.05) {
+      const cutoff = nowMs - 3600 * 1000;
+      for (let i = localStorage.length - 1; i >= 0; i--) {
+        const k = localStorage.key(i);
+        if (k && k.startsWith('notif_dedupe_')) {
+          const v = parseInt(localStorage.getItem(k) || '0');
+          if (v < cutoff) localStorage.removeItem(k);
+        }
+      }
+    }
+    return true;
+  } catch(e) { return true; }
+}
+
+// ═══════════════════════════════════════════════════════════
 //  СИЛЬНАЯ СИСТЕМА УВЕДОМЛЕНИЙ
 // ═══════════════════════════════════════════════════════════
 function strongNotify(title, body, opts = {}) {
+  const dedupeKey = opts.dedupeKey || (title + '|' + body);
+  if (!shouldSendNotify(dedupeKey, opts.dedupeWindow || 8000)) {
+    // Уже отправляли недавно (в этой или другой вкладке) — молчим
+    return;
+  }
   try { playSound(opts.sound || 'warning'); } catch(e) {}
   try { if (navigator.vibrate) navigator.vibrate(opts.vibrate || [200, 100, 200]); } catch(e) {}
   try { showToast('🔔 ' + title, opts.toastType || 'warn'); } catch(e) {}
@@ -454,7 +480,12 @@ function strongNotify(title, body, opts = {}) {
   try { setUnreadFavicon(); } catch(e) {}
   try {
     if ('Notification' in window && Notification.permission === 'granted') {
-      new Notification(title, { body, tag: opts.tag || 'payout-' + Date.now() });
+      // tag — стабильный ключ: система заменит предыдущее с тем же tag
+      new Notification(title, {
+        body,
+        tag: 'payout-' + dedupeKey,
+        renotify: false
+      });
     }
   } catch(e) {}
   try {
@@ -1495,375 +1526,4 @@ function renderCard(p) {
     const canUpload = isMine || role === 'worker';
     if (canUpload) {
       actions = `<div class="check-form">
-          <div class="check-form-title">💵 Загрузить чек</div>
-          <div class="check-form-row">
-            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
-            <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
-            <label for="checkFile_${p.id}">📎 Чек</label>
-          </div>
-        </div>`;
-    }
-    if (isMine) {
-      actions += `<div class="card-actions">
-        <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
-        <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
-      </div>`;
-    }
-    if (role === 'worker') {
-      actions += `<div class="card-actions">
-        <button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>
-        <button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>
-        <button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>
-        <button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>
-      </div>`;
-    }
-  }
-
-  let checksHtml = '';
-  if ((p.checks || []).length) {
-    checksHtml = `<div class="checks-list">` + p.checks.map((c, i) => `
-      <div class="check-item">
-        <span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b> <span style="color:var(--text-mute);font-size:10px">${new Date(c.uploadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>
-        <a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a>
-      </div>`).join('') + `</div>`;
-  }
-
-  let problemsHtml = '';
-  if ((p.problems || []).length) {
-    problemsHtml = `<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;">
-      <div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>
-      ${p.problems.map(pr => `<div class="check-item" style="background:rgba(239,68,68,0.1);">
-          <span style="font-size:11px;">${esc(pr.text || '(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>
-          ${pr.file ? `<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>` : ''}
-        </div>`).join('')}
-    </div>`;
-  }
-
-  let cancelHtml = '';
-  if (p.status === 'cancelled') {
-    cancelHtml = `<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason || '')}</div>`;
-  }
-
-  let metaHtml = '';
-  if (role !== 'guest' && (p.createdBy || p.shift)) {
-    const dateStr = new Date(p.createdAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    metaHtml = `<div class="card-row small">🛠 ${esc(p.createdBy || '—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift || '—')} • ${dateStr}</div>`;
-  }
-
-  const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
-  const cardHtml = p.cardNumber ? `<div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>` : '';
-  const phoneHtml = p.phone ? `<div class="card-row">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
-  const heartPrefix = isMine ? '❤️ ' : '';
-
-  return `
-    <div class="card ${p.status}${cardExtraClass}${isMine ? ' mine' : ''}">
-      <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
-      ${cardHtml}
-      ${phoneHtml}
-      ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
-      ${rateHtml}
-      ${p.client ? `<div class="card-row small">❤️ Клиент: ✈️ ${highlightMatch(p.client)}</div>` : ''}
-      ${metaHtml}
-      <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
-      <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
-      ${checksHtml}
-      ${problemsHtml}
-      ${cancelHtml}
-      ${actions}
-    </div>`;
-}
-
-function renderArchive(list) {
-  const byDate = {};
-  list.forEach(p => {
-    const d = new Date(p.createdAt);
-    const dateKey = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
-    const shift = p.shift || 'Без смены';
-    if (!byDate[dateKey]) byDate[dateKey] = { date: dateKey, latestAt: 0, shifts: {} };
-    if (!byDate[dateKey].shifts[shift]) byDate[dateKey].shifts[shift] = [];
-    byDate[dateKey].shifts[shift].push(p);
-    if (p.createdAt > byDate[dateKey].latestAt) byDate[dateKey].latestAt = p.createdAt;
-  });
-
-  const sortedDates = Object.keys(byDate).sort((a, b) => byDate[b].latestAt - byDate[a].latestAt);
-  const currentShift = getCurrentShift();
-  const todayStr = new Date(now()).toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
-
-  let html = '';
-  sortedDates.forEach((dateKey, dateIdx) => {
-    const dayData = byDate[dateKey];
-    const isToday = dateKey === todayStr;
-    const totalCount = Object.values(dayData.shifts).reduce((s, arr) => s + arr.length, 0);
-    const totalDone = Object.values(dayData.shifts).flat().filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-    const dateOpenAttr = (dateIdx === 0 || isToday || !!searchQuery) ? ' open' : '';
-
-    html += `<details class="date-group"${dateOpenAttr}>
-      <summary class="date-summary">
-        <span>${isToday ? '🔥 ' : '📅 '}${dateKey}</span>
-        <span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span>
-        <span class="arrow">▶</span>
-      </summary>
-      <div class="date-content">`;
-
-    SHIFTS.forEach(shift => {
-      const items = dayData.shifts[shift] || [];
-      if (!items.length) return;
-      const isCurrentShift = isToday && shift === currentShift;
-      const shiftOpenAttr = (isCurrentShift || !!searchQuery) ? ' open' : '';
-      const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-
-      const byClient = {};
-      items.forEach(p => {
-        const client = p.client || '(без клиента)';
-        if (!byClient[client]) byClient[client] = [];
-        byClient[client].push(p);
-      });
-      const clientKeys = Object.keys(byClient).sort((a, b) => {
-        const sumA = byClient[a].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-        const sumB = byClient[b].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-        if (sumB !== sumA) return sumB - sumA;
-        return a.localeCompare(b, 'ru');
-      });
-
-      html += `<details class="shift-group"${shiftOpenAttr}>
-        <summary class="shift-summary ${getShiftClass(shift)}">
-          <span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift] || ''}</span></span>
-          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
-          <span class="arrow">▶</span>
-        </summary>
-        <div class="shift-content">`;
-
-      clientKeys.forEach(clientKey => {
-        const clientPayouts = byClient[clientKey];
-        const clientDone = clientPayouts.filter(p => p.status === 'done');
-        const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
-        const clientActive = clientPayouts.filter(p => p.status === 'active');
-        const clientAvailable = clientPayouts.filter(p => p.status === 'available');
-        const doneSum2 = clientDone.reduce((s, p) => s + p.totalSum, 0);
-        const isClient = clientKey !== '(без клиента)';
-
-        html += `<details class="client-group">
-          <summary class="client-summary">
-            <span>${isClient ? '✈️ ' : '👤 '}<span class="client-name">${esc(clientKey)}</span></span>
-            <span class="client-stats">
-              <span class="badge-count">${clientPayouts.length} заявок</span>
-              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
-              ${clientCancelled.length ? `<span class="sum-cancel">❌ ${clientCancelled.length}</span>` : ''}
-              ${clientActive.length ? `<span style="color:var(--warning)">🔥 ${clientActive.length}</span>` : ''}
-              ${clientAvailable.length ? `<span style="color:var(--accent)">⏳ ${clientAvailable.length}</span>` : ''}
-            </span>
-            <span class="arrow">▶</span>
-          </summary>
-          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
-        </details>`;
-      });
-
-      html += `</div></details>`;
-    });
-
-    if (dayData.shifts['Без смены'] && dayData.shifts['Без смены'].length) {
-      const items = dayData.shifts['Без смены'];
-      const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-      const byClient = {};
-      items.forEach(p => {
-        const client = p.client || '(без клиента)';
-        if (!byClient[client]) byClient[client] = [];
-        byClient[client].push(p);
-      });
-      const clientKeys = Object.keys(byClient).sort();
-      html += `<details class="shift-group">
-        <summary class="shift-summary">
-          <span>❓ Без смены</span>
-          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
-          <span class="arrow">▶</span>
-        </summary>
-        <div class="shift-content">`;
-      clientKeys.forEach(clientKey => {
-        const clientPayouts = byClient[clientKey];
-        const clientDone = clientPayouts.filter(p => p.status === 'done');
-        const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
-        const doneSum2 = clientDone.reduce((s, p) => s + p.totalSum, 0);
-        html += `<details class="client-group">
-          <summary class="client-summary">
-            <span>✈️ <span class="client-name">${esc(clientKey)}</span></span>
-            <span class="client-stats">
-              <span class="badge-count">${clientPayouts.length} заявок</span>
-              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
-              ${clientCancelled.length ? `<span class="sum-cancel">❌ ${clientCancelled.length}</span>` : ''}
-            </span>
-            <span class="arrow">▶</span>
-          </summary>
-          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
-        </details>`;
-      });
-      html += `</div></details>`;
-    }
-    html += `</div></details>`;
-  });
-  return html;
-}
-
-function render() {
-  const el = document.getElementById('content');
-  let baseList = [];
-  if (currentTab === 'available') baseList = payouts.filter(p => p.status === 'available');
-  else if (currentTab === 'active') baseList = payouts.filter(p => p.status === 'active');
-  else baseList = payouts.filter(p => p.status === 'done' || p.status === 'cancelled');
-  let list = filterPayouts(baseList, currentTab);
-  if (searchQuery) list = list.filter(matchSearch);
-  const countEl = document.getElementById('searchCount');
-  if (countEl) {
-    if (searchQuery) {
-      countEl.textContent = list.length ? '🔍 ' + list.length : '❌ 0';
-      countEl.className = 'search-count' + (list.length ? '' : ' no-results');
-    } else { countEl.textContent = ''; countEl.className = 'search-count'; }
-  }
-  if (!list.length) {
-    el.innerHTML = `<div class="empty">${
-      searchQuery ? '🔍 Ничего не найдено' :
-      currentTab === 'available' ? 'Нет доступных заявок' :
-      currentTab === 'active' ? (role === 'guest' ? 'Войди, чтобы видеть' : 'Нет заявок в работе') :
-      (role === 'guest' ? 'Войди, чтобы видеть архив' : 'Архив пуст')}</div>`;
-    return;
-  }
-  if (currentTab === 'done') el.innerHTML = renderArchive(list);
-  else el.innerHTML = list.map(renderCard).join('');
-}
-
-// ═══════════════════════════════════════════════════════════
-//  ГЛАВНЫЙ ТИК: обновляет таймеры + шлёт уведомления правильно
-//  Использует now() (серверное время), а не Date.now()
-// ═══════════════════════════════════════════════════════════
-setInterval(() => {
-  document.querySelectorAll('[data-timer-start]').forEach(el => {
-    const start = parseInt(el.dataset.timerStart);
-    const limit = parseInt(el.dataset.timerLimit);
-    const id = el.dataset.payoutId;
-    const left = limit - (now() - start);
-    el.textContent = formatTime(left);
-
-    const p = payouts.find(x => x.id === id);
-    if (!p) return;
-
-    let cls;
-    if (p.status === 'available') {
-      cls = 'gray';
-    } else if (p.status === 'active') {
-      if (left < 0)              cls = 'red';
-      else if (left < 5*60000)   cls = 'red';
-      else if (left < 10*60000)  cls = 'orange';
-      else if (left < 15*60000)  cls = 'yellow';
-      else                       cls = 'green';
-    } else {
-      cls = 'gray';
-    }
-    el.className = 'timer ' + cls;
-
-    if (role !== 'worker') return;
-    if (p.createdBy !== workerName) return;
-    if (p.status !== 'active') return;
-
-    if (left > 0 && left < 5 * 60000 && !warned5.has(id)) {
-      warned15.add(id); warned10.add(id); warned5.add(id);
-      persistWarned();
-      strongNotify('🔴 5 МИНУТ!', formatMoney(p.totalSum) + ' — срочно!',
-        { sound: 'warning', toastType: 'err', vibrate: [500, 200, 500, 200, 500] });
-    } else if (left > 0 && left < 10 * 60000 && !warned10.has(id)) {
-      warned15.add(id); warned10.add(id);
-      persistWarned();
-      strongNotify('🟠 10 минут', formatMoney(p.totalSum),
-        { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300] });
-    } else if (left > 0 && left < 15 * 60000 && !warned15.has(id)) {
-      warned15.add(id);
-      persistWarned();
-      strongNotify('🟡 15 минут', formatMoney(p.totalSum),
-        { sound: 'warning', toastType: 'warn', vibrate: [200, 100, 200] });
-    }
-  });
-}, 1000);
-
-onSnapshot(clientsRef, snapshot => {
-  allClients = snapshot.docs.map(d => d.data());
-  allClients.sort((a, b) => (a.username || '').localeCompare(b.username || '', 'ru'));
-}, err => { console.warn('Clients snapshot error:', err.message); });
-
-onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
-  const newPayouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
-
-  if (role === 'client' && !isFirstSnapshot) {
-    newPayouts.forEach(p => {
-      if (!seenPayoutIds.has(p.id) && p.status === 'available') {
-        const age = now() - p.createdAt;
-        if (age >= 0 && age < 120000) {
-          const rateTxt = p.rate ? ' • 💱 ' + p.rate : '';
-          const bankTxt = p.bank ? ' • ' + p.bank : '';
-          strongNotify('❤️ Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt, { sound: 'new', toastType: 'heart', vibrate: [100, 50, 100] });
-        }
-      }
-    });
-  }
-
-  if (role === 'worker') {
-    newPayouts.forEach(p => {
-      const prev = prevState.get(p.id);
-      const checksCount = (p.checks || []).length;
-      const problemsCount = (p.problems || []).length;
-      if (prev) {
-        const isMyPayout = (p.createdBy === workerName);
-
-        if (isMyPayout && prev.status === 'available' && p.status === 'active') {
-          strongNotify('🟢 Взяли в работу', formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''), { sound: 'taken', toastType: 'blue', vibrate: [50, 30, 50] });
-        }
-        if (isMyPayout && checksCount > prev.checksCount) {
-          const lastCheck = p.checks[checksCount - 1];
-          strongNotify('💰 Чек оплачен', formatMoney(p.totalSum) + ' → +' + formatMoney(lastCheck.sum), { sound: 'check', toastType: '', vibrate: [200, 100, 200] });
-        }
-        if (isMyPayout && problemsCount > prev.problemsCount) {
-          strongNotify('⚠️ Проблема от клиента', 'Заявка ' + formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300, 100, 300] });
-        }
-        if (isMyPayout && prev.status !== 'cancelled' && p.status === 'cancelled') {
-          strongNotify('❌ Клиент отменил', formatMoney(p.totalSum), { sound: 'warning', toastType: 'err', vibrate: [300, 100, 300] });
-        }
-        if (isMyPayout && prev.status === 'active' && p.status === 'done') {
-          strongNotify('🎉 Заявка закрыта', formatMoney(p.totalSum), { sound: 'check', toastType: '', vibrate: [100, 50, 100, 50, 200] });
-        }
-      }
-    });
-  }
-
-  prevState.clear();
-  newPayouts.forEach(p => prevState.set(p.id, {
-    status: p.status,
-    checksCount: (p.checks || []).length,
-    problemsCount: (p.problems || []).length,
-    client: p.client || null
-  }));
-  newPayouts.forEach(p => seenPayoutIds.add(p.id));
-  isFirstSnapshot = false;
-  payouts = newPayouts;
-  render();
-}, err => {
-  document.getElementById('content').innerHTML = `<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;
-});
-
-updateModeUI();
-render();
-
-setTimeout(() => {
-  const rateInput = document.getElementById('rate');
-  if (rateInput && shiftRate) rateInput.value = shiftRate;
-}, 200);
-
-Object.assign(window, {
-  takePayout, uploadCheck, finishPayout, returnToAvailable, deletePayout,
-  addPayout, setTab, copyText, openLogin, extendTimer, saveCheckInput,
-  openSettings, closeSettings, toggleSound, selectClientType, selectBT7Type,
-  selectWorker, selectAdmin, submitPin, closeLogin, setTheme,
-  openProblemModal, closeProblemModal, submitProblem, cancelByClient,
-  editRate, onSearch, clearSearch, proceedClientUsername, verifyClientPin,
-  registerClient, askShiftModal, askRateModal, pickShift, confirmShift,
-  cancelShift, confirmRate, cancelRate, syncClock
-});
-</script>
-</body>
-</html>
+          <div class="check-form-title">💵 За
