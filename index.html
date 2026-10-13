@@ -916,9 +916,10 @@ function filterPayouts(list, tab) {
   return [];
 }
 
-// ============ ПРОВЕРКА ДУБЛИКАТА (КАРТА + ТЕЛЕФОН) + СОЗДАНИЕ ============
+// ============ ПРОВЕРКА ДУБЛИКАТА + СОЗДАНИЕ ============
 async function addPayout() {
-  if (role !== 'worker') { alert('Только воркер'); return; }
+  if (role !== 'worker') { alert('❌ Только воркер может создавать заявки'); return; }
+
   const phone = document.getElementById('phone').value.trim();
   const cardNumber = document.getElementById('cardNumber').value.trim();
   const bank = document.getElementById('bank').value.trim();
@@ -927,11 +928,18 @@ async function addPayout() {
   const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
   const rate = parseFloat(document.getElementById('rate').value) || shiftRate || 0;
 
-  if (!cardNumber || !totalSum || !totalChecks) { alert('Заполни поля'); return; }
-  if (totalSum <= 0 || totalChecks <= 0) { alert('Сумма и чеки > 0'); return; }
-  if (rate <= 0) { alert('Введи курс'); return; }
+  // ═══════ ВАЛИДАЦИЯ ═══════
+  const errors = [];
+  if (!phone && !cardNumber) errors.push('📱 Заполни телефон ИЛИ 💳 карту (хотя бы одно)');
+  if (!totalSum || totalSum <= 0) errors.push('💰 Укажи сумму');
+  if (!totalChecks || totalChecks <= 0) errors.push('📄 Укажи количество чеков');
+  if (rate <= 0) errors.push('💱 Укажи курс (или задай в настройках смены)');
+  if (errors.length > 0) {
+    alert('⚠️ Заполни поля:\n\n' + errors.join('\n'));
+    return;
+  }
 
-  // ПРОВЕРКА: карта ИЛИ телефон уже выдавались сегодня?
+  // ═══════ ПРОВЕРКА ДУБЛИКАТОВ ═══════
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const normCard = (s) => (s || '').replace(/\s+/g, '');
@@ -977,6 +985,7 @@ async function addPayout() {
     if (!ok) return;
   }
 
+  // ═══════ СОЗДАНИЕ ═══════
   try {
     await addDoc(payoutsRef, {
       phone, cardNumber, bank,
@@ -1272,14 +1281,17 @@ function renderCard(p) {
 
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
 
-  const phoneHtml = p.phone ? `<div class="card-row small">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
+  // Карта — только если есть
+  const cardHtml = p.cardNumber ? `<div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>` : '';
+  // Телефон — только если есть
+  const phoneHtml = p.phone ? `<div class="card-row">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
 
   const heartPrefix = isMine ? '❤️ ' : '';
 
   return `
     <div class="card ${p.status}${cardExtraClass}${isMine ? ' mine' : ''}">
       <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
-      <div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>
+      ${cardHtml}
       ${phoneHtml}
       ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
       ${rateHtml}
