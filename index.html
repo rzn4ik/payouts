@@ -128,8 +128,8 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .choice-btns button.bt7-btn { border-color: var(--accent-2); color: var(--accent-2); }
 .choice-btns button.bt7-btn:hover { background: rgba(16,185,129,0.1); }
 .worker-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
-.worker-btns button { padding: 12px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inner); color: var(--text); font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-.worker-btns button:hover { border-color: var(--accent-2); }
+.worker-btns button { padding: 14px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inner); color: var(--text); font-size: 14px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+.worker-btns button:hover { border-color: var(--accent-2); background: rgba(16,185,129,0.1); transform: translateY(-1px); }
 .worker-btns button.admin-btn { grid-column: 1 / -1; border-color: var(--accent); color: var(--accent); }
 .pin-row { display: flex; gap: 6px; margin-top: 10px; }
 .pin-row input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--accent-2); font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 6px; }
@@ -138,6 +138,41 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .pin-row button { padding: 10px 18px; border: none; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px; }
 .pin-row button.heart { background: var(--heart); }
 .pin-error { color: var(--danger); font-size: 11px; margin-top: 6px; min-height: 14px; text-align: center; }
+.uname-wrap { position: relative; margin-bottom: 10px; }
+.uname-input {
+  width: 100%; padding: 14px 16px 14px 42px; border-radius: 10px;
+  border: 2px solid var(--heart); background: var(--bg-input); color: var(--text);
+  font-size: 16px; font-family: monospace; outline: none; font-weight: bold;
+}
+.uname-input:focus { border-color: var(--heart); box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
+.uname-input::placeholder { color: var(--text-mute); font-weight: normal; }
+.uname-icon {
+  position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+  font-size: 18px; color: #229ED9; pointer-events: none;
+}
+.uname-dropdown {
+  position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
+  background: var(--bg-card); border: 1px solid var(--heart); border-radius: 10px;
+  max-height: 240px; overflow-y: auto; z-index: 100; display: none;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+}
+.uname-dropdown.show { display: block; }
+.uname-item {
+  padding: 12px 16px; cursor: pointer; font-size: 15px;
+  border-bottom: 1px solid var(--border); color: var(--text);
+  font-family: monospace; transition: background 0.15s;
+  display: flex; align-items: center; gap: 8px;
+}
+.uname-item:last-child { border-bottom: none; }
+.uname-item:hover, .uname-item.active { background: rgba(255,77,109,0.15); }
+.uname-item .heart-inline { color: var(--heart); }
+.uname-item .highlight-prefix { color: var(--accent-2); font-weight: bold; }
+.uname-new {
+  padding: 12px 16px; cursor: pointer; font-size: 13px;
+  color: var(--accent-2); font-weight: bold;
+  background: rgba(16,185,129,0.1); font-family: monospace;
+}
+.uname-new:hover { background: rgba(16,185,129,0.2); }
 .modal-cancel { margin-top: 10px; padding: 6px 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 12px; display: block; margin-left: auto; margin-right: auto; }
 .modal-cancel:hover { color: var(--text); }
 .modal-textarea, .modal-input { width: 100%; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--text); font-size: 13px; margin-bottom: 8px; font-family: inherit; }
@@ -181,6 +216,24 @@ details[open] > .shift-summary { margin-bottom: 6px; }
 .shift-content { padding-left: 0; }
 .admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
 .admin-info b { color: var(--accent); }
+/* ═══ ГРУППИРОВКА ПО КЛИЕНТАМ ═══ */
+.client-group { margin-bottom: 6px; }
+.client-summary {
+  padding: 10px 14px 10px 20px; background: var(--bg-card); border: 1px solid var(--border);
+  border-left: 3px solid #229ED9; border-radius: 8px; cursor: pointer;
+  font-size: 12px; color: var(--text); display: flex; justify-content: space-between;
+  align-items: center; gap: 8px; flex-wrap: wrap; user-select: none;
+}
+.client-summary:hover { background: rgba(34,158,217,0.1); border-color: #229ED9; }
+.client-summary .client-name { font-family: monospace; font-weight: bold; color: #229ED9; }
+.client-summary .client-stats { font-size: 11px; color: var(--text-dim); display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+.client-summary .client-stats .sum-done { color: var(--accent-2); font-weight: bold; }
+.client-summary .client-stats .sum-cancel { color: var(--danger); font-weight: bold; }
+.client-summary .client-stats .badge-count { background: var(--border); padding: 2px 6px; border-radius: 6px; font-size: 10px; }
+.client-summary .arrow { transition: transform 0.2s; }
+details[open] > .client-summary .arrow { transform: rotate(90deg); }
+details[open] > .client-summary { margin-bottom: 6px; border-left-color: #229ED9; }
+.client-content { padding-left: 20px; border-left: 2px dashed var(--border); margin-left: 8px; }
 </style>
 </head>
 <body>
@@ -208,7 +261,7 @@ details[open] > .shift-summary { margin-bottom: 6px; }
 
 <div class="search-wrap">
   <span class="search-icon">🔍</span>
-  <input type="text" class="search-input" id="searchInput" placeholder="Поиск: карта, телефон, ID, клиент, банк, сумма..." oninput="onSearch()">
+  <input type="text" class="search-input" id="searchInput" placeholder="Поиск: карта, телефон, @username, банк, сумма..." oninput="onSearch()">
   <span class="search-count" id="searchCount"></span>
   <button class="search-clear" id="searchClear" onclick="clearSearch()" style="display:none;">×</button>
 </div>
@@ -263,7 +316,7 @@ let role = sessionStorage.getItem('role') || 'guest';
 let workerName = sessionStorage.getItem('workerName') || '';
 let shiftName = sessionStorage.getItem('shiftName') || '';
 let shiftRate = parseFloat(sessionStorage.getItem('shiftRate')) || 0;
-let clientName = sessionStorage.getItem('clientName') || '';
+let clientUsername = sessionStorage.getItem('clientUsername') || '';
 let soundEnabled = localStorage.getItem('soundEnabled') !== '0';
 let theme = localStorage.getItem('theme') || 'dark';
 let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
@@ -308,14 +361,15 @@ function clearSearch() {
 }
 function matchSearch(p) {
   if (!searchQuery) return true;
-  const q = searchQuery.replace(/\s+/g, '');
+  const q = searchQuery.replace(/\s+/g, '').replace(/^@/, '');
   const qRaw = searchQuery;
   const card = (p.cardNumber || '').replace(/\s+/g, '').toLowerCase();
   const phone = (p.phone || '').replace(/\s+/g, '').toLowerCase();
+  const uname = (p.client || '').replace(/^@/, '').toLowerCase();
   if (card.includes(q)) return true;
   if (phone.includes(q)) return true;
+  if (uname.includes(q)) return true;
   if ((p.id || '').toLowerCase().includes(qRaw)) return true;
-  if ((p.client || '').toLowerCase().includes(qRaw)) return true;
   if ((p.bank || '').toLowerCase().includes(qRaw)) return true;
   if (String(p.totalSum || '').includes(qRaw)) return true;
   if ((p.createdBy || '').toLowerCase().includes(qRaw)) return true;
@@ -418,10 +472,10 @@ function showToast(msg, type = '') {
 function openLogin() {
   if (role !== 'guest') {
     if (confirm('Выйти из аккаунта?')) {
-      role = 'guest'; workerName = ''; shiftName = ''; shiftRate = 0; clientName = '';
+      role = 'guest'; workerName = ''; shiftName = ''; shiftRate = 0; clientUsername = '';
       sessionStorage.removeItem('role'); sessionStorage.removeItem('workerName');
       sessionStorage.removeItem('shiftName'); sessionStorage.removeItem('shiftRate');
-      sessionStorage.removeItem('clientName');
+      sessionStorage.removeItem('clientUsername');
       currentTab = 'available';
       updateModeUI(); render();
       showToast('👋 Вы вышли');
@@ -447,69 +501,116 @@ function showLoginChoice() {
   document.body.appendChild(overlay);
 }
 
-function selectClientType() { closeLogin(); showClientNameInput(); }
+function selectClientType() { closeLogin(); showClientUsernameInput(); }
 
-function showClientNameInput() {
+function showClientUsernameInput() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
   overlay.innerHTML = `
     <div class="modal-box heart">
       <h3>❤️ Вход для клиента</h3>
-      <p>Начни вводить имя — выбери из списка или создай новое</p>
-      <div style="position:relative;">
-        <input type="text" id="clientNameInput" placeholder="Введи своё имя..." autocomplete="off" autofocus
-               style="width:100%;padding:12px 14px;border-radius:8px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:15px;outline:none;">
-        <div id="clientNameDropdown" style="position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--bg-card);border:1px solid var(--heart);border-radius:8px;max-height:220px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
+      <p>Введи свой <b>@username</b> из Telegram</p>
+      <div class="uname-wrap">
+        <span class="uname-icon">✈️</span>
+        <input type="text" class="uname-input" id="unameInput" placeholder="@username" autocomplete="off" autofocus maxlength="33">
+        <div class="uname-dropdown" id="unameDropdown"></div>
       </div>
-      <div class="pin-error" id="clientNameError"></div>
+      <div class="pin-error" id="unameError"></div>
+      <p style="font-size:10px;color:var(--text-mute);margin-top:6px;">Начни вводить — появятся совпадения из базы</p>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
-  const input = document.getElementById('clientNameInput');
-  const dropdown = document.getElementById('clientNameDropdown');
+
+  const input = document.getElementById('unameInput');
+  const dropdown = document.getElementById('unameDropdown');
   input.focus();
+
   input.addEventListener('input', () => {
-    const q = input.value.trim().toLowerCase();
-    if (!q) { dropdown.style.display = 'none'; return; }
-    const matches = allClients.filter(c => c.name && c.name.toLowerCase().startsWith(q));
+    let v = input.value;
+    if (v.length > 0 && v[0] !== '@') {
+      input.value = '@' + v.replace(/@/g, '');
+    }
+    const q = input.value.trim().toLowerCase().replace(/^@/, '');
+
+    if (!q) { dropdown.classList.remove('show'); return; }
+
+    const matches = allClients
+      .filter(c => c.username && c.username.toLowerCase().replace(/^@/, '').startsWith(q))
+      .slice(0, 20);
+
     if (matches.length === 0) {
-      dropdown.innerHTML = `<div onclick="proceedClientName('${esc(input.value.trim())}')" style="padding:10px 14px;cursor:pointer;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,0.1);">➕ Создать нового "${esc(input.value.trim())}"</div>`;
-      dropdown.style.display = 'block';
+      const clean = '@' + q.replace(/[^a-z0-9_]/gi, '');
+      dropdown.innerHTML = `<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+      dropdown.classList.add('show');
       return;
     }
-    dropdown.innerHTML = matches.map(c =>
-      `<div onclick="proceedClientName('${esc(c.name)}')" style="padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);color:var(--text);" onmouseover="this.style.background='rgba(255,77,109,0.15)'" onmouseout="this.style.background='transparent'"><span style="color:var(--heart);margin-right:6px;">❤️</span>${esc(c.name)}</div>`
-    ).join('') + `<div onclick="proceedClientName('${esc(input.value.trim())}')" style="padding:10px 14px;cursor:pointer;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,0.1);">➕ Создать нового "${esc(input.value.trim())}"</div>`;
-    dropdown.style.display = 'block';
+
+    let html = matches.map(c => {
+      const uname = c.username;
+      const prefix = uname.slice(0, q.length + 1);
+      const rest = uname.slice(q.length + 1);
+      return `<div class="uname-item" onclick="proceedClientUsername('${esc(uname)}')">
+        <span class="heart-inline">❤️</span>
+        <span><span class="highlight-prefix">${esc(prefix)}</span>${esc(rest)}</span>
+      </div>`;
+    }).join('');
+
+    const exactMatch = matches.some(c => c.username.toLowerCase() === input.value.toLowerCase());
+    if (!exactMatch) {
+      const clean = '@' + q.replace(/[^a-z0-9_]/gi, '');
+      html += `<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+    }
+
+    dropdown.innerHTML = html;
+    dropdown.classList.add('show');
   });
+
   input.addEventListener('keydown', e => {
     if (e.key === 'Enter') {
       const v = input.value.trim();
-      if (v) proceedClientName(v);
+      if (v && v.length > 1) proceedClientUsername(v);
+    } else if (e.key === 'Escape') {
+      dropdown.classList.remove('show');
     }
   });
+
+  setTimeout(() => {
+    document.addEventListener('click', function hideDD(e) {
+      if (!overlay.contains(e.target)) {
+        dropdown.classList.remove('show');
+        document.removeEventListener('click', hideDD);
+      }
+    });
+  }, 100);
 }
 
-async function proceedClientName(name) {
-  name = name.trim();
-  if (!name || name.length < 2) { alert('Минимум 2 символа'); return; }
-  if (name.length > 30) { alert('Максимум 30 символов'); return; }
-  const existing = allClients.find(c => c.name && c.name.toLowerCase() === name.toLowerCase());
+async function proceedClientUsername(username) {
+  username = username.trim();
+  if (username[0] !== '@') username = '@' + username;
+  username = '@' + username.slice(1).replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
+
+  if (username.length < 3) { alert('❌ Слишком короткий username'); return; }
+  if (username.length > 33) { alert('❌ Слишком длинный username'); return; }
+
+  const existing = allClients.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
   closeLogin();
-  if (existing) showClientPinInput(existing.name);
-  else showClientRegister(name);
+  if (existing) {
+    showClientPinInput(existing.username);
+  } else {
+    showClientRegister(username);
+  }
 }
 
-function showClientPinInput(name) {
+function showClientPinInput(username) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
   overlay.innerHTML = `
     <div class="modal-box heart">
-      <h3>❤️ ${esc(name)}</h3>
+      <h3>❤️ ${esc(username)}</h3>
       <p>Введи свой PIN-код</p>
       <div class="pin-row">
         <input type="password" class="heart" id="pinField" maxlength="6" placeholder="••••" autofocus>
-        <button class="heart" onclick="verifyClientPin('${esc(name)}')">Войти</button>
+        <button class="heart" onclick="verifyClientPin('${esc(username)}')">Войти</button>
       </div>
       <div class="pin-error" id="pinError"></div>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
@@ -518,30 +619,30 @@ function showClientPinInput(name) {
   setTimeout(() => {
     const f = document.getElementById('pinField');
     f?.focus();
-    f?.addEventListener('keydown', e => { if (e.key === 'Enter') verifyClientPin(name); });
+    f?.addEventListener('keydown', e => { if (e.key === 'Enter') verifyClientPin(username); });
   }, 50);
 }
 
-async function verifyClientPin(name) {
+async function verifyClientPin(username) {
   const pin = document.getElementById('pinField')?.value;
   if (!pin) return;
   const hashed = await hashPin(pin);
-  const existing = allClients.find(c => c.name && c.name.toLowerCase() === name.toLowerCase());
+  const existing = allClients.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
   if (!existing || existing.pinHash !== hashed) {
     document.getElementById('pinError').textContent = '❌ Неверный PIN';
     document.getElementById('pinField').value = '';
     return;
   }
-  loginClient(existing.name);
+  loginClient(existing.username);
 }
 
-function showClientRegister(name) {
+function showClientRegister(username) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
   overlay.innerHTML = `
     <div class="modal-box heart">
       <h3>❤️ Регистрация</h3>
-      <p>Новый клиент: <b>${esc(name)}</b></p>
+      <p>Новый клиент: <b>${esc(username)}</b></p>
       <p style="font-size:11px;">Придумай свой PIN (4-6 цифр).<br>Он нужен чтобы входить с любого устройства.</p>
       <div class="pin-row" style="flex-direction:column;gap:8px;">
         <input type="password" class="heart" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus>
@@ -549,18 +650,18 @@ function showClientRegister(name) {
       </div>
       <div class="pin-error" id="pinError"></div>
       <div class="pin-row" style="margin-top:10px;">
-        <button class="heart" style="width:100%;" onclick="registerClient('${esc(name)}')">Создать</button>
+        <button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button>
       </div>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
   setTimeout(() => {
     document.getElementById('pinField')?.focus();
-    document.getElementById('pinField2')?.addEventListener('keydown', e => { if (e.key === 'Enter') registerClient(name); });
+    document.getElementById('pinField2')?.addEventListener('keydown', e => { if (e.key === 'Enter') registerClient(username); });
   }, 50);
 }
 
-async function registerClient(name) {
+async function registerClient(username) {
   const pin1 = document.getElementById('pinField')?.value;
   const pin2 = document.getElementById('pinField2')?.value;
   const err = document.getElementById('pinError');
@@ -569,21 +670,21 @@ async function registerClient(name) {
   if (!/^\d+$/.test(pin1)) { err.textContent = '❌ Только цифры'; return; }
   try {
     const pinHash = await hashPin(pin1);
-    await addDoc(clientsRef, { name, pinHash, createdAt: Date.now() });
-    showToast('❤️ Добро пожаловать, ' + name + '!', 'heart');
-    loginClient(name);
+    await addDoc(clientsRef, { username: username, pinHash, createdAt: Date.now() });
+    showToast('❤️ Добро пожаловать, ' + username + '!', 'heart');
+    loginClient(username);
   } catch(e) { err.textContent = '❌ Ошибка: ' + e.message; }
 }
 
-function loginClient(name) {
+function loginClient(username) {
   role = 'client';
-  clientName = name;
+  clientUsername = username;
   sessionStorage.setItem('role', 'client');
-  sessionStorage.setItem('clientName', name);
+  sessionStorage.setItem('clientUsername', username);
   closeLogin();
   currentTab = 'available';
   updateModeUI(); render();
-  showToast('❤️ Привет, ' + name + '!', 'heart');
+  showToast('❤️ Привет, ' + username + '!', 'heart');
 }
 
 function selectBT7Type() {
@@ -593,7 +694,7 @@ function selectBT7Type() {
   overlay.innerHTML = `
     <div class="modal-box">
       <h3>🛠 BT7</h3>
-      <p>Выбери сотрудника</p>
+      <p>Кто работает?</p>
       <div class="worker-btns">
         ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
         <button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button>
@@ -769,9 +870,9 @@ function closeLogin() { document.getElementById('loginModal')?.remove(); }
 function openSettings() {
   if (role === 'admin') { showToast('👑 Админ: настройки недоступны'); return; }
   if (role === 'client') {
-    if (confirm('Выйти из аккаунта ❤️ ' + clientName + '?')) {
-      role = 'guest'; clientName = '';
-      sessionStorage.removeItem('role'); sessionStorage.removeItem('clientName');
+    if (confirm('Выйти из аккаунта ❤️ ' + clientUsername + '?')) {
+      role = 'guest'; clientUsername = '';
+      sessionStorage.removeItem('role'); sessionStorage.removeItem('clientUsername');
       currentTab = 'available';
       updateModeUI(); render();
       showToast('👋 Вы вышли');
@@ -866,13 +967,13 @@ function updateModeUI() {
       rateBadge.textContent = ''; rateBadge.className = 'badge';
     }
   } else if (role === 'client') {
-    btn.textContent = '❤️ ' + clientName; btn.className = 'client';
+    btn.textContent = '❤️ ' + clientUsername; btn.className = 'client';
     form.style.display = 'none';
     settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
-    badge.textContent = '❤️ ' + clientName; badge.className = 'badge client';
+    badge.textContent = '❤️ ' + clientUsername; badge.className = 'badge client';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '❤️ ' + clientName + ' — твои заявки с сердечком';
+    meInfo.textContent = '❤️ ' + clientUsername + ' — твои заявки с сердечком';
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
@@ -909,14 +1010,13 @@ function filterPayouts(list, tab) {
   }
   if (role === 'client') {
     if (tab === 'available') return list;
-    if (tab === 'active') return list.filter(p => p.client === clientName);
-    if (tab === 'done') return list.filter(p => p.client === clientName);
+    if (tab === 'active') return list.filter(p => p.client === clientUsername);
+    if (tab === 'done') return list.filter(p => p.client === clientUsername);
   }
   if (tab === 'available') return list;
   return [];
 }
 
-// ============ ПРОВЕРКА ДУБЛИКАТА + СОЗДАНИЕ ============
 async function addPayout() {
   if (role !== 'worker') { alert('❌ Только воркер может создавать заявки'); return; }
 
@@ -928,7 +1028,6 @@ async function addPayout() {
   const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
   const rate = parseFloat(document.getElementById('rate').value) || shiftRate || 0;
 
-  // ═══════ ВАЛИДАЦИЯ ═══════
   const errors = [];
   if (!phone && !cardNumber) errors.push('📱 Заполни телефон ИЛИ 💳 карту (хотя бы одно)');
   if (!totalSum || totalSum <= 0) errors.push('💰 Укажи сумму');
@@ -939,7 +1038,6 @@ async function addPayout() {
     return;
   }
 
-  // ═══════ ПРОВЕРКА ДУБЛИКАТОВ ═══════
   const todayStart = new Date();
   todayStart.setHours(0, 0, 0, 0);
   const normCard = (s) => (s || '').replace(/\s+/g, '');
@@ -985,7 +1083,6 @@ async function addPayout() {
     if (!ok) return;
   }
 
-  // ═══════ СОЗДАНИЕ ═══════
   try {
     await addDoc(payoutsRef, {
       phone, cardNumber, bank,
@@ -1016,7 +1113,7 @@ async function takePayout(id) {
   const p = payouts.find(x => x.id === id);
   if (!p || p.status !== 'available') return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'active', client: clientName, startedAt: Date.now()
+    status: 'active', client: clientUsername, startedAt: Date.now()
   });
   setTab('active');
   showToast('❤️ Взято в работу!', 'heart');
@@ -1025,7 +1122,7 @@ async function takePayout(id) {
 async function uploadCheck(id, inputEl) {
   const p = payouts.find(x => x.id === id);
   if (!p) return;
-  const isOwner = (role === 'client' && p.client === clientName) || (role === 'worker');
+  const isOwner = (role === 'client' && p.client === clientUsername) || (role === 'worker');
   if (!isOwner) { alert('❌ Нельзя'); return; }
   const file = inputEl.files[0];
   const sumEl = document.getElementById('checkSum_' + id);
@@ -1100,7 +1197,7 @@ async function submitProblem(id) {
         reader.readAsDataURL(file);
       });
     }
-    const problems = [...(p.problems || []), { text, file: fileData, createdAt: Date.now(), by: role === 'client' ? clientName : workerName }];
+    const problems = [...(p.problems || []), { text, file: fileData, createdAt: Date.now(), by: role === 'client' ? clientUsername : workerName }];
     await updateDoc(doc(db, 'payouts', id), { problems, hasProblem: true });
     closeProblemModal();
     showToast('✅ Отправлено');
@@ -1111,11 +1208,11 @@ async function submitProblem(id) {
 async function cancelByClient(id) {
   if (role !== 'client') return;
   const p = payouts.find(x => x.id === id);
-  if (!p || p.client !== clientName) return;
+  if (!p || p.client !== clientUsername) return;
   const reason = prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
   if (reason === null) return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'cancelled', cancelledAt: Date.now(), cancelledBy: clientName, cancelReason: reason || 'без причины'
+    status: 'cancelled', cancelledAt: Date.now(), cancelledBy: clientUsername, cancelReason: reason || 'без причины'
   });
   showToast('❌ Отменено');
 }
@@ -1185,7 +1282,7 @@ function renderCard(p) {
   const left = Math.max(0, p.totalSum - paid);
   const pct = Math.min(100, (paid / p.totalSum) * 100);
   const checksCount = (p.checks || []).length;
-  const isMine = (role === 'client' && p.client === clientName);
+  const isMine = (role === 'client' && p.client === clientUsername);
   const canEditRate = role === 'worker';
 
   let timerHtml = '';
@@ -1281,9 +1378,7 @@ function renderCard(p) {
 
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
 
-  // Карта — только если есть
   const cardHtml = p.cardNumber ? `<div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>` : '';
-  // Телефон — только если есть
   const phoneHtml = p.phone ? `<div class="card-row">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
 
   const heartPrefix = isMine ? '❤️ ' : '';
@@ -1295,7 +1390,7 @@ function renderCard(p) {
       ${phoneHtml}
       ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
       ${rateHtml}
-      ${p.client ? `<div class="card-row small">❤️ Клиент: ${highlightMatch(p.client)}</div>` : ''}
+      ${p.client ? `<div class="card-row small">❤️ Клиент: ✈️ ${highlightMatch(p.client)}</div>` : ''}
       ${metaHtml}
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
@@ -1306,7 +1401,11 @@ function renderCard(p) {
     </div>`;
 }
 
+// ═══════════════════════════════════════════════════════════
+//  АРХИВ: Дата → Смена → Клиент (с автоподсчётом)
+// ═══════════════════════════════════════════════════════════
 function renderArchive(list) {
+  // Уровень 1: дата → смена
   const byDate = {};
   list.forEach(p => {
     const d = new Date(p.createdAt);
@@ -1317,6 +1416,7 @@ function renderArchive(list) {
     byDate[dateKey].shifts[shift].push(p);
     if (p.createdAt > byDate[dateKey].latestAt) byDate[dateKey].latestAt = p.createdAt;
   });
+
   const sortedDates = Object.keys(byDate).sort((a, b) => byDate[b].latestAt - byDate[a].latestAt);
   const currentShift = getCurrentShift();
   const todayStr = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
@@ -1328,6 +1428,7 @@ function renderArchive(list) {
     const totalCount = Object.values(dayData.shifts).reduce((s, arr) => s + arr.length, 0);
     const totalDone = Object.values(dayData.shifts).flat().filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
     const dateOpenAttr = (dateIdx === 0 || isToday || !!searchQuery) ? ' open' : '';
+
     html += `<details class="date-group"${dateOpenAttr}>
       <summary class="date-summary">
         <span>${isToday ? '🔥 ' : '📅 '}${dateKey}</span>
@@ -1335,34 +1436,127 @@ function renderArchive(list) {
         <span class="arrow">▶</span>
       </summary>
       <div class="date-content">`;
+
     SHIFTS.forEach(shift => {
       const items = dayData.shifts[shift] || [];
       if (!items.length) return;
       const isCurrentShift = isToday && shift === currentShift;
       const shiftOpenAttr = (isCurrentShift || !!searchQuery) ? ' open' : '';
       const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
+
+      // Уровень 2: смена → клиенты
+      // Группируем по клиенту
+      const byClient = {};
+      items.forEach(p => {
+        const client = p.client || '(без клиента)';
+        if (!byClient[client]) byClient[client] = [];
+        byClient[client].push(p);
+      });
+
+      // Сортируем клиентов: сначала по сумме выполненных, потом по алфавиту
+      const clientKeys = Object.keys(byClient).sort((a, b) => {
+        const sumA = byClient[a].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
+        const sumB = byClient[b].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
+        if (sumB !== sumA) return sumB - sumA;
+        return a.localeCompare(b, 'ru');
+      });
+
       html += `<details class="shift-group"${shiftOpenAttr}>
         <summary class="shift-summary ${getShiftClass(shift)}">
           <span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift] || ''}</span></span>
           <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
           <span class="arrow">▶</span>
         </summary>
-        <div class="shift-content">${items.map(renderCard).join('')}</div>
-      </details>`;
+        <div class="shift-content">`;
+
+      // Отрисовка клиентов
+      clientKeys.forEach(clientKey => {
+        const clientPayouts = byClient[clientKey];
+        const clientDone = clientPayouts.filter(p => p.status === 'done');
+        const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
+        const clientActive = clientPayouts.filter(p => p.status === 'active');
+        const clientAvailable = clientPayouts.filter(p => p.status === 'available');
+
+        const doneSum = clientDone.reduce((s, p) => s + p.totalSum, 0);
+        const cancelCount = clientCancelled.length;
+        const activeCount = clientActive.length;
+        const availCount = clientAvailable.length;
+        const totalClientSum = clientPayouts.reduce((s, p) => s + p.totalSum, 0);
+
+        const isClient = clientKey !== '(без клиента)';
+        const clientName = isClient ? clientKey : '(без клиента)';
+
+        html += `<details class="client-group">
+          <summary class="client-summary">
+            <span>
+              ${isClient ? '✈️ ' : '👤 '}
+              <span class="client-name">${esc(clientName)}</span>
+            </span>
+            <span class="client-stats">
+              <span class="badge-count">${clientPayouts.length} заявок</span>
+              <span class="sum-done">✅ ${formatMoney(doneSum)}</span>
+              ${cancelCount ? `<span class="sum-cancel">❌ ${cancelCount}</span>` : ''}
+              ${activeCount ? `<span style="color:var(--warning)">🔥 ${activeCount}</span>` : ''}
+              ${availCount ? `<span style="color:var(--accent)">⏳ ${availCount}</span>` : ''}
+            </span>
+            <span class="arrow">▶</span>
+          </summary>
+          <div class="client-content">
+            ${clientPayouts.map(renderCard).join('')}
+          </div>
+        </details>`;
+      });
+
+      html += `</div></details>`;
     });
+
+    // Смена "Без смены" — если есть
     if (dayData.shifts['Без смены'] && dayData.shifts['Без смены'].length) {
       const items = dayData.shifts['Без смены'];
+      const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
+
+      const byClient = {};
+      items.forEach(p => {
+        const client = p.client || '(без клиента)';
+        if (!byClient[client]) byClient[client] = [];
+        byClient[client].push(p);
+      });
+      const clientKeys = Object.keys(byClient).sort();
+
       html += `<details class="shift-group">
         <summary class="shift-summary">
           <span>❓ Без смены</span>
-          <span>${items.length} заявок</span>
+          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
           <span class="arrow">▶</span>
         </summary>
-        <div class="shift-content">${items.map(renderCard).join('')}</div>
-      </details>`;
+        <div class="shift-content">`;
+
+      clientKeys.forEach(clientKey => {
+        const clientPayouts = byClient[clientKey];
+        const clientDone = clientPayouts.filter(p => p.status === 'done');
+        const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
+        const doneSum2 = clientDone.reduce((s, p) => s + p.totalSum, 0);
+        const isClient = clientKey !== '(без клиента)';
+        html += `<details class="client-group">
+          <summary class="client-summary">
+            <span>${isClient ? '✈️ ' : '👤 '}<span class="client-name">${esc(clientKey)}</span></span>
+            <span class="client-stats">
+              <span class="badge-count">${clientPayouts.length} заявок</span>
+              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
+              ${clientCancelled.length ? `<span class="sum-cancel">❌ ${clientCancelled.length}</span>` : ''}
+            </span>
+            <span class="arrow">▶</span>
+          </summary>
+          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
+        </details>`;
+      });
+
+      html += `</div></details>`;
     }
+
     html += `</div></details>`;
   });
+
   return html;
 }
 
@@ -1440,7 +1634,7 @@ setInterval(() => {
 
 onSnapshot(clientsRef, snapshot => {
   allClients = snapshot.docs.map(d => d.data());
-  allClients.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+  allClients.sort((a, b) => (a.username || '').localeCompare(b.username || '', 'ru'));
 }, err => { console.warn('Clients snapshot error:', err.message); });
 
 onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
@@ -1532,7 +1726,7 @@ Object.assign(window, {
   openSettings, closeSettings, toggleSound, selectClientType, selectBT7Type,
   selectWorker, selectAdmin, submitPin, closeLogin, setTheme,
   openProblemModal, closeProblemModal, submitProblem, cancelByClient,
-  editRate, onSearch, clearSearch, proceedClientName, verifyClientPin,
+  editRate, onSearch, clearSearch, proceedClientUsername, verifyClientPin,
   registerClient, askShiftModal, askRateModal, pickShift, confirmShift,
   cancelShift, confirmRate, cancelRate
 });
