@@ -58,7 +58,7 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .card-row{font-size:12px;margin-bottom:4px}
 .card-row.small{font-size:10px;color:var(--text-dim)}
 .card-row b{color:var(--accent)}
-.card-num{cursor:pointer;color:var(--accent-2);font-family:monospace;white-space:nowrap;word-break:keep-all}
+.card-num{cursor:pointer;color:var(--accent-2);font-family:monospace;white-space:nowrap}
 .card-num:hover{text-decoration:underline}
 .phone-num{cursor:pointer;color:var(--info);font-family:monospace;white-space:nowrap}
 .phone-num:hover{text-decoration:underline}
@@ -215,12 +215,10 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 </head>
 <body>
 
-<h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock" title="Смещение часов относительно сервера">🕐 —</span></h1>
+<h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock" title="Смещение часов">🕐 —</span></h1>
 <div class="me" id="meInfo">Загрузка...</div>
 
-<div class="admin-info" id="adminInfo" style="display:none;">
-  👑 <b>Режим админа</b> — только просмотр архива всех воркеров.
-</div>
+<div class="admin-info" id="adminInfo" style="display:none;">👑 <b>Режим админа</b> — только просмотр архива всех воркеров.</div>
 
 <div class="section" id="adminForm" style="display:none;">
   <h2>➕ Добавить заявку</h2>
@@ -271,7 +269,6 @@ const ADMIN_PIN='0927';
 const WORKERS={'Denis':'1111','Dmitriy':'2222','Artem':'3333','Evgeniy':'4444'};
 const SHIFTS=['Утро','Вечер','Ночь'];
 const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
-
 const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
 const app=initializeApp(firebaseConfig);
@@ -279,30 +276,18 @@ const db=getFirestore(app);
 const payoutsRef=collection(db,'payouts');
 const clientsRef=collection(db,'clients');
 
-// ═══ 🛡 SANITIZE РЕКВИЗИТОВ ═══
-// Убираем невидимые символы и NBSP, которые "ломают" номер при вставке.
-// ВАЖНО: не трогаем обычные пробелы и знаки — карта/телефон как ввёл воркер.
 function sanitizeReq(v){
   if(!v)return v;
-  return String(v)
-    .replace(/\u00A0/g,' ')          // NBSP → обычный пробел
-    .replace(/[\u200B-\u200D\uFEFF]/g,'') // zero-width убираем полностью
-    .replace(/\r\n/g,'\n')
-    .replace(/\r/g,'\n')
-    .trim();
+  return String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
 }
 
 // ═══ СЕРВЕРНОЕ ВРЕМЯ ═══
 const MAX_OFFSET_MS=10*60*1000;
 let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
 let clockSynced=sessionStorage.getItem('clockSynced')==='1';
-if(Math.abs(clockOffset)>MAX_OFFSET_MS){
-  clockOffset=0;clockSynced=false;
-  sessionStorage.removeItem('clockOffset');sessionStorage.removeItem('clockSynced');
-}
+if(Math.abs(clockOffset)>MAX_OFFSET_MS){clockOffset=0;clockSynced=false;sessionStorage.removeItem('clockOffset');sessionStorage.removeItem('clockSynced');}
 function updateClockBadge(){
-  const b=document.getElementById('clockBadge');
-  if(!b)return;
+  const b=document.getElementById('clockBadge');if(!b)return;
   const sec=Math.round(clockOffset/1000);
   if(!clockSynced){b.textContent='🕐 ?';b.className='badge clock';b.title='Не синхронизировано';}
   else if(Math.abs(sec)<5){b.textContent='🕐 OK';b.className='badge clock';b.title='Синхронизировано';}
@@ -316,15 +301,10 @@ async function syncClock(silent=false){
   ];
   for(const ep of endpoints){
     try{
-      const t0=Date.now();
-      const ctrl=new AbortController();
-      const to=setTimeout(()=>ctrl.abort(),6000);
-      const r=await fetch(ep.url,{cache:'no-store',signal:ctrl.signal});
-      clearTimeout(to);
-      const t1=Date.now();
-      if(!r.ok)continue;
-      const data=await r.json();
-      const serverMs=ep.parse(data);
+      const t0=Date.now();const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),6000);
+      const r=await fetch(ep.url,{cache:'no-store',signal:ctrl.signal});clearTimeout(to);
+      const t1=Date.now();if(!r.ok)continue;
+      const data=await r.json();const serverMs=ep.parse(data);
       if(!serverMs||isNaN(serverMs))continue;
       const newOffset=serverMs-Math.round((t0+t1)/2);
       if(Math.abs(newOffset)>MAX_OFFSET_MS)continue;
@@ -333,7 +313,7 @@ async function syncClock(silent=false){
       sessionStorage.setItem('clockOffset',String(clockOffset));
       sessionStorage.setItem('clockSynced','1');
       updateClockBadge();
-      if(!silent)showToast('🕐 Время синхронизировано (Δ '+(clockOffset>=0?'+':'')+Math.round(clockOffset/1000)+'с)');
+      if(!silent)showToast('🕐 Синхронизировано (Δ '+(clockOffset>=0?'+':'')+Math.round(clockOffset/1000)+'с)');
       if(changed){try{render();}catch(e){}}
       return true;
     }catch(e){}
@@ -361,7 +341,7 @@ let prevState=new Map();
 let seenPayoutIds=new Set();
 let isFirstSnapshot=true;
 let expiringIds=new Set();
-let takingIds=new Set();   // локальный лок на клиенте, чтобы не дублировать клик
+let takingIds=new Set();
 
 let warned15=new Set(JSON.parse(sessionStorage.getItem('warned15')||'[]'));
 let warned10=new Set(JSON.parse(sessionStorage.getItem('warned10')||'[]'));
@@ -393,10 +373,7 @@ function shouldSendNotify(dedupeKey,windowMs=8000){
       const cutoff=nowMs-3600*1000;
       for(let i=localStorage.length-1;i>=0;i--){
         const k=localStorage.key(i);
-        if(k&&k.startsWith('notif_dedupe_')){
-          const v=parseInt(localStorage.getItem(k)||'0');
-          if(v<cutoff)localStorage.removeItem(k);
-        }
+        if(k&&k.startsWith('notif_dedupe_')){const v=parseInt(localStorage.getItem(k)||'0');if(v<cutoff)localStorage.removeItem(k);}
       }
     }
     return true;
@@ -410,25 +387,14 @@ function strongNotify(title,body,opts={}){
   try{showToast('🔔 '+title,opts.toastType||'warn');}catch(e){}
   try{addUnreadAndFlashTitle(title);}catch(e){}
   try{setUnreadFavicon();}catch(e){}
-  try{
-    if('Notification' in window&&Notification.permission==='granted'){
-      new Notification(title,{body,tag:'payout-'+dedupeKey,renotify:false});
-    }
-  }catch(e){}
-  try{
-    if(document.hidden&&(!('Notification' in window)||Notification.permission!=='granted')){
-      showInPageAlert(title,body);
-    }
-  }catch(e){}
+  try{if('Notification' in window&&Notification.permission==='granted'){new Notification(title,{body,tag:'payout-'+dedupeKey,renotify:false});}}catch(e){}
+  try{if(document.hidden&&(!('Notification' in window)||Notification.permission!=='granted')){showInPageAlert(title,body);}}catch(e){}
 }
 function addUnreadAndFlashTitle(newTitle){
   unreadCount++;
   if(titleFlashInterval)return;
   let showOriginal=false;
-  titleFlashInterval=setInterval(()=>{
-    document.title=showOriginal?originalTitle:`🔴 (${unreadCount}) ${newTitle.substring(0,30)}`;
-    showOriginal=!showOriginal;
-  },800);
+  titleFlashInterval=setInterval(()=>{document.title=showOriginal?originalTitle:`🔴 (${unreadCount}) ${newTitle.substring(0,30)}`;showOriginal=!showOriginal;},800);
 }
 function resetTitleFlash(){
   if(titleFlashInterval){clearInterval(titleFlashInterval);titleFlashInterval=null;}
@@ -438,10 +404,8 @@ function setUnreadFavicon(){
   try{
     if(!originalFavicon){const link=document.querySelector("link[rel*='icon']");if(link)originalFavicon=link.href;}
     const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;
-    const ctx=canvas.getContext('2d');
-    ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(32,32,30,0,2*Math.PI);ctx.fill();
-    ctx.fillStyle='#fff';ctx.font='bold 44px Arial';ctx.textAlign='center';ctx.textBaseline='middle';
-    ctx.fillText('!',32,34);
+    const ctx=canvas.getContext('2d');ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(32,32,30,0,2*Math.PI);ctx.fill();
+    ctx.fillStyle='#fff';ctx.font='bold 44px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',32,34);
     let link=document.querySelector("link[rel*='icon']")||document.createElement('link');
     link.rel='icon';link.href=canvas.toDataURL('image/png');document.head.appendChild(link);
   }catch(e){}
@@ -461,64 +425,37 @@ async function hashPin(pin){
   const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('p2p_salt_'+pin));
   return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
 }
-function setTheme(t){
-  theme=t;localStorage.setItem('theme',t);document.body.setAttribute('data-theme',t);
-  document.querySelectorAll('[data-theme-btn]').forEach(b=>{b.classList.toggle('active',b.dataset.themeBtn===t);});
-}
+function setTheme(t){theme=t;localStorage.setItem('theme',t);document.body.setAttribute('data-theme',t);document.querySelectorAll('[data-theme-btn]').forEach(b=>{b.classList.toggle('active',b.dataset.themeBtn===t);});}
 setTheme(theme);
-function onSearch(){
-  searchQuery=document.getElementById('searchInput').value.trim().toLowerCase();
-  document.getElementById('searchClear').style.display=searchQuery?'block':'none';
-  render();
-}
-function clearSearch(){
-  document.getElementById('searchInput').value='';searchQuery='';
-  document.getElementById('searchClear').style.display='none';
-  document.getElementById('searchCount').textContent='';render();
-}
+function onSearch(){searchQuery=document.getElementById('searchInput').value.trim().toLowerCase();document.getElementById('searchClear').style.display=searchQuery?'block':'none';render();}
+function clearSearch(){document.getElementById('searchInput').value='';searchQuery='';document.getElementById('searchClear').style.display='none';document.getElementById('searchCount').textContent='';render();}
 function matchSearch(p){
   if(!searchQuery)return true;
-  const q=searchQuery.replace(/\s+/g,'').replace(/^@/,'');
-  const qRaw=searchQuery;
+  const q=searchQuery.replace(/\s+/g,'').replace(/^@/,'');const qRaw=searchQuery;
   const card=(p.cardNumber||'').replace(/\s+/g,'').toLowerCase();
   const phone=(p.phone||'').replace(/\s+/g,'').toLowerCase();
   const uname=(p.client||'').replace(/^@/,'').toLowerCase();
-  if(card.includes(q))return true;
-  if(phone.includes(q))return true;
-  if(uname.includes(q))return true;
-  if((p.id||'').toLowerCase().includes(qRaw))return true;
-  if((p.bank||'').toLowerCase().includes(qRaw))return true;
-  if(String(p.totalSum||'').includes(qRaw))return true;
-  if((p.createdBy||'').toLowerCase().includes(qRaw))return true;
-  if((p.shift||'').toLowerCase().includes(qRaw))return true;
-  if(p.rate&&String(p.rate).includes(qRaw))return true;
+  if(card.includes(q))return true;if(phone.includes(q))return true;if(uname.includes(q))return true;
+  if((p.id||'').toLowerCase().includes(qRaw))return true;if((p.bank||'').toLowerCase().includes(qRaw))return true;
+  if(String(p.totalSum||'').includes(qRaw))return true;if((p.createdBy||'').toLowerCase().includes(qRaw))return true;
+  if((p.shift||'').toLowerCase().includes(qRaw))return true;if(p.rate&&String(p.rate).includes(qRaw))return true;
   if((p.checks||[]).some(c=>String(c.sum).includes(qRaw)))return true;
   return false;
 }
 function highlightMatch(text){
   if(!searchQuery||!text)return esc(text);
-  const s=String(text);
-  const idx=s.toLowerCase().indexOf(searchQuery.toLowerCase());
+  const s=String(text);const idx=s.toLowerCase().indexOf(searchQuery.toLowerCase());
   if(idx===-1)return esc(s);
   return esc(s.substring(0,idx))+'<span class="highlight">'+esc(s.substring(idx,idx+searchQuery.length))+'</span>'+esc(s.substring(idx+searchQuery.length));
 }
-function initAudio(){
-  if(!audioCtx){try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}
-  if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();
-}
+function initAudio(){if(!audioCtx){try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
 function playSound(type){
-  if(!soundEnabled)return;
-  initAudio();if(!audioCtx)return;
+  if(!soundEnabled)return;initAudio();if(!audioCtx)return;
   const t=audioCtx.currentTime;
-  if(type==='check'){
-    [0,.15,.3].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(880,t+d);g.gain.setValueAtTime(.4,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.1);o.start(t+d);o.stop(t+d+.1);});
-  }else if(type==='warning'){
-    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(440,t);g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.01,t+.25);o.start(t);o.stop(t+.25);
-  }else if(type==='new'){
-    [0,.2].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.setValueAtTime(1100,t+d);g.gain.setValueAtTime(.3,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.15);o.start(t+d);o.stop(t+d+.15);});
-  }else if(type==='taken'){
-    const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(950,t+.3);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.01,t+.3);o.start(t);o.stop(t+.3);
-  }
+  if(type==='check'){[0,.15,.3].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(880,t+d);g.gain.setValueAtTime(.4,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.1);o.start(t+d);o.stop(t+d+.1);});}
+  else if(type==='warning'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(440,t);g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.01,t+.25);o.start(t);o.stop(t+.25);}
+  else if(type==='new'){[0,.2].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.setValueAtTime(1100,t+d);g.gain.setValueAtTime(.3,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.15);o.start(t+d);o.stop(t+d+.15);});}
+  else if(type==='taken'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(950,t+.3);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.01,t+.3);o.start(t);o.stop(t+.3);}
 }
 document.addEventListener('click',function askNotify(){
   if(notifyPermissionAsked)return;
@@ -526,7 +463,7 @@ document.addEventListener('click',function askNotify(){
   if('Notification' in window&&Notification.permission==='default'){
     const overlay=document.createElement('div');
     overlay.className='modal-overlay';overlay.id='notifyPreModal';
-    overlay.innerHTML=`<div class="modal-box"><h3>🔔 Включить уведомления</h3><p>Чтобы не пропускать заявки и важные события, разрешите уведомления.</p><p style="font-size:11px;">Звук и вибрация работают <b>всегда</b>. Пуши нужны для работы в фоне.</p><button class="modal-submit" id="notifyYes">✅ Разрешить</button><button class="modal-cancel" id="notifyNo">Позже</button></div>`;
+    overlay.innerHTML=`<div class="modal-box"><h3>🔔 Включить уведомления</h3><p>Разрешите уведомления чтобы не пропускать заявки.</p><button class="modal-submit" id="notifyYes">✅ Разрешить</button><button class="modal-cancel" id="notifyNo">Позже</button></div>`;
     document.body.appendChild(overlay);
     document.getElementById('notifyYes').onclick=async()=>{document.getElementById('notifyPreModal')?.remove();try{await Notification.requestPermission();}catch(e){}};
     document.getElementById('notifyNo').onclick=()=>{document.getElementById('notifyPreModal')?.remove();};
@@ -577,27 +514,18 @@ function showClientUsernameInput(){
       dropdown.classList.add('show');return;
     }
     let html=matches.map(c=>{
-      const uname=c.username;
-      const prefix=uname.slice(0,q.length+1);
-      const rest=uname.slice(q.length+1);
+      const uname=c.username;const prefix=uname.slice(0,q.length+1);const rest=uname.slice(q.length+1);
       return `<div class="uname-item" onclick="proceedClientUsername('${esc(uname)}')"><span class="heart-inline">❤️</span><span><span class="highlight-prefix">${esc(prefix)}</span>${esc(rest)}</span></div>`;
     }).join('');
     const exactMatch=matches.some(c=>c.username.toLowerCase()===input.value.toLowerCase());
-    if(!exactMatch){
-      const clean='@'+q.replace(/[^a-z0-9_]/gi,'');
-      html+=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
-    }
+    if(!exactMatch){const clean='@'+q.replace(/[^a-z0-9_]/gi,'');html+=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;}
     dropdown.innerHTML=html;dropdown.classList.add('show');
   });
   input.addEventListener('keydown',e=>{
     if(e.key==='Enter'){const v=input.value.trim();if(v&&v.length>1)proceedClientUsername(v);}
     else if(e.key==='Escape'){dropdown.classList.remove('show');}
   });
-  setTimeout(()=>{
-    document.addEventListener('click',function hideDD(e){
-      if(!overlay.contains(e.target)){dropdown.classList.remove('show');document.removeEventListener('click',hideDD);}
-    });
-  },100);
+  setTimeout(()=>{document.addEventListener('click',function hideDD(e){if(!overlay.contains(e.target)){dropdown.classList.remove('show');document.removeEventListener('click',hideDD);}});},100);
 }
 async function proceedClientUsername(username){
   username=username.trim();
@@ -617,39 +545,27 @@ function showClientPinInput(username){
   setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyClientPin(username);});},50);
 }
 async function verifyClientPin(username){
-  const pin=document.getElementById('pinField')?.value;
-  if(!pin)return;
+  const pin=document.getElementById('pinField')?.value;if(!pin)return;
   const hashed=await hashPin(pin);
   const existing=allClients.find(c=>c.username&&c.username.toLowerCase()===username.toLowerCase());
-  if(!existing||existing.pinHash!==hashed){
-    document.getElementById('pinError').textContent='❌ Неверный PIN';
-    document.getElementById('pinField').value='';return;
-  }
+  if(!existing||existing.pinHash!==hashed){document.getElementById('pinError').textContent='❌ Неверный PIN';document.getElementById('pinField').value='';return;}
   loginClient(existing.username);
 }
 function showClientRegister(username){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай свой PIN (4-6 цифр).<br>Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="password" class="heart" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="password" class="heart" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай PIN (4-6 цифр). Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="password" class="heart" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="password" class="heart" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
-  setTimeout(()=>{
-    document.getElementById('pinField')?.focus();
-    document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerClient(username);});
-  },50);
+  setTimeout(()=>{document.getElementById('pinField')?.focus();document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerClient(username);});},50);
 }
 async function registerClient(username){
-  const pin1=document.getElementById('pinField')?.value;
-  const pin2=document.getElementById('pinField2')?.value;
+  const pin1=document.getElementById('pinField')?.value;const pin2=document.getElementById('pinField2')?.value;
   const err=document.getElementById('pinError');
   if(!pin1||pin1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}
   if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}
   if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}
-  try{
-    const pinHash=await hashPin(pin1);
-    await addDoc(clientsRef,{username:username,pinHash,createdAt:now()});
-    showToast('❤️ Добро пожаловать, '+username+'!','heart');
-    loginClient(username);
-  }catch(e){err.textContent='❌ Ошибка: '+e.message;}
+  try{const pinHash=await hashPin(pin1);await addDoc(clientsRef,{username:username,pinHash,createdAt:now()});showToast('❤️ Добро пожаловать, '+username+'!','heart');loginClient(username);}
+  catch(e){err.textContent='❌ Ошибка: '+e.message;}
 }
 function loginClient(username){
   role='client';clientUsername=username;
@@ -674,13 +590,9 @@ function showLoginPin(displayName,roleType){
   setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')submitPin(roleType,displayName);});},50);
 }
 function submitPin(roleType,displayName){
-  const pin=document.getElementById('pinField')?.value;
-  if(!pin)return;
+  const pin=document.getElementById('pinField')?.value;if(!pin)return;
   let correct=(roleType==='admin')?(pin===ADMIN_PIN):(WORKERS[displayName]===pin);
-  if(!correct){
-    document.getElementById('pinError').textContent='❌ Неверный PIN';
-    document.getElementById('pinField').value='';return;
-  }
+  if(!correct){document.getElementById('pinError').textContent='❌ Неверный PIN';document.getElementById('pinField').value='';return;}
   role=roleType;
   workerName=(roleType==='worker')?displayName:'Админ';
   sessionStorage.setItem('role',role);sessionStorage.setItem('workerName',workerName);
@@ -701,10 +613,8 @@ function renderShiftModal(){
 }
 function pickShift(s){tempShiftChoice=s;updateShiftButtonHighlight();}
 function updateShiftButtonHighlight(){
-  const overlay=document.getElementById('shiftModal');
-  if(!overlay)return;
-  const btns=overlay.querySelectorAll('.shift-choice button');
-  btns.forEach(b=>b.classList.remove('selected'));
+  const overlay=document.getElementById('shiftModal');if(!overlay)return;
+  const btns=overlay.querySelectorAll('.shift-choice button');btns.forEach(b=>b.classList.remove('selected'));
   if(tempShiftChoice==='Утро')btns[0].classList.add('selected');
   else if(tempShiftChoice==='Вечер')btns[1].classList.add('selected');
   else if(tempShiftChoice==='Ночь')btns[2].classList.add('selected');
@@ -838,22 +748,21 @@ function setTab(tab){
   if(el)el.classList.add('active');
   render();
 }
-// ✅ ЛИЧНЫЕ АРХИВЫ: каждый видит только своё, кроме админа
 function filterPayouts(list,tab){
   if(role==='admin'){
     if(tab==='done'||tab==='expired')return list;
     return [];
   }
   if(role==='worker'){
-    if(tab==='available')return list;                                          // общий пул — виден всем воркерам
-    if(tab==='active')return list.filter(p=>p.createdBy===workerName);         // только мои в работе
-    if(tab==='expired')return list.filter(p=>p.createdBy===workerName);        // только мои просроченные
-    if(tab==='done')return list.filter(p=>p.createdBy===workerName);           // ✅ личный архив — только мои
+    if(tab==='available')return list;
+    if(tab==='active')return list.filter(p=>p.createdBy===workerName);
+    if(tab==='expired')return list.filter(p=>p.createdBy===workerName);
+    if(tab==='done')return list.filter(p=>p.createdBy===workerName);
   }
   if(role==='client'){
-    if(tab==='available')return list;                                          // общий пул доступных
-    if(tab==='active')return list.filter(p=>p.client===clientUsername);        // только мои в работе
-    if(tab==='done')return list.filter(p=>p.client===clientUsername);          // ✅ личный архив — только мои
+    if(tab==='available')return list;
+    if(tab==='active')return list.filter(p=>p.client===clientUsername);
+    if(tab==='done')return list.filter(p=>p.client===clientUsername);
   }
   if(tab==='available')return list;
   return [];
@@ -875,94 +784,51 @@ async function addPayout(){
   if(errors.length>0){alert('⚠️ Заполни поля:\n\n'+errors.join('\n'));return;}
   const todayDate=new Date(now());
   const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
-  const normCard=s=>(s||'').replace(/\s+/g,'');
-  const normPhone=s=>(s||'').replace(/\D/g,'');
-  const cardClean=normCard(cardNumber);
-  const phoneClean=normPhone(phone);
+  const normCard=s=>(s||'').replace(/\s+/g,'');const normPhone=s=>(s||'').replace(/\D/g,'');
+  const cardClean=normCard(cardNumber);const phoneClean=normPhone(phone);
   const sameCardPayouts=cardClean?payouts.filter(x=>x.createdAt>=todayStart&&normCard(x.cardNumber)===cardClean):[];
   const samePhonePayouts=phoneClean?payouts.filter(x=>x.createdAt>=todayStart&&normPhone(x.phone)===phoneClean):[];
   const lines=[];
   if(sameCardPayouts.length>0){
     lines.push('💳 КАРТА уже выдавалась ('+sameCardPayouts.length+' раз):');
-    sameCardPayouts.forEach(x=>{
-      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-      const client=x.client?' • '+x.client:' • в пуле';
-      const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';
-      lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);
-    });
+    sameCardPayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);});
   }
   if(samePhonePayouts.length>0){
     if(lines.length)lines.push('');
     lines.push('📱 ТЕЛЕФОН уже выдавался ('+samePhonePayouts.length+' раз):');
-    samePhonePayouts.forEach(x=>{
-      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});
-      const client=x.client?' • '+x.client:' • в пуле';
-      const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';
-      lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);
-    });
+    samePhonePayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);});
   }
-  if(lines.length){
-    const ok=confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);
-    if(!ok)return;
-  }
+  if(lines.length){const ok=confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);if(!ok)return;}
   try{
-    await addDoc(payoutsRef,{
-      phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,
-      createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',
-      status:'available',client:null,checks:[],
-      createdAt:now(),startedAt:null,finishedAt:null
-    });
+    await addDoc(payoutsRef,{phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',status:'available',client:null,checks:[],createdAt:now(),startedAt:null,finishedAt:null});
     ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id=>document.getElementById(id).value='');
     showToast('✅ Заявка создана ('+rate+' ₽/USDT)');
   }catch(e){alert('Ошибка: '+e.message);}
 }
 async function editRate(id){
   if(role!=='worker'){alert('Только воркер');return;}
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   const v=prompt('💱 Изменить курс\n\nТекущий: '+(p.rate||'—')+' ₽/USDT\n\nНовый курс:',p.rate||'');
-  if(v===null)return;
-  const r=parseFloat(v);
-  if(!r||r<=0){alert('Курс должен быть > 0');return;}
+  if(v===null)return;const r=parseFloat(v);if(!r||r<=0){alert('Курс должен быть > 0');return;}
   await updateDoc(doc(db,'payouts',id),{rate:r});
   showToast('💱 Курс: '+r+' ₽/USDT');
 }
-
-// ═══════════════════════════════════════════════════════════
-//  🛡 АТОМАРНЫЙ ЗАХВАТ ЗАЯВКИ
-//  runTransaction гарантирует: только ОДИН клиент возьмёт заявку.
-//  Второй получит ошибку already_taken — заявка у него исчезнет.
-// ═══════════════════════════════════════════════════════════
 async function takePayout(id){
   if(role!=='client'){alert('❌ Только клиент');return;}
-  if(takingIds.has(id))return;              // защита от двойного клика на этом устройстве
+  if(takingIds.has(id))return;
   takingIds.add(id);
   try{
-    await runTransaction(db, async(tx)=>{
+    await runTransaction(db,async(tx)=>{
       const ref=doc(db,'payouts',id);
       const snap=await tx.get(ref);
       if(!snap.exists())throw new Error('not_found');
       const data=snap.data();
-      if(data.status==='active'||data.status==='done'||data.status==='cancelled'){
-        throw new Error('already_taken');
-      }
-      if(data.status==='expired'){
-        throw new Error('expired');
-      }
-      if(data.status!=='available'){
-        throw new Error('not_available');
-      }
+      if(data.status==='active'||data.status==='done'||data.status==='cancelled')throw new Error('already_taken');
+      if(data.status==='expired')throw new Error('expired');
+      if(data.status!=='available')throw new Error('not_available');
       const leftMs=(data.timerMin||0)*60000-(now()-(data.createdAt||0));
-      if(leftMs<0){
-        tx.update(ref,{status:'expired',expiredAt:now()});
-        throw new Error('expired');
-      }
-      // ⚡ Атомарный захват
-      tx.update(ref,{
-        status:'active',
-        client:clientUsername,
-        startedAt:now()
-      });
+      if(leftMs<0){tx.update(ref,{status:'expired',expiredAt:now()});throw new Error('expired');}
+      tx.update(ref,{status:'active',client:clientUsername,startedAt:now()});
     });
     setTab('active');
     showToast('❤️ Взято в работу!','heart');
@@ -973,14 +839,10 @@ async function takePayout(id){
     else if(m.includes('not_found'))showToast('❌ Заявка не найдена','err');
     else if(m.includes('not_available'))showToast('❌ Заявка недоступна','err');
     else showToast('Ошибка: '+m,'err');
-  }finally{
-    takingIds.delete(id);
-  }
+  }finally{takingIds.delete(id);}
 }
-
 async function uploadCheck(id,inputEl){
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   const isOwner=(role==='client'&&p.client===clientUsername)||(role==='worker');
   if(!isOwner){alert('❌ Нельзя');return;}
   const file=inputEl.files[0];
@@ -989,15 +851,9 @@ async function uploadCheck(id,inputEl){
   if(!file){alert('Выбери файл');return;}
   if(!sum||sum<=0){alert('Введи сумму чека');return;}
   if(file.size>900000){alert('Файл > 900 KB');return;}
-  const btn=inputEl.parentElement.querySelector('label');
-  const oldText=btn.textContent;btn.textContent='⏳...';
+  const btn=inputEl.parentElement.querySelector('label');const oldText=btn.textContent;btn.textContent='⏳...';
   try{
-    const base64=await new Promise((resolve,reject)=>{
-      const reader=new FileReader();
-      reader.onload=()=>resolve(reader.result);
-      reader.onerror=reject;
-      reader.readAsDataURL(file);
-    });
+    const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});
     const newChecks=[...(p.checks||[]),{data:base64,fileName:file.name,fileType:file.type,sum,uploadedAt:now()}];
     const totalPaid=newChecks.reduce((s,c)=>s+c.sum,0);
     const update={checks:newChecks};
@@ -1010,36 +866,25 @@ async function uploadCheck(id,inputEl){
   finally{btn.textContent=oldText;}
 }
 function openProblemModal(id){
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='problemModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>⚠️ Проблема</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><textarea class="modal-textarea" id="problemText" placeholder="Опиши проблему..."></textarea><label class="modal-file-label" for="problemFile">📎 Прикрепить скриншот (опционально)</label><input type="file" id="problemFile" accept="image/*,.pdf" style="display:none"><div id="problemFileName" style="font-size:11px;color:var(--text-dim);margin-bottom:8px;"></div><button class="modal-submit" onclick="submitProblem('${id}')">Отправить</button><button class="modal-cancel" onclick="closeProblemModal()">Отмена</button></div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>⚠️ Проблема</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><textarea class="modal-textarea" id="problemText" placeholder="Опиши проблему..."></textarea><label class="modal-file-label" for="problemFile">📎 Прикрепить скриншот</label><input type="file" id="problemFile" accept="image/*,.pdf" style="display:none"><div id="problemFileName" style="font-size:11px;color:var(--text-dim);margin-bottom:8px;"></div><button class="modal-submit" onclick="submitProblem('${id}')">Отправить</button><button class="modal-cancel" onclick="closeProblemModal()">Отмена</button></div>`;
   document.body.appendChild(overlay);
-  document.getElementById('problemFile')?.addEventListener('change',e=>{
-    const f=e.target.files[0];
-    if(f)document.getElementById('problemFileName').textContent='✓ '+f.name;
-  });
+  document.getElementById('problemFile')?.addEventListener('change',e=>{const f=e.target.files[0];if(f)document.getElementById('problemFileName').textContent='✓ '+f.name;});
 }
 function closeProblemModal(){document.getElementById('problemModal')?.remove();}
 async function submitProblem(id){
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   const text=document.getElementById('problemText').value.trim();
-  const fileEl=document.getElementById('problemFile');
-  const file=fileEl?.files[0];
+  const fileEl=document.getElementById('problemFile');const file=fileEl?.files[0];
   if(!text&&!file){alert('Напиши или прикрепи');return;}
-  const btn=document.querySelector('#problemModal .modal-submit');
-  btn.textContent='⏳...';btn.disabled=true;
+  const btn=document.querySelector('#problemModal .modal-submit');btn.textContent='⏳...';btn.disabled=true;
   try{
     let fileData=null;
     if(file){
       if(file.size>900000)throw new Error('Файл > 900 KB');
-      fileData=await new Promise((resolve,reject)=>{
-        const reader=new FileReader();
-        reader.onload=()=>resolve({data:reader.result,name:file.name,type:file.type});
-        reader.onerror=reject;reader.readAsDataURL(file);
-      });
+      fileData=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({data:reader.result,name:file.name,type:file.type});reader.onerror=reject;reader.readAsDataURL(file);});
     }
     const problems=[...(p.problems||[]),{text,file:fileData,createdAt:now(),by:role==='client'?clientUsername:workerName}];
     await updateDoc(doc(db,'payouts',id),{problems,hasProblem:true});
@@ -1049,132 +894,76 @@ async function submitProblem(id){
 }
 async function cancelByClient(id){
   if(role!=='client')return;
-  const p=payouts.find(x=>x.id===id);
-  if(!p||p.client!==clientUsername)return;
-  const reason=prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
-  if(reason===null)return;
+  const p=payouts.find(x=>x.id===id);if(!p||p.client!==clientUsername)return;
+  const reason=prompt('❌ Отмена сделки\n\nПричина (можно пусто):');if(reason===null)return;
   await updateDoc(doc(db,'payouts',id),{status:'cancelled',cancelledAt:now(),cancelledBy:clientUsername,cancelReason:reason||'без причины'});
   showToast('❌ Отменено');
 }
 async function finishPayout(id){
-  if(role!=='worker')return;
-  if(!confirm('Завершить заявку?'))return;
+  if(role!=='worker')return;if(!confirm('Завершить заявку?'))return;
   await updateDoc(doc(db,'payouts',id),{status:'done',finishedAt:now()});
 }
 async function returnToAvailable(id){
-  if(role!=='worker')return;
-  if(!confirm('Вернуть в доступные?'))return;
+  if(role!=='worker')return;if(!confirm('Вернуть в доступные?'))return;
   await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null});
 }
 async function deletePayout(id){
   if(role!=='worker')return;
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   if(p.createdBy!==workerName){alert('Только свои заявки');return;}
   if(!confirm('Удалить навсегда?'))return;
   await deleteDoc(doc(db,'payouts',id));
 }
 async function extendTimer(id,minutes){
   if(role!=='worker')return;
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   await updateDoc(doc(db,'payouts',id),{timerMin:p.timerMin+minutes});
   warned15.delete(id);warned10.delete(id);warned5.delete(id);persistWarned();
   showToast('⏰ +'+minutes+' мин');
 }
-
-// ═══════════════════════════════════════════════════════════
-//  🔄 ВОЗВРАТ ПРОСРОЧЕННОЙ В ПУЛ
-//  Воркер подтверждает актуальность реквизитов + задаёт таймер.
-//  createdAt сбрасывается, originalCreatedAt сохраняется.
-// ═══════════════════════════════════════════════════════════
 function revivePayout(id){
   if(role!=='worker')return;
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   if(p.createdBy!==workerName){alert('Только свои заявки');return;}
   if(p.status!=='expired')return;
   const existing=document.getElementById('reviveModal');if(existing)existing.remove();
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='reviveModal';
-  overlay.innerHTML=`
-    <div class="modal-box">
-      <h3>🔄 Вернуть в пул</h3>
-      <p>Заявка на ${formatMoney(p.totalSum)}</p>
-      <p style="font-size:11px;color:var(--warning);margin-top:4px;">⚠️ Убедись что реквизиты всё ещё актуальны!<br>После возврата её сможет взять любой клиент.</p>
-      <label class="revive-confirm" id="reviveLabel">
-        <input type="checkbox" id="reviveConfirm">
-        <span>✅ Реквизиты проверены и актуальны</span>
-      </label>
-      <div class="rate-input-wrap">
-        <input type="number" id="reviveTimer" value="60" min="1" max="1440">
-      </div>
-      <div class="rate-hint">Таймер, мин (1–1440)</div>
-      <button class="modal-submit" id="reviveSubmit" style="margin-top:10px;" onclick="confirmRevive('${id}')" disabled>🔄 Вернуть в пул</button>
-      <button class="modal-cancel" onclick="closeReviveModal()">Отмена</button>
-    </div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>🔄 Вернуть в пул</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><p style="font-size:11px;color:var(--warning);margin-top:4px;">⚠️ Убедись что реквизиты всё ещё актуальны!<br>После возврата её сможет взять любой клиент.</p><label class="revive-confirm" id="reviveLabel"><input type="checkbox" id="reviveConfirm"><span>✅ Реквизиты проверены и актуальны</span></label><div class="rate-input-wrap"><input type="number" id="reviveTimer" value="60" min="1" max="1440"></div><div class="rate-hint">Таймер, мин (1–1440)</div><button class="modal-submit" id="reviveSubmit" style="margin-top:10px;" onclick="confirmRevive('${id}')" disabled>🔄 Вернуть в пул</button><button class="modal-cancel" onclick="closeReviveModal()">Отмена</button></div>`;
   document.body.appendChild(overlay);
-  const chk=document.getElementById('reviveConfirm');
-  const lbl=document.getElementById('reviveLabel');
-  const sub=document.getElementById('reviveSubmit');
-  chk.addEventListener('change',()=>{
-    sub.disabled=!chk.checked;
-    lbl.classList.toggle('checked',chk.checked);
-  });
+  const chk=document.getElementById('reviveConfirm');const lbl=document.getElementById('reviveLabel');const sub=document.getElementById('reviveSubmit');
+  chk.addEventListener('change',()=>{sub.disabled=!chk.checked;lbl.classList.toggle('checked',chk.checked);});
   setTimeout(()=>{document.getElementById('reviveTimer')?.focus();document.getElementById('reviveTimer')?.select();},50);
 }
 function closeReviveModal(){document.getElementById('reviveModal')?.remove();}
 async function confirmRevive(id){
   if(role!=='worker')return;
-  const p=payouts.find(x=>x.id===id);
-  if(!p)return;
+  const p=payouts.find(x=>x.id===id);if(!p)return;
   if(p.createdBy!==workerName){alert('Только свои заявки');return;}
   const chk=document.getElementById('reviveConfirm');
-  if(!chk||!chk.checked){showToast('❌ Подтверди актуальность реквизитов','err');return;}
+  if(!chk||!chk.checked){showToast('❌ Подтверди актуальность','err');return;}
   const mins=parseInt(document.getElementById('reviveTimer')?.value);
   if(!mins||mins<1||mins>1440){showToast('❌ Таймер от 1 до 1440 мин','err');return;}
-  const btn=document.getElementById('reviveSubmit');
-  btn.disabled=true;btn.textContent='⏳...';
+  const btn=document.getElementById('reviveSubmit');btn.disabled=true;btn.textContent='⏳...';
   try{
     await updateDoc(doc(db,'payouts',id),{
-      status:'available',
-      client:null,
-      startedAt:null,
-      timerMin:mins,
-      createdAt:now(),
-      originalCreatedAt:p.originalCreatedAt||p.createdAt,
-      revivedAt:now(),
-      revivedBy:workerName,
-      reviveCount:(p.reviveCount||0)+1
+      status:'available',client:null,startedAt:null,timerMin:mins,
+      createdAt:now(),originalCreatedAt:p.originalCreatedAt||p.createdAt,
+      revivedAt:now(),revivedBy:workerName,reviveCount:(p.reviveCount||0)+1
     });
     warned15.delete(id);warned10.delete(id);warned5.delete(id);persistWarned();
     expiringIds.delete(id);
     closeReviveModal();
     showToast('🔄 Вернули в пул на '+mins+' мин','info');
-  }catch(e){
-    showToast('Ошибка: '+e.message,'err');
-    btn.disabled=false;btn.textContent='🔄 Вернуть в пул';
-  }
+  }catch(e){showToast('Ошибка: '+e.message,'err');btn.disabled=false;btn.textContent='🔄 Вернуть в пул';}
 }
-
 function paidSum(p){return (p.checks||[]).reduce((s,c)=>s+c.sum,0);}
 function formatMoney(n){return Math.round(n).toLocaleString('ru-RU')+' ₽';}
-function formatTime(ms){
-  if(ms<0)ms=0;
-  const total=Math.floor(ms/1000);
-  const h=Math.floor(total/3600);
-  const m=Math.floor((total%3600)/60);
-  const s=total%60;
-  if(h>0)return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');
-}
+function formatTime(ms){if(ms<0)ms=0;const total=Math.floor(ms/1000);const h=Math.floor(total/3600);const m=Math.floor((total%3600)/60);const s=total%60;if(h>0)return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано')).catch(()=>{});}
 function saveCheckInput(id,value){checkInputs[id]=value;localStorage.setItem('checkInputs',JSON.stringify(checkInputs));}
 
-// ═══ 📋 EVENT DELEGATION ДЛЯ КОПИРОВАНИЯ ═══
-// Значение берётся из data-copy — НИКОГДА из JS-строки.
-// Это гарантирует что 1:1 содержимое БД, без потери символов.
 document.addEventListener('click',(e)=>{
   const el=e.target.closest('[data-copy]');
   if(!el)return;
@@ -1183,24 +972,10 @@ document.addEventListener('click',(e)=>{
   if(val!==null&&val!=='')copyText(val);
 });
 
-function getCurrentShift(){
-  const h=new Date(now()).getHours();
-  if(h>=6&&h<14)return 'Утро';
-  if(h>=14&&h<22)return 'Вечер';
-  return 'Ночь';
-}
-function getShiftEmoji(s){
-  if(s==='Утро')return '🌅';
-  if(s==='Вечер')return '🌆';
-  if(s==='Ночь')return '🌙';
-  return '⏰';
-}
-function getShiftClass(s){
-  if(s==='Утро')return 'shift-morning';
-  if(s==='Вечер')return 'shift-evening';
-  if(s==='Ночь')return 'shift-night';
-  return '';
-}
+function getCurrentShift(){const h=new Date(now()).getHours();if(h>=6&&h<14)return 'Утро';if(h>=14&&h<22)return 'Вечер';return 'Ночь';}
+function getShiftEmoji(s){if(s==='Утро')return '🌅';if(s==='Вечер')return '🌆';if(s==='Ночь')return '🌙';return '⏰';}
+function getShiftClass(s){if(s==='Утро')return 'shift-morning';if(s==='Вечер')return 'shift-evening';if(s==='Ночь')return 'shift-night';return '';}
+
 function renderCard(p){
   const paid=paidSum(p);
   const left=Math.max(0,p.totalSum-paid);
@@ -1209,8 +984,7 @@ function renderCard(p){
   const isMine=(role==='client'&&p.client===clientUsername);
   const canEditRate=role==='worker';
 
-  let timerHtml='';
-  let cardExtraClass='';
+  let timerHtml='';let cardExtraClass='';
   if((p.status==='available'||p.status==='active')&&p.createdAt){
     const limitMs=p.timerMin*60000;
     const leftMs=limitMs-(now()-p.createdAt);
@@ -1228,17 +1002,12 @@ function renderCard(p){
       else if(leftMs<15*60000)cls='yellow';
       else cls='green';
     }
-    if(p.status==='active'){
-      if(leftMs<0)cardExtraClass=' expired';
-      else if(leftMs<10*60000)cardExtraClass=' warning';
-    }
+    if(p.status==='active'){if(leftMs<0)cardExtraClass=' expired';else if(leftMs<10*60000)cardExtraClass=' warning';}
     timerHtml=`<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
 
   let expiredTagHtml='';
-  if(p.status==='expired'){
-    expiredTagHtml=`<div class="expired-tag">⏰ Не обработана — время истекло</div>`;
-  }
+  if(p.status==='expired'){expiredTagHtml=`<div class="expired-tag">⏰ Не обработана — время истекло</div>`;}
   let revivedTagHtml='';
   if(p.revivedAt&&p.status!=='expired'){
     const t=new Date(p.revivedAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
@@ -1249,11 +1018,8 @@ function renderCard(p){
   if(p.status==='available'){
     if(role==='client'){
       const leftMs=p.timerMin*60000-(now()-p.createdAt);
-      if(leftMs>0){
-        actions=`<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;
-      }else{
-        actions=`<div class="card-actions"><button class="gray" disabled>⏰ Время истекло</button></div>`;
-      }
+      if(leftMs>0){actions=`<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;}
+      else{actions=`<div class="card-actions"><button class="gray" disabled>⏰ Время истекло</button></div>`;}
     }else if(role==='worker'){
       actions=`<div class="card-actions">`;
       if(canEditRate)actions+=`<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
@@ -1263,21 +1029,12 @@ function renderCard(p){
   }else if(p.status==='active'){
     const savedSum=checkInputs[p.id]||'';
     const canUpload=isMine||role==='worker';
-    if(canUpload){
-      actions=`<div class="check-form"><div class="check-form-title">💵 Загрузить чек</div><div class="check-form-row"><input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)"><input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)"><label for="checkFile_${p.id}">📎 Чек</label></div></div>`;
-    }
-    if(isMine){
-      actions+=`<div class="card-actions"><button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button><button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button></div>`;
-    }
-    if(role==='worker'){
-      actions+=`<div class="card-actions"><button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button><button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button><button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button><button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button></div>`;
-    }
+    if(canUpload){actions=`<div class="check-form"><div class="check-form-title">💵 Загрузить чек</div><div class="check-form-row"><input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)"><input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)"><label for="checkFile_${p.id}">📎 Чек</label></div></div>`;}
+    if(isMine){actions+=`<div class="card-actions"><button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button><button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button></div>`;}
+    if(role==='worker'){actions+=`<div class="card-actions"><button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button><button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button><button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button><button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button></div>`;}
   }else if(p.status==='expired'){
     if(role==='worker'&&p.createdBy===workerName){
-      actions=`<div class="card-actions">
-        <button class="green" onclick="revivePayout('${p.id}')">🔄 Вернуть в пул</button>
-        <button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>
-      </div>`;
+      actions=`<div class="card-actions"><button class="green" onclick="revivePayout('${p.id}')">🔄 Вернуть в пул</button><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
     }
   }
 
@@ -1290,16 +1047,13 @@ function renderCard(p){
     problemsHtml=`<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;"><div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>${p.problems.map(pr=>`<div class="check-item" style="background:rgba(239,68,68,0.1);"><span style="font-size:11px;">${esc(pr.text||'(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>${pr.file?`<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>`:''}</div>`).join('')}</div>`;
   }
   let cancelHtml='';
-  if(p.status==='cancelled'){
-    cancelHtml=`<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason||'')}</div>`;
-  }
+  if(p.status==='cancelled'){cancelHtml=`<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason||'')}</div>`;}
   let metaHtml='';
   if(role!=='guest'&&(p.createdBy||p.shift)){
     const dateStr=new Date(p.originalCreatedAt||p.createdAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     metaHtml=`<div class="card-row small">🛠 ${esc(p.createdBy||'—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift||'—')} • ${dateStr}</div>`;
   }
   const rateHtml=p.rate?`<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate?`onclick="editRate('${p.id}')"`:''}>${p.rate} ₽/USDT</span>${canEditRate?' ✏️':''}</div>`:'';
-  // ✅ data-copy вместо onclick — защита от потери символов
   const cardHtml=p.cardNumber?`<div class="card-row">💳 Карта: <span class="card-num" data-copy="${esc(p.cardNumber)}">${highlightMatch(p.cardNumber)}</span></div>`:'';
   const phoneHtml=p.phone?`<div class="card-row">📱 Телефон: <span class="phone-num" data-copy="${esc(p.phone)}">${highlightMatch(p.phone)}</span></div>`:'';
   const heartPrefix=isMine?'❤️ ':'';
@@ -1323,6 +1077,7 @@ function renderCard(p){
       ${actions}
     </div>`;
 }
+
 function renderArchive(list){
   const byDate={};
   list.forEach(p=>{
@@ -1330,4 +1085,207 @@ function renderArchive(list){
     const dateKey=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
     const shift=p.shift||'Без смены';
     if(!byDate[dateKey])byDate[dateKey]={date:dateKey,latestAt:0,shifts:{}};
-    if(!by
+    if(!byDate[dateKey].shifts[shift])byDate[dateKey].shifts[shift]=[];
+    byDate[dateKey].shifts[shift].push(p);
+    if(p.createdAt>byDate[dateKey].latestAt)byDate[dateKey].latestAt=p.createdAt;
+  });
+  const sortedDates=Object.keys(byDate).sort((a,b)=>byDate[b].latestAt-byDate[a].latestAt);
+  const currentShift=getCurrentShift();
+  const todayStr=new Date(now()).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
+  let html='';
+  sortedDates.forEach((dateKey,dateIdx)=>{
+    const dayData=byDate[dateKey];
+    const isToday=dateKey===todayStr;
+    const totalCount=Object.values(dayData.shifts).reduce((s,arr)=>s+arr.length,0);
+    const totalDone=Object.values(dayData.shifts).flat().filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+    const dateOpenAttr=(dateIdx===0||isToday||!!searchQuery)?' open':'';
+    html+=`<details class="date-group"${dateOpenAttr}><summary class="date-summary"><span>${isToday?'🔥 ':'📅 '}${dateKey}</span><span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="date-content">`;
+    SHIFTS.forEach(shift=>{
+      const items=dayData.shifts[shift]||[];
+      if(!items.length)return;
+      const isCurrentShift=isToday&&shift===currentShift;
+      const shiftOpenAttr=(isCurrentShift||!!searchQuery)?' open':'';
+      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+      const byClient={};
+      items.forEach(p=>{const client=p.client||'(без клиента)';if(!byClient[client])byClient[client]=[];byClient[client].push(p);});
+      const clientKeys=Object.keys(byClient).sort((a,b)=>{
+        const sumA=byClient[a].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+        const sumB=byClient[b].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+        if(sumB!==sumA)return sumB-sumA;return a.localeCompare(b,'ru');
+      });
+      html+=`<details class="shift-group"${shiftOpenAttr}><summary class="shift-summary ${getShiftClass(shift)}"><span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift]||''}</span></span><span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="shift-content">`;
+      clientKeys.forEach(clientKey=>{
+        const clientPayouts=byClient[clientKey];
+        const clientDone=clientPayouts.filter(p=>p.status==='done');
+        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
+        const clientActive=clientPayouts.filter(p=>p.status==='active');
+        const clientAvailable=clientPayouts.filter(p=>p.status==='available');
+        const clientExpired=clientPayouts.filter(p=>p.status==='expired');
+        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
+        const isClient=clientKey!=='(без клиента)';
+        html+=`<details class="client-group"><summary class="client-summary"><span>${isClient?'✈️ ':'👤 '}<span class="client-name">${esc(clientKey)}</span></span><span class="client-stats"><span class="badge-count">${clientPayouts.length} заявок</span><span class="sum-done">✅ ${formatMoney(doneSum2)}</span>${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}${clientExpired.length?`<span class="sum-expired">⏰ ${clientExpired.length}</span>`:''}${clientActive.length?`<span style="color:var(--warning)">🔥 ${clientActive.length}</span>`:''}${clientAvailable.length?`<span style="color:var(--accent)">⏳ ${clientAvailable.length}</span>`:''}</span><span class="arrow">▶</span></summary><div class="client-content">${clientPayouts.map(renderCard).join('')}</div></details>`;
+      });
+      html+=`</div></details>`;
+    });
+    if(dayData.shifts['Без смены']&&dayData.shifts['Без смены'].length){
+      const items=dayData.shifts['Без смены'];
+      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+      const byClient={};
+      items.forEach(p=>{const client=p.client||'(без клиента)';if(!byClient[client])byClient[client]=[];byClient[client].push(p);});
+      const clientKeys=Object.keys(byClient).sort();
+      html+=`<details class="shift-group"><summary class="shift-summary"><span>❓ Без смены</span><span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="shift-content">`;
+      clientKeys.forEach(clientKey=>{
+        const clientPayouts=byClient[clientKey];
+        const clientDone=clientPayouts.filter(p=>p.status==='done');
+        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
+        const clientExpired=clientPayouts.filter(p=>p.status==='expired');
+        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
+        html+=`<details class="client-group"><summary class="client-summary"><span>✈️ <span class="client-name">${esc(clientKey)}</span></span><span class="client-stats"><span class="badge-count">${clientPayouts.length} заявок</span><span class="sum-done">✅ ${formatMoney(doneSum2)}</span>${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}${clientExpired.length?`<span class="sum-expired">⏰ ${clientExpired.length}</span>`:''}</span><span class="arrow">▶</span></summary><div class="client-content">${clientPayouts.map(renderCard).join('')}</div></details>`;
+      });
+      html+=`</div></details>`;
+    }
+    html+=`</div></details>`;
+  });
+  return html;
+}
+
+function render(){
+  const el=document.getElementById('content');
+  let baseList=[];
+  if(currentTab==='available'){
+    baseList=payouts.filter(p=>p.status==='available');
+    baseList=baseList.filter(p=>{const left=p.timerMin*60000-(now()-p.createdAt);return left>0;});
+  }else if(currentTab==='active'){baseList=payouts.filter(p=>p.status==='active');}
+  else if(currentTab==='expired'){baseList=payouts.filter(p=>p.status==='expired');}
+  else{baseList=payouts.filter(p=>p.status==='done'||p.status==='cancelled');}
+  let list=filterPayouts(baseList,currentTab);
+  if(searchQuery)list=list.filter(matchSearch);
+  const countEl=document.getElementById('searchCount');
+  if(countEl){
+    if(searchQuery){countEl.textContent=list.length?'🔍 '+list.length:'❌ 0';countEl.className='search-count'+(list.length?'':' no-results');}
+    else{countEl.textContent='';countEl.className='search-count';}
+  }
+  if(!list.length){
+    el.innerHTML=`<div class="empty">${
+      searchQuery?'🔍 Ничего не найдено':
+      currentTab==='available'?'Нет доступных заявок':
+      currentTab==='active'?(role==='guest'?'Войди, чтобы видеть':'Нет заявок в работе'):
+      currentTab==='expired'?'✅ Нет просроченных заявок':
+      (role==='guest'?'Войди, чтобы видеть архив':'Архив пуст')}</div>`;
+    return;
+  }
+  if(currentTab==='done')el.innerHTML=renderArchive(list);
+  else el.innerHTML=list.map(renderCard).join('');
+}
+
+setInterval(()=>{
+  if(role==='worker'){
+    payouts.forEach(p=>{
+      if(p.status!=='available')return;
+      if(p.createdBy!==workerName)return;
+      const leftMs=p.timerMin*60000-(now()-p.createdAt);
+      if(leftMs<0&&!expiringIds.has(p.id)){
+        expiringIds.add(p.id);
+        updateDoc(doc(db,'payouts',p.id),{status:'expired',expiredAt:now()}).catch(e=>{console.warn('expire failed',e);expiringIds.delete(p.id);});
+      }
+    });
+  }
+  document.querySelectorAll('[data-timer-start]').forEach(el=>{
+    const start=parseInt(el.dataset.timerStart);
+    const limit=parseInt(el.dataset.timerLimit);
+    const id=el.dataset.payoutId;
+    const left=limit-(now()-start);
+    el.textContent=formatTime(left);
+    const p=payouts.find(x=>x.id===id);if(!p)return;
+    let cls;
+    if(p.status==='available'){
+      if(left<0)cls='dead';
+      else if(left<5*60000)cls='red';
+      else if(left<10*60000)cls='orange';
+      else if(left<15*60000)cls='yellow';
+      else cls='gray';
+    }else if(p.status==='active'){
+      if(left<0)cls='red';
+      else if(left<5*60000)cls='red';
+      else if(left<10*60000)cls='orange';
+      else if(left<15*60000)cls='yellow';
+      else cls='green';
+    }else{cls='gray';}
+    el.className='timer '+cls;
+    if(role!=='worker')return;
+    if(p.createdBy!==workerName)return;
+    if(left>0&&left<5*60000&&!warned5.has(id)){
+      warned15.add(id);warned10.add(id);warned5.add(id);persistWarned();
+      strongNotify('🔴 5 МИНУТ!',formatMoney(p.totalSum)+' — срочно!',{sound:'warning',toastType:'err',vibrate:[500,200,500,200,500],dedupeKey:'w5_'+id});
+    }else if(left>0&&left<10*60000&&!warned10.has(id)){
+      warned15.add(id);warned10.add(id);persistWarned();
+      strongNotify('🟠 10 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'w10_'+id});
+    }else if(left>0&&left<15*60000&&!warned15.has(id)){
+      warned15.add(id);persistWarned();
+      strongNotify('🟡 15 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[200,100,200],dedupeKey:'w15_'+id});
+    }
+  });
+},1000);
+
+onSnapshot(clientsRef,snapshot=>{
+  allClients=snapshot.docs.map(d=>d.data());
+  allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
+},err=>{console.warn('Clients snapshot error:',err.message);});
+
+onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
+  const newPayouts=snapshot.docs.map(d=>({id:d.id,...d.data()}));
+  if(role==='client'&&!isFirstSnapshot){
+    newPayouts.forEach(p=>{
+      if(!seenPayoutIds.has(p.id)&&p.status==='available'){
+        const age=now()-p.createdAt;
+        if(age>=0&&age<120000){
+          const rateTxt=p.rate?' • 💱 '+p.rate:'';const bankTxt=p.bank?' • '+p.bank:'';
+          strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,{sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});
+        }
+      }
+    });
+  }
+  if(role==='worker'){
+    newPayouts.forEach(p=>{
+      const prev=prevState.get(p.id);
+      const checksCount=(p.checks||[]).length;
+      const problemsCount=(p.problems||[]).length;
+      if(prev){
+        const isMyPayout=(p.createdBy===workerName);
+        if(isMyPayout&&prev.status==='available'&&p.status==='active'){strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),{sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status});}
+        if(isMyPayout&&checksCount>prev.checksCount){const lastCheck=p.checks[checksCount-1];strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),{sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount});}
+        if(isMyPayout&&problemsCount>prev.problemsCount){strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount});}
+        if(isMyPayout&&prev.status!=='cancelled'&&p.status==='cancelled'){strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),{sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id});}
+        if(isMyPayout&&prev.status==='active'&&p.status==='done'){strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),{sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id});}
+        if(isMyPayout&&prev.status==='available'&&p.status==='expired'){strongNotify('⏰ Заявка просрочена',formatMoney(p.totalSum)+' — в «Просрочено»',{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'expired_'+p.id});}
+        if(isMyPayout&&prev.status==='expired'&&p.status==='available'){strongNotify('🔄 Возрождена в пул',formatMoney(p.totalSum),{sound:'taken',toastType:'info',vibrate:[100,50,100],dedupeKey:'revived_'+p.id+'_'+p.createdAt});}
+      }
+    });
+  }
+  prevState.clear();
+  newPayouts.forEach(p=>prevState.set(p.id,{status:p.status,checksCount:(p.checks||[]).length,problemsCount:(p.problems||[]).length,client:p.client||null}));
+  newPayouts.forEach(p=>seenPayoutIds.add(p.id));
+  isFirstSnapshot=false;
+  payouts=newPayouts;
+  render();
+},err=>{document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;});
+
+updateModeUI();
+render();
+
+setTimeout(()=>{const rateInput=document.getElementById('rate');if(rateInput&&shiftRate)rateInput.value=shiftRate;},200);
+
+Object.assign(window,{
+  takePayout,uploadCheck,finishPayout,returnToAvailable,deletePayout,
+  addPayout,setTab,copyText,openLogin,extendTimer,saveCheckInput,
+  openSettings,closeSettings,toggleSound,selectClientType,selectBT7Type,
+  selectWorker,selectAdmin,submitPin,closeLogin,setTheme,
+  openProblemModal,closeProblemModal,submitProblem,cancelByClient,
+  editRate,onSearch,clearSearch,proceedClientUsername,verifyClientPin,
+  registerClient,askShiftModal,askRateModal,pickShift,confirmShift,
+  cancelShift,confirmRate,cancelRate,syncClock,
+  revivePayout,closeReviveModal,confirmRevive
+});
+</script>
+</body>
+</html>
