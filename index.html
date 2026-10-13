@@ -130,13 +130,16 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .worker-btns button{padding:14px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s}
 .worker-btns button:hover{border-color:var(--accent-2);background:rgba(16,185,129,.1);transform:translateY(-1px)}
 .worker-btns button.admin-btn{grid-column:1/-1;border-color:var(--accent);color:var(--accent)}
+.worker-btns button.registered::after{content:' ✓';color:var(--accent-2);font-weight:bold}
 .pin-row{display:flex;gap:6px;margin-top:10px}
 .pin-row input{flex:1;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--accent-2);font-family:monospace;font-size:18px;text-align:center;letter-spacing:6px}
 .pin-row input:focus{outline:none;border-color:var(--accent)}
 .pin-row input.heart{border-color:var(--heart);color:var(--heart)}
 .pin-row button{padding:10px 18px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
 .pin-row button.heart{background:var(--heart)}
+.pin-masked{-webkit-text-security:disc;text-security:disc;-moz-text-security:disc}
 .pin-error{color:var(--danger);font-size:11px;margin-top:6px;min-height:14px;text-align:center}
+.pin-hint{color:var(--accent-2);font-size:11px;margin-top:6px;min-height:14px;text-align:center}
 .uname-wrap{position:relative;margin-bottom:10px}
 .uname-input{width:100%;padding:14px 16px 14px 42px;border-radius:10px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:16px;font-family:monospace;outline:none;font-weight:bold}
 .uname-input:focus{border-color:var(--heart);box-shadow:0 0 0 3px rgba(255,77,109,.2)}
@@ -160,6 +163,7 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .modal-submit{width:100%;padding:11px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
 .modal-submit.heart{background:var(--heart)}
 .modal-submit:hover{opacity:.9}
+.modal-submit:disabled{opacity:.5;cursor:not-allowed}
 .shift-choice{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
 .shift-choice button{padding:14px 12px;border:2px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .shift-choice button:hover{transform:translateY(-1px)}
@@ -211,6 +215,7 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 .client-content{padding-left:20px;border-left:2px dashed var(--border);margin-left:8px}
 .admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
 .admin-info b{color:var(--accent)}
+.first-time-badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -263,28 +268,32 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const ADMIN_PIN='0927';
-const WORKERS={'Denis':'1111','Dmitriy':'2222','Artem':'3333','Evgeniy':'4444'};
-const SHIFTS=['Утро','Вечер','Ночь'];
-const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
-const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
+// ✅ Список сотрудников (только имена, БЕЗ PIN'ов в коде)
+const STAFF_WORKERS = ['Denis', 'Dmitriy', 'Artem', 'Evgeniy'];
+const STAFF_ADMIN = 'Админ';
+const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
+const SHIFT_TIMES = { 'Утро':'06:00 - 14:00', 'Вечер':'14:00 - 22:00', 'Ночь':'22:00 - 06:00' };
 
-const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-const payoutsRef=collection(db,'payouts');
-const clientsRef=collection(db,'clients');
+const firebaseConfig = {apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const payoutsRef = collection(db, 'payouts');
+const clientsRef = collection(db, 'clients');
+const staffRef = collection(db, 'staff');
+
+// ═══ SANITIZE РЕКВИЗИТОВ ═══
 function sanitizeReq(v){
   if(!v)return v;
   return String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
 }
 
 // ═══ СЕРВЕРНОЕ ВРЕМЯ ═══
-const MAX_OFFSET_MS=10*60*1000;
-let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
-let clockSynced=sessionStorage.getItem('clockSynced')==='1';
+const MAX_OFFSET_MS = 10*60*1000;
+let clockOffset = parseInt(sessionStorage.getItem('clockOffset'))||0;
+let clockSynced = sessionStorage.getItem('clockSynced')==='1';
 if(Math.abs(clockOffset)>MAX_OFFSET_MS){clockOffset=0;clockSynced=false;sessionStorage.removeItem('clockOffset');sessionStorage.removeItem('clockSynced');}
 function updateClockBadge(){
   const b=document.getElementById('clockBadge');if(!b)return;
@@ -326,8 +335,10 @@ function now(){return Date.now()+clockOffset;}
 if(!clockSynced)syncClock(true);else updateClockBadge();
 setInterval(()=>syncClock(true),30*60*1000);
 
+// ═══ СОСТОЯНИЕ ═══
 let payouts=[];
 let allClients=[];
+let allStaff=new Map();  // name → {name, role, pinHash, createdAt}
 let currentTab='available';
 let role=sessionStorage.getItem('role')||'guest';
 let workerName=sessionStorage.getItem('workerName')||'';
@@ -362,7 +373,8 @@ let originalTitle=document.title;
 let titleFlashInterval=null;
 let originalFavicon=null;
 
-function shouldSendNotify(dedupeKey,windowMs=8000){
+// ═══ ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ ═══
+function shouldSendNotify(dedupeKey, windowMs=8000){
   try{
     const storageKey='notif_dedupe_'+dedupeKey;
     const nowMs=Date.now();
@@ -474,6 +486,10 @@ function showToast(msg,type=''){
   const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;
   document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
 }
+
+// ═══════════════════════════════════════════════════════════
+//  ЛОГИН
+// ═══════════════════════════════════════════════════════════
 function openLogin(){
   if(role!=='guest'){
     if(confirm('Выйти из аккаунта?')){
@@ -493,6 +509,9 @@ function showLoginChoice(){
   overlay.innerHTML=`<div class="modal-box"><h3>🔐 Вход в систему</h3><p>Выбери, кто ты</p><div class="choice-btns"><button class="client-btn" onclick="selectClientType()">❤️ Клиенты</button><button class="bt7-btn" onclick="selectBT7Type()">🛠 BT7 (Воркеры)</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
 }
+function closeLogin(){document.getElementById('loginModal')?.remove();}
+
+// ── Клиенты ──
 function selectClientType(){closeLogin();showClientUsernameInput();}
 function showClientUsernameInput(){
   const overlay=document.createElement('div');
@@ -540,7 +559,7 @@ async function proceedClientUsername(username){
 function showClientPinInput(username){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ ${esc(username)}</h3><p>Введи свой PIN-код</p><div class="pin-row"><input type="password" class="heart" id="pinField" maxlength="6" placeholder="••••" autofocus><button class="heart" onclick="verifyClientPin('${esc(username)}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ ${esc(username)}</h3><p>Введи свой PIN-код</p><div class="pin-row"><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus><button class="heart" onclick="verifyClientPin('${esc(username)}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyClientPin(username);});},50);
 }
@@ -554,7 +573,7 @@ async function verifyClientPin(username){
 function showClientRegister(username){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай PIN (4-6 цифр). Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="password" class="heart" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="password" class="heart" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай PIN (4-6 цифр). Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   setTimeout(()=>{document.getElementById('pinField')?.focus();document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerClient(username);});},50);
 }
@@ -573,35 +592,215 @@ function loginClient(username){
   closeLogin();currentTab='available';updateModeUI();render();
   showToast('❤️ Привет, '+username+'!','heart');
 }
+
+// ── Сотрудники (воркеры + админ) ──
 function selectBT7Type(){
   closeLogin();
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${Object.keys(WORKERS).map(w=>`<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}<button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
+  const workerBtns = STAFF_WORKERS.map(w=>{
+    const reg = allStaff.has(w) ? ' registered' : '';
+    const regTitle = allStaff.has(w) ? 'title="PIN уже установлен"' : 'title="Первый вход — установить PIN"';
+    return `<button class="${reg}" ${regTitle} onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;
+  }).join('');
+  const adminReg = allStaff.has(STAFF_ADMIN) ? ' registered' : '';
+  const adminTitle = allStaff.has(STAFF_ADMIN) ? 'title="PIN уже установлен"' : 'title="Первый вход — установить PIN"';
+  overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${workerBtns}<button class="admin-btn ${adminReg}" ${adminTitle} onclick="proceedStaffLogin('${STAFF_ADMIN}','admin')">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
   document.body.appendChild(overlay);
 }
-function selectWorker(name){closeLogin();showLoginPin(name,'worker');}
-function selectAdmin(){closeLogin();showLoginPin('Админ','admin');}
-function showLoginPin(displayName,roleType){
+
+async function proceedStaffLogin(displayName, roleType){
+  closeLogin();
+  let existing = allStaff.get(displayName);
+  if(!existing){
+    // На случай если снапшот ещё не пришёл — читаем напрямую
+    try{
+      const snap = await getDoc(doc(db,'staff',displayName));
+      if(snap.exists()){ existing = snap.data(); allStaff.set(displayName, existing); }
+    }catch(e){}
+  }
+  if(existing) showStaffPinInput(displayName, roleType);
+  else showStaffRegister(displayName, roleType);
+}
+
+function showStaffRegister(displayName, roleType){
+  const roleLabel = roleType==='admin' ? 'Админ' : 'Воркер';
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>🔐 Вход: ${displayName}</h3><p>Введи PIN-код</p><div class="pin-row"><input type="password" id="pinField" maxlength="6" placeholder="••••" autofocus><button onclick="submitPin('${roleType}', '${displayName}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <div class="first-time-badge">🆕 Первый вход</div>
+      <h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3>
+      <p><b>${roleLabel}</b> входит впервые.<br>Придумай личный PIN для входа.</p>
+      <p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! PIN хранится в зашифрованном виде и восстановить его нельзя.</p>
+      <div class="pin-row" style="flex-direction:column;gap:8px;">
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN (4-6 цифр)" autofocus>
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN">
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-row" style="margin-top:10px;">
+        <button style="width:100%;" onclick="registerStaff('${esc(displayName)}','${roleType}')">Создать PIN и войти</button>
+      </div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>`;
   document.body.appendChild(overlay);
-  setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')submitPin(roleType,displayName);});},50);
+  setTimeout(()=>{
+    document.getElementById('pinField')?.focus();
+    document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerStaff(displayName,roleType);});
+  },50);
 }
-function submitPin(roleType,displayName){
-  const pin=document.getElementById('pinField')?.value;if(!pin)return;
-  let correct=(roleType==='admin')?(pin===ADMIN_PIN):(WORKERS[displayName]===pin);
-  if(!correct){document.getElementById('pinError').textContent='❌ Неверный PIN';document.getElementById('pinField').value='';return;}
-  role=roleType;
-  workerName=(roleType==='worker')?displayName:'Админ';
-  sessionStorage.setItem('role',role);sessionStorage.setItem('workerName',workerName);
+
+async function registerStaff(displayName, roleType){
+  const pin1=document.getElementById('pinField')?.value;
+  const pin2=document.getElementById('pinField2')?.value;
+  const err=document.getElementById('pinError');
+  if(!pin1||pin1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}
+  if(pin1.length>6){err.textContent='❌ PIN максимум 6 цифр';return;}
+  if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}
+  if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}
+  const btn = document.querySelector('#loginModal .pin-row button');
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  try{
+    // Проверяем ещё раз что никто не занял имя
+    const snap = await getDoc(doc(db,'staff',displayName));
+    if(snap.exists()){
+      err.textContent = '❌ Этот сотрудник уже зарегистрирован — введи PIN';
+      setTimeout(()=>showStaffPinInput(displayName, roleType), 900);
+      return;
+    }
+    const pinHash = await hashPin(pin1);
+    await setDoc(doc(db,'staff',displayName),{
+      name: displayName, role: roleType, pinHash, createdAt: now()
+    });
+    allStaff.set(displayName, {name:displayName, role:roleType, pinHash, createdAt:now()});
+    showToast('✅ PIN установлен','');
+    completeStaffLogin(roleType, displayName);
+  }catch(e){
+    err.textContent='❌ Ошибка: '+e.message;
+    if(btn){btn.disabled=false;btn.textContent='Создать PIN и войти';}
+  }
+}
+
+function showStaffPinInput(displayName, roleType){
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='loginModal';
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3>
+      <p>Введи свой PIN-код</p>
+      <div class="pin-row">
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus>
+        <button onclick="verifyStaffPin('${esc(displayName)}','${roleType}')">Войти</button>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
+    f?.focus();
+    f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyStaffPin(displayName,roleType);});
+  },50);
+}
+
+async function verifyStaffPin(displayName, roleType){
+  const pin=document.getElementById('pinField')?.value;
+  if(!pin)return;
+  const err=document.getElementById('pinError');
+  const btn=document.querySelector('#loginModal .pin-row button');
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  try{
+    const hashed=await hashPin(pin);
+    const existing = allStaff.get(displayName);
+    if(!existing||existing.pinHash!==hashed){
+      err.textContent='❌ Неверный PIN';
+      document.getElementById('pinField').value='';
+      if(btn){btn.disabled=false;btn.textContent='Войти';}
+      return;
+    }
+    completeStaffLogin(roleType, displayName);
+  }catch(e){
+    err.textContent='❌ Ошибка: '+e.message;
+    if(btn){btn.disabled=false;btn.textContent='Войти';}
+  }
+}
+
+function completeStaffLogin(roleType, displayName){
+  role = roleType;
+  workerName = (roleType==='worker') ? displayName : STAFF_ADMIN;
+  sessionStorage.setItem('role', role);
+  sessionStorage.setItem('workerName', workerName);
   closeLogin();
-  if(role==='admin'){currentTab='done';updateModeUI();render();showToast('👑 Админ: просмотр');return;}
-  if(!shiftName)askShiftModal();
-  else if(!shiftRate)askRateModal();
-  else{updateModeUI();render();const r=document.getElementById('rate');if(r)r.value=shiftRate;showToast('✅ '+workerName);}
+  if(role==='admin'){
+    currentTab='done'; updateModeUI(); render();
+    showToast('👑 Админ: просмотр');
+    return;
+  }
+  if(!shiftName) askShiftModal();
+  else if(!shiftRate) askRateModal();
+  else{
+    updateModeUI(); render();
+    const r=document.getElementById('rate');
+    if(r) r.value=shiftRate;
+    showToast('✅ '+workerName);
+  }
 }
+
+// ── Смена PIN ──
+function openPinChange(){
+  if(role!=='worker'&&role!=='admin'){showToast('Только для сотрудников');return;}
+  const overlay=document.createElement('div');
+  overlay.className='modal-overlay';overlay.id='pinChangeModal';
+  overlay.innerHTML=`
+    <div class="modal-box">
+      <h3>🔑 Смена PIN</h3>
+      <p>${esc(workerName)}</p>
+      <div class="pin-row" style="flex-direction:column;gap:8px;">
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="oldPin" maxlength="6" placeholder="Текущий PIN" autofocus>
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin" maxlength="6" placeholder="Новый PIN (4-6 цифр)">
+        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin2" maxlength="6" placeholder="Повтори новый PIN">
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-row" style="margin-top:10px;">
+        <button style="width:100%;" onclick="submitPinChange()">Сменить PIN</button>
+      </div>
+      <button class="modal-cancel" onclick="closePinChange()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>document.getElementById('oldPin')?.focus(),50);
+}
+function closePinChange(){document.getElementById('pinChangeModal')?.remove();}
+async function submitPinChange(){
+  const oldPin=document.getElementById('oldPin')?.value;
+  const n1=document.getElementById('newPin')?.value;
+  const n2=document.getElementById('newPin2')?.value;
+  const err=document.getElementById('pinError');
+  if(!oldPin||!n1||!n2){err.textContent='Заполни все поля';return;}
+  if(n1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}
+  if(n1!==n2){err.textContent='❌ Новый PIN не совпадает';return;}
+  if(!/^\d+$/.test(n1)){err.textContent='❌ Только цифры';return;}
+  const btn=document.querySelector('#pinChangeModal .pin-row button');
+  if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  try{
+    const oldHash=await hashPin(oldPin);
+    const existing=allStaff.get(workerName);
+    if(!existing||existing.pinHash!==oldHash){
+      err.textContent='❌ Неверный текущий PIN';
+      if(btn){btn.disabled=false;btn.textContent='Сменить PIN';}
+      return;
+    }
+    const newHash=await hashPin(n1);
+    await updateDoc(doc(db,'staff',workerName),{pinHash:newHash, pinChangedAt:now()});
+    allStaff.set(workerName,{...existing,pinHash:newHash,pinChangedAt:now()});
+    showToast('✅ PIN изменён');
+    closePinChange();
+  }catch(e){
+    err.textContent='❌ Ошибка: '+e.message;
+    if(btn){btn.disabled=false;btn.textContent='Сменить PIN';}
+  }
+}
+
+// ═══ СМЕНА / КУРС ═══
 function askShiftModal(){tempShiftChoice=shiftName||null;renderShiftModal();}
 function renderShiftModal(){
   const existing=document.getElementById('shiftModal');if(existing)existing.remove();
@@ -646,9 +845,10 @@ function confirmRate(){
   const r=document.getElementById('rate');if(r)r.value=shiftRate;
   showToast('💱 Курс: '+shiftRate+' ₽/USDT');
 }
-function closeLogin(){document.getElementById('loginModal')?.remove();}
+
+// ═══ НАСТРОЙКИ ═══
 function openSettings(){
-  if(role==='admin'){showToast('👑 Админ: настройки недоступны');return;}
+  if(role==='guest'){showToast('Сначала войди');return;}
   if(role==='client'){
     if(confirm('Выйти из аккаунта ❤️ '+clientUsername+'?')){
       role='guest';clientUsername='';
@@ -657,9 +857,16 @@ function openSettings(){
     }
     return;
   }
+  if(role==='admin'){
+    const overlay=document.createElement('div');
+    overlay.className='modal-overlay';overlay.id='settingsModal';
+    overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>👑 ${esc(workerName)}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
+    document.body.appendChild(overlay);
+    return;
+  }
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='settingsModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>🛠 ${esc(workerName)} • ${esc(shiftName||'—')} • 💱 ${shiftRate||'—'}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button><button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button><button onclick="toggleSound()">${soundEnabled?'🔊 Выключить звук':'🔇 Включить звук'}</button><button onclick="closeSettings(); showStats()">📊 Статистика за смену</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>🛠 ${esc(workerName)} • ${esc(shiftName||'—')} • 💱 ${shiftRate||'—'}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button><button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button><button onclick="toggleSound()">${soundEnabled?'🔊 Выключить звук':'🔇 Включить звук'}</button><button onclick="closeSettings(); showStats()">📊 Статистика за смену</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
   document.body.appendChild(overlay);
 }
 function closeSettings(){document.getElementById('settingsModal')?.remove();}
@@ -680,6 +887,8 @@ function showStats(){
   const totalSum=done.reduce((s,p)=>s+p.totalSum,0);
   alert(`📊 Статистика за сегодня (${todayDate.toLocaleDateString('ru-RU')})\n👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName||'—'}\n💱 Курс: ${shiftRate||'—'} ₽/USDT\n\n✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n⏰ Просрочено: ${expired.length}\n❌ Отменено: ${cancelled.length}\n💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`);
 }
+
+// ═══ UI ═══
 function updateModeUI(){
   const btn=document.getElementById('modeBtn');
   const settingsBtn=document.getElementById('settingsBtn');
@@ -695,7 +904,7 @@ function updateModeUI(){
   [tabAvail,tabAct,tabExp,tabDone].forEach(t=>t.classList.remove('hidden','active'));
   if(role==='admin'){
     btn.textContent='👑 Админ (просмотр)';btn.className='admin';
-    form.style.display='none';settingsBtn.style.display='none';
+    form.style.display='none';settingsBtn.style.display='block';
     adminInfo.style.display='block';
     badge.textContent='👑 Админ';badge.className='badge admin';
     rateBadge.textContent='';rateBadge.className='badge';
@@ -748,6 +957,8 @@ function setTab(tab){
   if(el)el.classList.add('active');
   render();
 }
+
+// ═══ ФИЛЬТР (личные архивы) ═══
 function filterPayouts(list,tab){
   if(role==='admin'){
     if(tab==='done'||tab==='expired')return list;
@@ -767,6 +978,8 @@ function filterPayouts(list,tab){
   if(tab==='available')return list;
   return [];
 }
+
+// ═══ СОЗДАНИЕ ═══
 async function addPayout(){
   if(role!=='worker'){alert('❌ Только воркер может создавать заявки');return;}
   const phone=sanitizeReq(document.getElementById('phone').value);
@@ -813,6 +1026,8 @@ async function editRate(id){
   await updateDoc(doc(db,'payouts',id),{rate:r});
   showToast('💱 Курс: '+r+' ₽/USDT');
 }
+
+// ═══ АТОМАРНЫЙ ЗАХВАТ ═══
 async function takePayout(id){
   if(role!=='client'){alert('❌ Только клиент');return;}
   if(takingIds.has(id))return;
@@ -841,6 +1056,7 @@ async function takePayout(id){
     else showToast('Ошибка: '+m,'err');
   }finally{takingIds.delete(id);}
 }
+
 async function uploadCheck(id,inputEl){
   const p=payouts.find(x=>x.id===id);if(!p)return;
   const isOwner=(role==='client'&&p.client===clientUsername)||(role==='worker');
@@ -957,13 +1173,14 @@ async function confirmRevive(id){
     showToast('🔄 Вернули в пул на '+mins+' мин','info');
   }catch(e){showToast('Ошибка: '+e.message,'err');btn.disabled=false;btn.textContent='🔄 Вернуть в пул';}
 }
+
+// ═══ УТИЛИТЫ ═══
 function paidSum(p){return (p.checks||[]).reduce((s,c)=>s+c.sum,0);}
 function formatMoney(n){return Math.round(n).toLocaleString('ru-RU')+' ₽';}
 function formatTime(ms){if(ms<0)ms=0;const total=Math.floor(ms/1000);const h=Math.floor(total/3600);const m=Math.floor((total%3600)/60);const s=total%60;if(h>0)return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
 function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано')).catch(()=>{});}
 function saveCheckInput(id,value){checkInputs[id]=value;localStorage.setItem('checkInputs',JSON.stringify(checkInputs));}
-
 document.addEventListener('click',(e)=>{
   const el=e.target.closest('[data-copy]');
   if(!el)return;
@@ -971,11 +1188,11 @@ document.addEventListener('click',(e)=>{
   const val=el.getAttribute('data-copy');
   if(val!==null&&val!=='')copyText(val);
 });
-
 function getCurrentShift(){const h=new Date(now()).getHours();if(h>=6&&h<14)return 'Утро';if(h>=14&&h<22)return 'Вечер';return 'Ночь';}
 function getShiftEmoji(s){if(s==='Утро')return '🌅';if(s==='Вечер')return '🌆';if(s==='Ночь')return '🌙';return '⏰';}
 function getShiftClass(s){if(s==='Утро')return 'shift-morning';if(s==='Вечер')return 'shift-evening';if(s==='Ночь')return 'shift-night';return '';}
 
+// ═══ РЕНДЕР КАРТОЧКИ ═══
 function renderCard(p){
   const paid=paidSum(p);
   const left=Math.max(0,p.totalSum-paid);
@@ -1178,6 +1395,7 @@ function render(){
   else el.innerHTML=list.map(renderCard).join('');
 }
 
+// ═══ ТИК ═══
 setInterval(()=>{
   if(role==='worker'){
     payouts.forEach(p=>{
@@ -1227,10 +1445,18 @@ setInterval(()=>{
   });
 },1000);
 
+// ═══ ПОДПИСКИ FIREBASE ═══
 onSnapshot(clientsRef,snapshot=>{
   allClients=snapshot.docs.map(d=>d.data());
   allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
 },err=>{console.warn('Clients snapshot error:',err.message);});
+
+// ✅ staff — сотрудники (воркеры + админ)
+onSnapshot(staffRef,snapshot=>{
+  allStaff.clear();
+  snapshot.docs.forEach(d=>allStaff.set(d.id,{name:d.id,...d.data()}));
+  console.log('👥 Staff loaded:',[...allStaff.keys()].join(', '));
+},err=>{console.warn('Staff snapshot error:',err.message);});
 
 onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
   const newPayouts=snapshot.docs.map(d=>({id:d.id,...d.data()}));
@@ -1240,52 +1466,4 @@ onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
         const age=now()-p.createdAt;
         if(age>=0&&age<120000){
           const rateTxt=p.rate?' • 💱 '+p.rate:'';const bankTxt=p.bank?' • '+p.bank:'';
-          strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,{sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});
-        }
-      }
-    });
-  }
-  if(role==='worker'){
-    newPayouts.forEach(p=>{
-      const prev=prevState.get(p.id);
-      const checksCount=(p.checks||[]).length;
-      const problemsCount=(p.problems||[]).length;
-      if(prev){
-        const isMyPayout=(p.createdBy===workerName);
-        if(isMyPayout&&prev.status==='available'&&p.status==='active'){strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),{sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status});}
-        if(isMyPayout&&checksCount>prev.checksCount){const lastCheck=p.checks[checksCount-1];strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),{sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount});}
-        if(isMyPayout&&problemsCount>prev.problemsCount){strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount});}
-        if(isMyPayout&&prev.status!=='cancelled'&&p.status==='cancelled'){strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),{sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id});}
-        if(isMyPayout&&prev.status==='active'&&p.status==='done'){strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),{sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id});}
-        if(isMyPayout&&prev.status==='available'&&p.status==='expired'){strongNotify('⏰ Заявка просрочена',formatMoney(p.totalSum)+' — в «Просрочено»',{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'expired_'+p.id});}
-        if(isMyPayout&&prev.status==='expired'&&p.status==='available'){strongNotify('🔄 Возрождена в пул',formatMoney(p.totalSum),{sound:'taken',toastType:'info',vibrate:[100,50,100],dedupeKey:'revived_'+p.id+'_'+p.createdAt});}
-      }
-    });
-  }
-  prevState.clear();
-  newPayouts.forEach(p=>prevState.set(p.id,{status:p.status,checksCount:(p.checks||[]).length,problemsCount:(p.problems||[]).length,client:p.client||null}));
-  newPayouts.forEach(p=>seenPayoutIds.add(p.id));
-  isFirstSnapshot=false;
-  payouts=newPayouts;
-  render();
-},err=>{document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;});
-
-updateModeUI();
-render();
-
-setTimeout(()=>{const rateInput=document.getElementById('rate');if(rateInput&&shiftRate)rateInput.value=shiftRate;},200);
-
-Object.assign(window,{
-  takePayout,uploadCheck,finishPayout,returnToAvailable,deletePayout,
-  addPayout,setTab,copyText,openLogin,extendTimer,saveCheckInput,
-  openSettings,closeSettings,toggleSound,selectClientType,selectBT7Type,
-  selectWorker,selectAdmin,submitPin,closeLogin,setTheme,
-  openProblemModal,closeProblemModal,submitProblem,cancelByClient,
-  editRate,onSearch,clearSearch,proceedClientUsername,verifyClientPin,
-  registerClient,askShiftModal,askRateModal,pickShift,confirmShift,
-  cancelShift,confirmRate,cancelRate,syncClock,
-  revivePayout,closeReviveModal,confirmRevive
-});
-</script>
-</body>
-</html>
+          strongNotify('❤️ Новая
