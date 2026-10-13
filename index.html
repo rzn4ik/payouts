@@ -9,6 +9,7 @@
   --bg: #0d0d15; --bg-card: #1a1a2a; --bg-inner: #0d0d15; --bg-input: #000;
   --text: #fff; --text-dim: #888; --text-mute: #555; --border: #2a2a3a;
   --accent: #a855f7; --accent-2: #10b981; --danger: #ef4444; --warning: #f59e0b;
+  --heart: #ff4d6d;
 }
 [data-theme="light"] {
   --bg: #f0f0f5; --bg-card: #ffffff; --bg-inner: #f7f7fa; --bg-input: #fff;
@@ -27,6 +28,7 @@ h1 { font-size: 16px; margin-bottom: 5px; color: var(--accent); display: flex; a
 .badge { font-size: 10px; padding: 3px 8px; border-radius: 8px; background: var(--border); color: var(--text-dim); font-weight: 500; }
 .badge.admin { background: var(--accent); color: #fff; }
 .badge.worker { background: var(--accent-2); color: #fff; }
+.badge.client { background: var(--heart); color: #fff; }
 .badge.rate { background: var(--warning); color: #000; }
 .me { font-size: 11px; color: var(--text-dim); margin-bottom: 15px; }
 .section { background: var(--bg-card); border-radius: 10px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
@@ -39,28 +41,14 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 @media (max-width: 1100px) { .add-form { grid-template-columns: 1fr 1fr 1fr; } }
 @media (max-width: 700px) { .add-form { grid-template-columns: 1fr 1fr; } }
 
-/* ===== ПОИСК ===== */
-.search-wrap {
-  display: flex; align-items: center; gap: 8px;
-  background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px;
-  padding: 10px 14px; margin-bottom: 12px;
-  transition: border-color 0.2s;
-}
+.search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; transition: border-color 0.2s; }
 .search-wrap:focus-within { border-color: var(--accent); }
 .search-icon { font-size: 16px; color: var(--text-mute); }
-.search-input {
-  flex: 1; padding: 6px 0; border: none; background: transparent; color: var(--text);
-  font-size: 14px; font-family: inherit; outline: none; min-width: 0;
-}
+.search-input { flex: 1; padding: 6px 0; border: none; background: transparent; color: var(--text); font-size: 14px; font-family: inherit; outline: none; min-width: 0; }
 .search-input::placeholder { color: var(--text-mute); }
-.search-clear {
-  padding: 4px 10px; border: none; border-radius: 5px; background: var(--text-mute);
-  color: #fff; cursor: pointer; font-size: 12px; font-weight: bold;
-}
+.search-clear { padding: 4px 10px; border: none; border-radius: 5px; background: var(--text-mute); color: #fff; cursor: pointer; font-size: 12px; font-weight: bold; }
 .search-clear:hover { background: var(--danger); }
-.search-count {
-  font-size: 11px; color: var(--accent); font-weight: bold; white-space: nowrap;
-}
+.search-count { font-size: 11px; color: var(--accent); font-weight: bold; white-space: nowrap; }
 .search-count.no-results { color: var(--danger); }
 
 .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
@@ -74,6 +62,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .card.active.expired { border-left-color: var(--danger); }
 .card.done { border-left-color: var(--text-mute); opacity: 0.7; }
 .card.cancelled { border-left-color: var(--danger); opacity: 0.6; }
+.card.mine { box-shadow: 0 0 0 2px var(--heart); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 5px; }
 .card-header b { font-size: 15px; color: var(--text); font-weight: 700; }
 .card-row { font-size: 12px; margin-bottom: 4px; }
@@ -116,16 +105,27 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .mode-toggle button { padding: 10px 16px; border-radius: 20px; border: none; background: var(--accent-2); color: #fff; cursor: pointer; font-weight: bold; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-size: 12px; }
 .mode-toggle button.admin { background: var(--accent); }
 .mode-toggle button.worker { background: var(--accent-2); }
+.mode-toggle button.client { background: var(--heart); }
 .mode-toggle button.settings { background: var(--text-mute); padding: 10px 14px; }
 .loading { text-align: center; padding: 25px; color: var(--text-mute); }
 .toast { position: fixed; top: 15px; left: 50%; transform: translateX(-50%); background: var(--accent-2); color: #fff; padding: 10px 18px; border-radius: 8px; font-weight: bold; z-index: 9999; box-shadow: 0 4px 20px rgba(0,0,0,0.4); font-size: 13px; max-width: 90%; text-align: center; }
 .toast.warn { background: var(--warning); color: #000; }
 .toast.err { background: var(--danger); }
 .toast.info { background: var(--accent); }
-.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; }
-.modal-box { background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 22px; max-width: 400px; width: 100%; color: var(--text); }
+.toast.heart { background: var(--heart); }
+.modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
+.modal-box { background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 22px; max-width: 420px; width: 100%; color: var(--text); margin: auto; }
+.modal-box.heart { border-color: var(--heart); }
 .modal-box h3 { font-size: 15px; margin-bottom: 15px; color: var(--accent); text-align: center; }
+.modal-box.heart h3 { color: var(--heart); }
 .modal-box p { font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
+.choice-btns { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+.choice-btns button { padding: 16px 12px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg-inner); color: var(--text); font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+.choice-btns button:hover { border-color: var(--accent-2); transform: translateY(-1px); }
+.choice-btns button.client-btn { border-color: var(--heart); color: var(--heart); }
+.choice-btns button.client-btn:hover { background: rgba(255,77,109,0.1); }
+.choice-btns button.bt7-btn { border-color: var(--accent-2); color: var(--accent-2); }
+.choice-btns button.bt7-btn:hover { background: rgba(16,185,129,0.1); }
 .worker-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin-bottom: 10px; }
 .worker-btns button { padding: 12px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--bg-inner); color: var(--text); font-size: 13px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
 .worker-btns button:hover { border-color: var(--accent-2); }
@@ -133,7 +133,9 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .pin-row { display: flex; gap: 6px; margin-top: 10px; }
 .pin-row input { flex: 1; padding: 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-input); color: var(--accent-2); font-family: monospace; font-size: 18px; text-align: center; letter-spacing: 6px; }
 .pin-row input:focus { outline: none; border-color: var(--accent); }
+.pin-row input.heart { border-color: var(--heart); color: var(--heart); }
 .pin-row button { padding: 10px 18px; border: none; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px; }
+.pin-row button.heart { background: var(--heart); }
 .pin-error { color: var(--danger); font-size: 11px; margin-top: 6px; min-height: 14px; text-align: center; }
 .modal-cancel { margin-top: 10px; padding: 6px 12px; border: none; background: transparent; color: var(--text-dim); cursor: pointer; font-size: 12px; display: block; margin-left: auto; margin-right: auto; }
 .modal-cancel:hover { color: var(--text); }
@@ -142,7 +144,24 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .modal-file-label { display: block; padding: 10px; border-radius: 6px; background: var(--bg-inner); color: var(--accent-2); text-align: center; cursor: pointer; font-size: 12px; border: 1px dashed var(--accent-2); margin-bottom: 8px; }
 .modal-file-label:hover { background: var(--bg-card); }
 .modal-submit { width: 100%; padding: 11px; border: none; border-radius: 6px; background: var(--accent); color: #fff; font-weight: bold; cursor: pointer; font-size: 13px; }
+.modal-submit.heart { background: var(--heart); }
 .modal-submit:hover { opacity: 0.9; }
+
+/* ===== КЛИЕНТ NAME INPUT + DROPDOWN ===== */
+.name-wrap { position: relative; margin-bottom: 10px; }
+.name-input { width: 100%; padding: 12px 14px; border-radius: 8px; border: 2px solid var(--heart); background: var(--bg-input); color: var(--text); font-size: 15px; font-family: inherit; outline: none; }
+.name-input:focus { border-color: var(--heart); box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
+.name-input::placeholder { color: var(--text-mute); }
+.name-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--heart); border-radius: 8px; max-height: 220px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
+.name-dropdown.show { display: block; }
+.name-item { padding: 10px 14px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; color: var(--text); }
+.name-item:last-child { border-bottom: none; }
+.name-item:hover, .name-item.active { background: rgba(255,77,109,0.15); color: var(--heart); }
+.name-item .heart-inline { color: var(--heart); margin-right: 6px; }
+.name-new { padding: 10px 14px; cursor: pointer; font-size: 13px; color: var(--accent-2); font-weight: bold; background: rgba(16,185,129,0.1); }
+.name-new:hover { background: rgba(16,185,129,0.2); }
+.name-empty { padding: 12px 14px; font-size: 12px; color: var(--text-mute); text-align: center; }
+
 .theme-toggle { position: fixed; bottom: 15px; left: 15px; display: flex; gap: 4px; z-index: 100; }
 .theme-toggle button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; font-size: 14px; background: var(--bg-card); color: var(--text); }
 .theme-toggle button.active { border-color: var(--accent); }
@@ -155,6 +174,8 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 .shift-content { padding-left: 0; }
 .admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
 .admin-info b { color: var(--accent); }
+.client-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--heart); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
+.client-info b { color: var(--heart); }
 </style>
 </head>
 <body>
@@ -163,7 +184,11 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 <div class="me" id="meInfo">Загрузка...</div>
 
 <div class="admin-info" id="adminInfo" style="display:none;">
-  👑 <b>Режим админа</b> — только просмотр архива всех воркеров. Создание, редактирование и удаление недоступны.
+  👑 <b>Режим админа</b> — только просмотр архива всех воркеров.
+</div>
+
+<div class="client-info" id="clientInfo" style="display:none;">
+  ❤️ <b>Режим клиента</b> — твои заявки выделены сердечком. Всё синхронизировано.
 </div>
 
 <div class="section" id="adminForm" style="display:none;">
@@ -179,7 +204,6 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
   </div>
 </div>
 
-<!-- ===== ПОИСК ===== -->
 <div class="search-wrap">
   <span class="search-icon">🔍</span>
   <input type="text" class="search-input" id="searchInput" placeholder="Поиск: карта, ID, клиент, банк, сумма..." oninput="onSearch()">
@@ -208,7 +232,7 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const ADMIN_PIN = '0927';
 const WORKERS = { 'Denis': '1111', 'Dmitriy': '2222', 'Artem': '3333', 'Evgeniy': '4444' };
@@ -227,17 +251,18 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 const payoutsRef = collection(db, 'payouts');
+const clientsRef = collection(db, 'clients');
 
 let payouts = [];
+let allClients = [];
 let currentTab = 'available';
-let role = sessionStorage.getItem('role') || 'client';
+let role = sessionStorage.getItem('role') || 'guest';
 let workerName = sessionStorage.getItem('workerName') || '';
 let shiftName = sessionStorage.getItem('shiftName') || '';
 let shiftRate = parseFloat(sessionStorage.getItem('shiftRate')) || 0;
+let clientName = sessionStorage.getItem('clientName') || '';
 let soundEnabled = localStorage.getItem('soundEnabled') !== '0';
 let theme = localStorage.getItem('theme') || 'dark';
-let myName = localStorage.getItem('myName') || '';
-let myClientId = localStorage.getItem('myClientId') || '';
 let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
 let prevState = new Map();
 let seenPayoutIds = new Set();
@@ -247,77 +272,10 @@ let audioCtx = null;
 let notifyPermissionAsked = false;
 let searchQuery = '';
 
-// ============ ПОИСК ============
-function onSearch() {
-  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
-  document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
-  render();
-}
-
-function clearSearch() {
-  document.getElementById('searchInput').value = '';
-  searchQuery = '';
-  document.getElementById('searchClear').style.display = 'none';
-  document.getElementById('searchCount').textContent = '';
-  render();
-}
-
-function matchSearch(p) {
-  if (!searchQuery) return true;
-  const q = searchQuery.replace(/\s+/g, '');
-  const qRaw = searchQuery;
-
-  // Карта (убираем пробелы и для запроса, и для карты)
-  const card = (p.cardNumber || '').replace(/\s+/g, '').toLowerCase();
-  if (card.includes(q)) return true;
-
-  // ID заявки
-  if ((p.id || '').toLowerCase().includes(qRaw)) return true;
-
-  // Клиент
-  if ((p.client || '').toLowerCase().includes(qRaw)) return true;
-
-  // Банк
-  if ((p.bank || '').toLowerCase().includes(qRaw)) return true;
-
-  // Сумма (только цифры)
-  const sumStr = String(p.totalSum || '');
-  if (sumStr.includes(qRaw)) return true;
-
-  // Воркер
-  if ((p.createdBy || '').toLowerCase().includes(qRaw)) return true;
-
-  // Смена
-  if ((p.shift || '').toLowerCase().includes(qRaw)) return true;
-
-  // Курс
-  if (p.rate && String(p.rate).includes(qRaw)) return true;
-
-  // Суммы чеков
-  if ((p.checks || []).some(c => String(c.sum).includes(qRaw))) return true;
-
-  return false;
-}
-
-function highlightMatch(text) {
-  if (!searchQuery || !text) return esc(text);
-  const s = String(text);
-  // Простой регистронезависимый поиск
-  const idx = s.toLowerCase().indexOf(searchQuery.toLowerCase());
-  if (idx === -1) {
-    // Пробуем без пробелов для карт
-    const sClean = s.replace(/\s+/g, '');
-    const qClean = searchQuery.replace(/\s+/g, '');
-    if (sClean.toLowerCase().includes(qClean.toLowerCase())) {
-      // Просто возвращаем без подсветки (сложно разметить с пробелами)
-      return esc(s);
-    }
-    return esc(s);
-  }
-  const before = s.substring(0, idx);
-  const match = s.substring(idx, idx + searchQuery.length);
-  const after = s.substring(idx + searchQuery.length);
-  return esc(before) + '<span class="highlight">' + esc(match) + '</span>' + esc(after);
+// ============ ХЭШ PIN ============
+async function hashPin(pin) {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('p2p_salt_' + pin));
+  return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
 }
 
 // ============ ТЕМА ============
@@ -330,6 +288,46 @@ function setTheme(t) {
   });
 }
 setTheme(theme);
+
+// ============ ПОИСК ============
+function onSearch() {
+  searchQuery = document.getElementById('searchInput').value.trim().toLowerCase();
+  document.getElementById('searchClear').style.display = searchQuery ? 'block' : 'none';
+  render();
+}
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  searchQuery = '';
+  document.getElementById('searchClear').style.display = 'none';
+  document.getElementById('searchCount').textContent = '';
+  render();
+}
+function matchSearch(p) {
+  if (!searchQuery) return true;
+  const q = searchQuery.replace(/\s+/g, '');
+  const qRaw = searchQuery;
+  const card = (p.cardNumber || '').replace(/\s+/g, '').toLowerCase();
+  if (card.includes(q)) return true;
+  if ((p.id || '').toLowerCase().includes(qRaw)) return true;
+  if ((p.client || '').toLowerCase().includes(qRaw)) return true;
+  if ((p.bank || '').toLowerCase().includes(qRaw)) return true;
+  if (String(p.totalSum || '').includes(qRaw)) return true;
+  if ((p.createdBy || '').toLowerCase().includes(qRaw)) return true;
+  if ((p.shift || '').toLowerCase().includes(qRaw)) return true;
+  if (p.rate && String(p.rate).includes(qRaw)) return true;
+  if ((p.checks || []).some(c => String(c.sum).includes(qRaw))) return true;
+  return false;
+}
+function highlightMatch(text) {
+  if (!searchQuery || !text) return esc(text);
+  const s = String(text);
+  const idx = s.toLowerCase().indexOf(searchQuery.toLowerCase());
+  if (idx === -1) return esc(s);
+  const before = s.substring(0, idx);
+  const match = s.substring(idx, idx + searchQuery.length);
+  const after = s.substring(idx + searchQuery.length);
+  return esc(before) + '<span class="highlight">' + esc(match) + '</span>' + esc(after);
+}
 
 // ============ ЗВУК ============
 function initAudio() {
@@ -376,7 +374,6 @@ function playSound(type) {
     });
   }
 }
-
 document.addEventListener('click', function askNotify() {
   if (notifyPermissionAsked) return;
   notifyPermissionAsked = true;
@@ -386,7 +383,6 @@ document.addEventListener('click', function askNotify() {
   }
   document.removeEventListener('click', askNotify);
 }, { once: true });
-
 async function showNotification(title, body) {
   if (!('Notification' in window)) return;
   if (Notification.permission === 'default') {
@@ -396,7 +392,6 @@ async function showNotification(title, body) {
     try { new Notification(title, { body, tag: 'payout-' + Date.now() }); } catch(e) {}
   }
 }
-
 function showToast(msg, type = '') {
   const el = document.createElement('div');
   el.className = 'toast ' + type;
@@ -405,61 +400,222 @@ function showToast(msg, type = '') {
   setTimeout(() => el.remove(), 3000);
 }
 
-// ============ КЛИЕНТ ============
-function generateClientId() { return 'c_' + Math.random().toString(36).substring(2, 10); }
-function ensureClient() {
-  if (myName && myClientId) return true;
-  const n = prompt('👤 Введи своё имя (ник) — оно сохранится в этом браузере:');
-  if (!n || n.trim().length < 2) { alert('Минимум 2 символа'); return false; }
-  myName = n.trim();
-  myClientId = generateClientId();
-  localStorage.setItem('myName', myName);
-  localStorage.setItem('myClientId', myClientId);
-  updateModeUI();
-  return true;
-}
-function switchClient() {
-  if (!confirm('⚠️ Сменить клиента?\n\nСтарые заявки останутся привязаны к старому имени.')) return;
-  myName = ''; myClientId = '';
-  localStorage.removeItem('myName'); localStorage.removeItem('myClientId');
-  updateModeUI(); render();
-  setTimeout(() => ensureClient(), 100);
-}
-
 // ============ ЛОГИН ============
 function openLogin() {
-  if (role !== 'client') {
-    if (confirm('Выйти из аккаунта ' + (role === 'admin' ? '(админ)' : workerName) + '?')) {
-      role = 'client'; workerName = ''; shiftName = ''; shiftRate = 0;
+  if (role !== 'guest') {
+    if (confirm('Выйти из аккаунта?')) {
+      role = 'guest'; workerName = ''; shiftName = ''; shiftRate = 0; clientName = '';
       sessionStorage.removeItem('role'); sessionStorage.removeItem('workerName');
       sessionStorage.removeItem('shiftName'); sessionStorage.removeItem('shiftRate');
+      sessionStorage.removeItem('clientName');
       currentTab = 'available';
       updateModeUI(); render();
-      showToast('👤 Режим клиента');
+      showToast('👋 Вы вышли');
     }
     return;
   }
-  showLoginStep1();
+  showLoginChoice();
 }
 
-function showLoginStep1() {
+function showLoginChoice() {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
   overlay.innerHTML = `
     <div class="modal-box">
       <h3>🔐 Вход в систему</h3>
       <p>Выбери, кто ты</p>
-      <div class="worker-btns">
-        ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
-        <button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button>
+      <div class="choice-btns">
+        <button class="client-btn" onclick="selectClientType()">❤️ Клиенты</button>
+        <button class="bt7-btn" onclick="selectBT7Type()">🛠 BT7 (Воркеры)</button>
       </div>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
     </div>`;
   document.body.appendChild(overlay);
 }
+
+// ============ КЛИЕНТ ============
+function selectClientType() {
+  closeLogin();
+  showClientNameInput();
+}
+
+function showClientNameInput() {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box heart">
+      <h3>❤️ Вход для клиента</h3>
+      <p>Начни вводить имя — выбери из списка или создай новое</p>
+      <div class="name-wrap">
+        <input type="text" class="name-input" id="clientNameInput" placeholder="Введи своё имя..." autocomplete="off" autofocus>
+        <div class="name-dropdown" id="clientNameDropdown"></div>
+      </div>
+      <div class="pin-error" id="clientNameError"></div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+
+  const input = document.getElementById('clientNameInput');
+  const dropdown = document.getElementById('clientNameDropdown');
+  input.focus();
+
+  input.addEventListener('input', () => {
+    const q = input.value.trim().toLowerCase();
+    if (!q) { dropdown.classList.remove('show'); return; }
+    const matches = allClients.filter(c => c.name && c.name.toLowerCase().startsWith(q));
+    if (matches.length === 0) {
+      dropdown.innerHTML = `<div class="name-new" onclick="proceedClientName('${esc(input.value.trim())}')">➕ Создать нового клиента "${esc(input.value.trim())}"</div>`;
+      dropdown.classList.add('show');
+      return;
+    }
+    dropdown.innerHTML = matches.map(c =>
+      `<div class="name-item" onclick="proceedClientName('${esc(c.name)}')"><span class="heart-inline">❤️</span>${esc(c.name)}</div>`
+    ).join('') + `<div class="name-new" onclick="proceedClientName('${esc(input.value.trim())}')">➕ Создать нового "${esc(input.value.trim())}"</div>`;
+    dropdown.classList.add('show');
+  });
+
+  input.addEventListener('keydown', e => {
+    if (e.key === 'Enter') {
+      const v = input.value.trim();
+      if (v) proceedClientName(v);
+    }
+  });
+}
+
+async function proceedClientName(name) {
+  name = name.trim();
+  if (!name || name.length < 2) { alert('Минимум 2 символа'); return; }
+  if (name.length > 30) { alert('Максимум 30 символов'); return; }
+
+  // Ищем существующего клиента (case-insensitive)
+  const existing = allClients.find(c => c.name && c.name.toLowerCase() === name.toLowerCase());
+
+  closeLogin();
+
+  if (existing) {
+    // Вход
+    showClientPinInput(existing.name);
+  } else {
+    // Регистрация
+    showClientRegister(name);
+  }
+}
+
+function showClientPinInput(name) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box heart">
+      <h3>❤️ ${esc(name)}</h3>
+      <p>Введи свой PIN-код</p>
+      <div class="pin-row">
+        <input type="password" class="heart" id="pinField" maxlength="6" placeholder="••••" autofocus>
+        <button class="heart" onclick="verifyClientPin('${esc(name)}')">Войти</button>
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    const f = document.getElementById('pinField');
+    f?.focus();
+    f?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') verifyClientPin(name);
+    });
+  }, 50);
+}
+
+async function verifyClientPin(name) {
+  const pin = document.getElementById('pinField')?.value;
+  if (!pin) return;
+  const hashed = await hashPin(pin);
+  const existing = allClients.find(c => c.name && c.name.toLowerCase() === name.toLowerCase());
+  if (!existing || existing.pinHash !== hashed) {
+    document.getElementById('pinError').textContent = '❌ Неверный PIN';
+    document.getElementById('pinField').value = '';
+    return;
+  }
+  loginClient(existing.name);
+}
+
+function showClientRegister(name) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box heart">
+      <h3>❤️ Регистрация</h3>
+      <p>Новый клиент: <b>${esc(name)}</b></p>
+      <p style="font-size:11px;">Придумай свой PIN (4-6 цифр).<br>Он нужен чтобы входить с любого устройства.</p>
+      <div class="pin-row" style="flex-direction:column;gap:8px;">
+        <input type="password" class="heart" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus>
+        <input type="password" class="heart" id="pinField2" maxlength="6" placeholder="Повтори PIN">
+      </div>
+      <div class="pin-error" id="pinError"></div>
+      <div class="pin-row" style="margin-top:10px;">
+        <button class="heart" style="width:100%;" onclick="registerClient('${esc(name)}')">Создать</button>
+      </div>
+      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    document.getElementById('pinField')?.focus();
+    document.getElementById('pinField2')?.addEventListener('keydown', e => {
+      if (e.key === 'Enter') registerClient(name);
+    });
+  }, 50);
+}
+
+async function registerClient(name) {
+  const pin1 = document.getElementById('pinField')?.value;
+  const pin2 = document.getElementById('pinField2')?.value;
+  const err = document.getElementById('pinError');
+  if (!pin1 || pin1.length < 4) { err.textContent = '❌ PIN минимум 4 цифры'; return; }
+  if (pin1 !== pin2) { err.textContent = '❌ PIN не совпадает'; return; }
+  if (!/^\d+$/.test(pin1)) { err.textContent = '❌ Только цифры'; return; }
+  try {
+    const pinHash = await hashPin(pin1);
+    await addDoc(clientsRef, {
+      name: name,
+      pinHash: pinHash,
+      createdAt: Date.now()
+    });
+    showToast('❤️ Добро пожаловать, ' + name + '!', 'heart');
+    loginClient(name);
+  } catch(e) {
+    err.textContent = '❌ Ошибка: ' + e.message;
+  }
+}
+
+function loginClient(name) {
+  role = 'client';
+  clientName = name;
+  sessionStorage.setItem('role', 'client');
+  sessionStorage.setItem('clientName', name);
+  closeLogin();
+  currentTab = 'available';
+  updateModeUI(); render();
+  showToast('❤️ Привет, ' + name + '!', 'heart');
+}
+
+// ============ BT7 (Воркеры/Админ) ============
+function selectBT7Type() {
+  closeLogin();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>🛠 BT7</h3>
+      <p>Выбери сотрудника</p>
+      <div class="worker-btns">
+        ${Object.keys(WORKERS).map(w => `<button onclick="selectWorker('${w}')">👤 ${w}</button>`).join('')}
+        <button class="admin-btn" onclick="selectAdmin()">👑 Админ (просмотр)</button>
+      </div>
+      <button class="modal-cancel" onclick="closeLogin()">Назад</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
 function selectWorker(name) { closeLogin(); showLoginPin(name, 'worker'); }
 function selectAdmin() { closeLogin(); showLoginPin('Админ', 'admin'); }
-
 function showLoginPin(displayName, roleType) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
@@ -476,14 +632,13 @@ function showLoginPin(displayName, roleType) {
     </div>`;
   document.body.appendChild(overlay);
   setTimeout(() => {
-    const pinField = document.getElementById('pinField');
-    pinField?.focus();
-    pinField?.addEventListener('keydown', e => {
+    const f = document.getElementById('pinField');
+    f?.focus();
+    f?.addEventListener('keydown', e => {
       if (e.key === 'Enter') submitPin(roleType, displayName);
     });
   }, 50);
 }
-
 function submitPin(roleType, displayName) {
   const pin = document.getElementById('pinField')?.value;
   if (!pin) return;
@@ -498,14 +653,12 @@ function submitPin(roleType, displayName) {
   sessionStorage.setItem('role', role);
   sessionStorage.setItem('workerName', workerName);
   closeLogin();
-
   if (role === 'admin') {
     currentTab = 'done';
     updateModeUI(); render();
-    showToast('👑 Админ: только просмотр архива');
+    showToast('👑 Админ: просмотр архива');
     return;
   }
-
   if (!shiftName) setTimeout(() => askShift(), 100);
   else if (!shiftRate) setTimeout(() => askRate(), 100);
   else {
@@ -526,7 +679,6 @@ function askShift() {
     setTimeout(() => askRate(), 150);
   }
 }
-
 function askRate() {
   const txt = '💱 Введи курс USDT на эту смену:\n\n(например: 88.15 — курс за 1 USDT в рублях)';
   const v = prompt(txt, shiftRate || '');
@@ -540,12 +692,21 @@ function askRate() {
   if (rateInput) rateInput.value = shiftRate;
   showToast('💱 Курс: ' + shiftRate + ' ₽/USDT');
 }
-
 function closeLogin() { document.getElementById('loginModal')?.remove(); }
 
 // ============ НАСТРОЙКИ ============
 function openSettings() {
   if (role === 'admin') { showToast('👑 Админ: настройки недоступны'); return; }
+  if (role === 'client') {
+    if (confirm('Выйти из аккаунта ❤️ ' + clientName + '?')) {
+      role = 'guest'; clientName = '';
+      sessionStorage.removeItem('role'); sessionStorage.removeItem('clientName');
+      currentTab = 'available';
+      updateModeUI(); render();
+      showToast('👋 Вы вышли');
+    }
+    return;
+  }
   const txt = '⚙️ Настройки\n\n' +
     'Пользователь: ' + workerName + '\n' +
     'Смена: ' + (shiftName || '—') + '\n' +
@@ -592,6 +753,7 @@ function updateModeUI() {
   const settingsBtn = document.getElementById('settingsBtn');
   const form = document.getElementById('adminForm');
   const adminInfo = document.getElementById('adminInfo');
+  const clientInfo = document.getElementById('clientInfo');
   const badge = document.getElementById('workerBadge');
   const rateBadge = document.getElementById('rateBadge');
   const meInfo = document.getElementById('meInfo');
@@ -608,19 +770,21 @@ function updateModeUI() {
     form.style.display = 'none';
     settingsBtn.style.display = 'none';
     adminInfo.style.display = 'block';
-    badge.textContent = '👑 Админ • просмотр архива'; badge.className = 'badge admin';
+    clientInfo.style.display = 'none';
+    badge.textContent = '👑 Админ'; badge.className = 'badge admin';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '👑 Админ — просмотр архива всех воркеров';
+    meInfo.textContent = '👑 Просмотр архива всех воркеров';
     tabAvail.classList.add('hidden');
     tabAct.classList.add('hidden');
     tabDone.classList.add('active');
   } else if (role === 'worker') {
-    btn.textContent = '👤 ' + workerName; btn.className = 'worker';
+    btn.textContent = '🛠 ' + workerName; btn.className = 'worker';
     form.style.display = 'block';
     settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
-    badge.textContent = '👤 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
-    meInfo.textContent = '👤 Воркер: ' + workerName + ' • смена: ' + (shiftName || '—');
+    clientInfo.style.display = 'none';
+    badge.textContent = '🛠 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
+    meInfo.textContent = '🛠 Воркер: ' + workerName + ' • смена: ' + (shiftName || '—');
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
@@ -629,14 +793,27 @@ function updateModeUI() {
     } else {
       rateBadge.textContent = ''; rateBadge.className = 'badge';
     }
+  } else if (role === 'client') {
+    btn.textContent = '❤️ ' + clientName; btn.className = 'client';
+    form.style.display = 'none';
+    settingsBtn.style.display = 'block';
+    adminInfo.style.display = 'none';
+    clientInfo.style.display = 'block';
+    badge.textContent = '❤️ ' + clientName; badge.className = 'badge client';
+    rateBadge.textContent = ''; rateBadge.className = 'badge';
+    meInfo.textContent = '❤️ Клиент: ' + clientName + ' — твои заявки с сердечком';
+    if (currentTab === 'available') tabAvail.classList.add('active');
+    else if (currentTab === 'active') tabAct.classList.add('active');
+    else tabDone.classList.add('active');
   } else {
     btn.textContent = '🔒 Войти'; btn.className = '';
     form.style.display = 'none';
     settingsBtn.style.display = 'none';
     adminInfo.style.display = 'none';
+    clientInfo.style.display = 'none';
     badge.textContent = ''; badge.className = 'badge';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = myName ? '👤 Клиент: ' + myName : '👤 Введи имя при первой заявке';
+    meInfo.textContent = '👤 Режим гостя — войди для работы';
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
@@ -645,6 +822,7 @@ function updateModeUI() {
 
 function setTab(tab) {
   if (role === 'admin' && tab !== 'done') return;
+  if (role === 'guest' && tab !== 'available') return;
   currentTab = tab;
   document.querySelectorAll('.tabs button').forEach(b => b.classList.remove('active'));
   const el = document.getElementById('tab' + tab.charAt(0).toUpperCase() + tab.slice(1));
@@ -655,39 +833,40 @@ function setTab(tab) {
 // ============ ФИЛЬТР ============
 function filterPayouts(list, tab) {
   if (role === 'admin') {
-    if (tab === 'done') return list;
-    return [];
+    return tab === 'done' ? list : [];
   }
   if (role === 'worker') {
     if (tab === 'available') return list;
-    if (tab === 'active') return list.filter(p => p.createdBy === workerName || p.clientId === myClientId || p.client === myName);
+    if (tab === 'active') return list.filter(p => p.createdBy === workerName || (p.client && p.client === workerName));
     if (tab === 'done') return list.filter(p => p.createdBy === workerName);
   }
+  if (role === 'client') {
+    if (tab === 'available') return list;
+    if (tab === 'active') return list.filter(p => p.client === clientName);
+    if (tab === 'done') return list.filter(p => p.client === clientName);
+  }
+  // guest
   if (tab === 'available') return list;
-  if (tab === 'active') return list.filter(p => p.clientId === myClientId);
-  if (tab === 'done') return list.filter(p => p.clientId === myClientId);
-  return list;
+  return [];
 }
 
 // ============ ДОБАВЛЕНИЕ ============
 async function addPayout() {
-  if (role === 'admin') { alert('Админ не может создавать заявки'); return; }
+  if (role !== 'worker') { alert('Только воркер может создавать заявки'); return; }
   const cardNumber = document.getElementById('cardNumber').value.trim();
   const totalSum = parseFloat(document.getElementById('totalSum').value);
   const totalChecks = parseInt(document.getElementById('totalChecks').value);
   const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
   const rate = parseFloat(document.getElementById('rate').value) || shiftRate || 0;
   const bank = document.getElementById('bank').value.trim();
-
   if (!cardNumber || !totalSum || !totalChecks) { alert('Заполни поля'); return; }
   if (totalSum <= 0 || totalChecks <= 0) { alert('Сумма и чеки > 0'); return; }
   if (rate <= 0) { alert('Введи курс'); return; }
-
   try {
     await addDoc(payoutsRef, {
       cardNumber, totalSum, totalChecks, timerMin, rate, bank: bank || '',
-      createdBy: workerName || 'Unknown', creatorRole: role, shift: shiftName || '',
-      status: 'available', client: null, clientId: null, checks: [],
+      createdBy: workerName || 'Unknown', creatorRole: 'worker', shift: shiftName || '',
+      status: 'available', client: null, checks: [],
       createdAt: Date.now(), startedAt: null, finishedAt: null
     });
     ['cardNumber','totalSum','totalChecks','bank'].forEach(id => document.getElementById(id).value = '');
@@ -697,7 +876,7 @@ async function addPayout() {
 
 // ============ РЕДАКТИРОВАНИЕ КУРСА ============
 async function editRate(id) {
-  if (role === 'admin') { alert('Админ не может редактировать'); return; }
+  if (role !== 'worker') { alert('Только воркер'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const v = prompt('💱 Изменить курс\n\nТекущий: ' + (p.rate || '—') + ' ₽/USDT\n\nНовый курс:', p.rate || '');
@@ -705,26 +884,26 @@ async function editRate(id) {
   const r = parseFloat(v);
   if (!r || r <= 0) { alert('Курс должен быть > 0'); return; }
   await updateDoc(doc(db, 'payouts', id), { rate: r });
-  showToast('💱 Курс обновлён: ' + r + ' ₽/USDT');
+  showToast('💱 Курс: ' + r + ' ₽/USDT');
 }
 
 // ============ ДЕЙСТВИЯ ============
 async function takePayout(id) {
-  if (role === 'admin') return;
-  if (!ensureClient()) return;
+  if (role !== 'client') { alert('❌ Только клиент может брать заявки'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p || p.status !== 'available') return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'active', client: myName, clientId: myClientId, startedAt: Date.now()
+    status: 'active', client: clientName, startedAt: Date.now()
   });
   setTab('active');
-  showToast('✅ Взято в работу');
+  showToast('❤️ Заявка взята в работу!', 'heart');
 }
 
 async function uploadCheck(id, inputEl) {
-  if (role === 'admin') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
+  const isOwner = (role === 'client' && p.client === clientName) || (role === 'worker');
+  if (!isOwner) { alert('❌ Нельзя'); return; }
   const file = inputEl.files[0];
   const sumEl = document.getElementById('checkSum_' + id);
   const sum = parseFloat(sumEl.value);
@@ -755,7 +934,6 @@ async function uploadCheck(id, inputEl) {
 }
 
 function openProblemModal(id) {
-  if (role === 'admin') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   const overlay = document.createElement('div');
@@ -785,7 +963,7 @@ async function submitProblem(id) {
   const text = document.getElementById('problemText').value.trim();
   const fileEl = document.getElementById('problemFile');
   const file = fileEl?.files[0];
-  if (!text && !file) { alert('Напиши проблему или прикрепи скриншот'); return; }
+  if (!text && !file) { alert('Напиши или прикрепи'); return; }
   const btn = document.querySelector('#problemModal .modal-submit');
   btn.textContent = '⏳...'; btn.disabled = true;
   try {
@@ -799,47 +977,46 @@ async function submitProblem(id) {
         reader.readAsDataURL(file);
       });
     }
-    const problems = [...(p.problems || []), { text, file: fileData, createdAt: Date.now(), by: myName }];
+    const problems = [...(p.problems || []), { text, file: fileData, createdAt: Date.now(), by: role === 'client' ? clientName : workerName }];
     await updateDoc(doc(db, 'payouts', id), { problems, hasProblem: true });
     closeProblemModal();
-    showToast('✅ Проблема отправлена');
+    showToast('✅ Отправлено');
   } catch(e) { alert('Ошибка: ' + e.message); }
   finally { if (btn) { btn.textContent = 'Отправить'; btn.disabled = false; } }
 }
 
 async function cancelByClient(id) {
-  if (role === 'admin') return;
+  if (role !== 'client') return;
   const p = payouts.find(x => x.id === id);
-  if (!p) return;
+  if (!p || p.client !== clientName) return;
   const reason = prompt('❌ Отмена сделки\n\nПричина (можно пусто):');
   if (reason === null) return;
   await updateDoc(doc(db, 'payouts', id), {
-    status: 'cancelled', cancelledAt: Date.now(), cancelledBy: 'client', cancelReason: reason || 'без причины'
+    status: 'cancelled', cancelledAt: Date.now(), cancelledBy: clientName, cancelReason: reason || 'без причины'
   });
-  showToast('❌ Сделка отменена');
+  showToast('❌ Отменено');
 }
 
 async function finishPayout(id) {
-  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
+  if (role !== 'worker') return;
   if (!confirm('Завершить заявку?')) return;
   await updateDoc(doc(db, 'payouts', id), { status: 'done', finishedAt: Date.now() });
 }
 async function returnToAvailable(id) {
-  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
+  if (role !== 'worker') return;
   if (!confirm('Вернуть в доступные?')) return;
-  await updateDoc(doc(db, 'payouts', id), { status: 'available', client: null, clientId: null, startedAt: null });
+  await updateDoc(doc(db, 'payouts', id), { status: 'available', client: null, startedAt: null });
 }
 async function deletePayout(id) {
-  if (role === 'admin') { alert('Админ не может удалять заявки'); return; }
+  if (role !== 'worker') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
-  if (role === 'worker' && p.createdBy !== workerName) { alert('Только свои заявки'); return; }
-  if (role === 'client') { alert('Клиент не может удалять'); return; }
-  if (!confirm('Удалить заявку навсегда?')) return;
+  if (p.createdBy !== workerName) { alert('Только свои заявки'); return; }
+  if (!confirm('Удалить навсегда?')) return;
   await deleteDoc(doc(db, 'payouts', id));
 }
 async function extendTimer(id, minutes) {
-  if (role === 'admin') { alert('Админ не может изменять заявки'); return; }
+  if (role !== 'worker') return;
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   await updateDoc(doc(db, 'payouts', id), { timerMin: p.timerMin + minutes });
@@ -875,9 +1052,8 @@ function renderCard(p) {
   const left = Math.max(0, p.totalSum - paid);
   const pct = Math.min(100, (paid / p.totalSum) * 100);
   const checksCount = (p.checks || []).length;
-  const isMine = p.clientId === myClientId;
-  const isAdminView = role === 'admin';
-  const canEditRate = !isAdminView && (role === 'worker');
+  const isMine = (role === 'client' && p.client === clientName);
+  const canEditRate = role === 'worker';
 
   let timerHtml = '';
   let cardExtraClass = '';
@@ -891,48 +1067,45 @@ function renderCard(p) {
   }
 
   let actions = '';
-  if (!isAdminView) {
-    if (p.status === 'available') {
-      actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">▶ Взять в работу</button>`;
+  if (p.status === 'available') {
+    if (role === 'client') {
+      actions = `<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;
+    } else if (role === 'worker') {
+      actions = `<div class="card-actions">`;
       if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-      if (role === 'worker' && p.createdBy === workerName) {
+      if (p.createdBy === workerName) {
         actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
       }
       actions += `</div>`;
-    } else if (p.status === 'active') {
-      const savedSum = checkInputs[p.id] || '';
-      const canUpload = role !== 'client' || isMine;
-      if (canUpload) {
-        actions = `
-          <div class="check-form">
-            <div class="check-form-title">💵 Загрузить чек</div>
-            <div class="check-form-row">
-              <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01"
-                     value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
-              <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
-              <label for="checkFile_${p.id}">📎 Чек</label>
-            </div>
-          </div>`;
-      }
-      if (role === 'client' && isMine) {
-        actions += `<div class="card-actions">
-          <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
-          <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
+    }
+  } else if (p.status === 'active') {
+    const savedSum = checkInputs[p.id] || '';
+    const canUpload = isMine || role === 'worker';
+    if (canUpload) {
+      actions = `
+        <div class="check-form">
+          <div class="check-form-title">💵 Загрузить чек</div>
+          <div class="check-form-row">
+            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01"
+                   value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
+            <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
+            <label for="checkFile_${p.id}">📎 Чек</label>
+          </div>
         </div>`;
-      }
-      if (role === 'worker') {
-        actions += `<div class="card-actions">`;
-        actions += `<button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>`;
-        if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-        if (p.createdBy === workerName) {
-          actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
-        }
-        actions += `</div>`;
-      }
-    } else if (p.status === 'done' || p.status === 'cancelled') {
-      if (role === 'worker' && p.createdBy === workerName) {
-        actions = `<div class="card-actions"><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
-      }
+    }
+    if (isMine) {
+      actions += `<div class="card-actions">
+        <button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button>
+        <button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button>
+      </div>`;
+    }
+    if (role === 'worker') {
+      actions += `<div class="card-actions">`;
+      actions += `<button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>`;
+      actions += `<button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>`;
+      actions += `<button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>`;
+      actions += `<button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>`;
+      actions += `</div>`;
     }
   }
 
@@ -963,20 +1136,22 @@ function renderCard(p) {
   }
 
   let metaHtml = '';
-  if (role !== 'client' && (p.createdBy || p.shift)) {
+  if (role !== 'guest' && (p.createdBy || p.shift)) {
     const dateStr = new Date(p.createdAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    metaHtml = `<div class="card-row small">👷 ${esc(p.createdBy || '—')} • ${esc(p.shift || '—')} • ${dateStr}</div>`;
+    metaHtml = `<div class="card-row small">🛠 ${esc(p.createdBy || '—')} • ${esc(p.shift || '—')} • ${dateStr}</div>`;
   }
 
-  const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')" title="Клик — изменить"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' <span style="color:var(--text-mute);font-size:9px">✏️</span>' : ''}</div>` : '';
+  const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
+
+  const heartPrefix = isMine ? '❤️ ' : '';
 
   return `
-    <div class="card ${p.status}${cardExtraClass}">
-      <div class="card-header"><b>${formatMoney(p.totalSum)}</b>${timerHtml}</div>
+    <div class="card ${p.status}${cardExtraClass}${isMine ? ' mine' : ''}">
+      <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
       <div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>
       ${p.bank ? `<div class="card-row small">🏦 ${esc(p.bank)}</div>` : ''}
       ${rateHtml}
-      ${p.client ? `<div class="card-row small">👤 Клиент: ${highlightMatch(p.client)}</div>` : ''}
+      ${p.client ? `<div class="card-row small">❤️ Клиент: ${highlightMatch(p.client)}</div>` : ''}
       ${metaHtml}
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
@@ -996,6 +1171,9 @@ function renderArchive(list) {
     if (role === 'admin') {
       key = (p.createdBy || '—') + ' • ' + (p.shift || '—') + ' • ' + dateKey;
       if (!groups[key]) groups[key] = { worker: p.createdBy || '—', shift: p.shift || '—', date: dateKey, items: [], latestAt: 0 };
+    } else if (role === 'client') {
+      key = (p.shift || 'Без смены') + ' • ' + dateKey;
+      if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
     } else {
       key = (p.shift || 'Без смены') + ' • ' + dateKey + ' • rate_' + (p.rate || 0);
       if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
@@ -1017,7 +1195,9 @@ function renderArchive(list) {
 
     let title;
     if (role === 'admin') {
-      title = `👤 ${esc(g.worker)} • ⏰ ${esc(g.shift)} • 📅 ${g.date}`;
+      title = `🛠 ${esc(g.worker)} • ⏰ ${esc(g.shift)} • 📅 ${g.date}`;
+    } else if (role === 'client') {
+      title = `❤️ ${g.date} • ⏰ ${g.shift}`;
     } else {
       const rateTxt = g.rate ? ` • 💱 ${g.rate}` : '';
       title = `${isCurrent ? '🔥 ' : '📦 '}${g.shift} • ${g.date}${rateTxt}`;
@@ -1046,12 +1226,8 @@ function render() {
   else baseList = payouts.filter(p => p.status === 'done' || p.status === 'cancelled');
   let list = filterPayouts(baseList, currentTab);
 
-  // ПРИМЕНЯЕМ ПОИСК
-  if (searchQuery) {
-    list = list.filter(matchSearch);
-  }
+  if (searchQuery) list = list.filter(matchSearch);
 
-  // Обновляем счётчик
   const countEl = document.getElementById('searchCount');
   if (countEl) {
     if (searchQuery) {
@@ -1065,10 +1241,10 @@ function render() {
 
   if (!list.length) {
     el.innerHTML = `<div class="empty">${
-      searchQuery ? '🔍 Ничего не найдено по запросу "' + esc(searchQuery) + '"' :
+      searchQuery ? '🔍 Ничего не найдено' :
       currentTab === 'available' ? 'Нет доступных заявок' :
-      currentTab === 'active' ? 'Нет заявок в работе' :
-      'Архив пуст'}</div>`;
+      currentTab === 'active' ? (role === 'guest' ? 'Войди, чтобы видеть' : 'Нет заявок в работе') :
+      (role === 'guest' ? 'Войди, чтобы видеть архив' : 'Архив пуст')}</div>`;
     return;
   }
   if (currentTab === 'done') el.innerHTML = renderArchive(list);
@@ -1086,7 +1262,7 @@ setInterval(() => {
     el.className = 'timer ' + (left < 0 ? 'red' : (left < 5*60000 ? 'orange' : 'green'));
     if (left > 0 && left < 10 * 60 * 1000 && !warnedPayouts.has(id)) {
       warnedPayouts.add(id);
-      if (role !== 'client') {
+      if (role === 'worker') {
         playSound('warning');
         const p = payouts.find(x => x.id === id);
         if (p) showToast('⏰ ' + formatMoney(p.totalSum) + ' — <10 мин', 'warn');
@@ -1095,10 +1271,19 @@ setInterval(() => {
   });
 }, 1000);
 
-// ============ ПОДПИСКА ============
+// ============ ПОДПИСКА НА КЛИЕНТОВ ============
+onSnapshot(clientsRef, snapshot => {
+  allClients = snapshot.docs.map(d => d.data());
+  allClients.sort((a, b) => (a.name || '').localeCompare(b.name || '', 'ru'));
+}, err => {
+  console.warn('Clients snapshot error:', err.message);
+});
+
+// ============ ПОДПИСКА НА ЗАЯВКИ ============
 onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   const newPayouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
 
+  // Уведомления для клиента — новые доступные заявки
   if (role === 'client' && !isFirstSnapshot) {
     newPayouts.forEach(p => {
       if (!seenPayoutIds.has(p.id) && p.status === 'available') {
@@ -1107,22 +1292,21 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
           playSound('new');
           const rateTxt = p.rate ? ' • 💱 ' + p.rate : '';
           const bankTxt = p.bank ? ' • ' + p.bank : '';
-          showToast('🔔 Новая заявка: ' + formatMoney(p.totalSum), 'info');
-          showNotification('🔔 Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt);
+          showToast('❤️ Новая заявка: ' + formatMoney(p.totalSum), 'heart');
+          showNotification('❤️ Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt);
         }
       }
     });
   }
 
+  // Уведомления для воркера
   if (role === 'worker') {
     newPayouts.forEach(p => {
       const prev = prevState.get(p.id);
       const checksCount = (p.checks || []).length;
       const problemsCount = (p.problems || []).length;
-
       if (prev) {
         const isMyPayout = (p.createdBy === workerName);
-
         if (isMyPayout && checksCount > prev.checksCount) {
           const lastCheck = p.checks[checksCount - 1];
           playSound('check');
@@ -1131,17 +1315,15 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
         }
         if (isMyPayout && problemsCount > prev.problemsCount) {
           playSound('warning');
-          showToast('⚠️ Проблема в заявке ' + formatMoney(p.totalSum), 'warn');
-          showNotification('⚠️ Проблема', 'Заявка ' + formatMoney(p.totalSum));
+          showToast('⚠️ Проблема: ' + formatMoney(p.totalSum), 'warn');
         }
         if (isMyPayout && prev.status !== 'cancelled' && p.status === 'cancelled') {
           playSound('warning');
-          showToast('❌ Клиент отменил ' + formatMoney(p.totalSum), 'err');
-          showNotification('❌ Клиент отменил', formatMoney(p.totalSum));
+          showToast('❌ Клиент отменил: ' + formatMoney(p.totalSum), 'err');
         }
         if (isMyPayout && prev.status === 'active' && p.status === 'done') {
           playSound('check');
-          showToast('🎉 Заявка ' + formatMoney(p.totalSum) + ' закрыта');
+          showToast('🎉 ' + formatMoney(p.totalSum) + ' закрыта');
         }
       }
     });
@@ -1175,9 +1357,10 @@ setTimeout(() => {
 Object.assign(window, {
   takePayout, uploadCheck, finishPayout, returnToAvailable, deletePayout,
   addPayout, setTab, copyText, openLogin, extendTimer, saveCheckInput,
-  openSettings, selectWorker, selectAdmin, submitPin, closeLogin,
-  setTheme, switchClient, openProblemModal, closeProblemModal, submitProblem,
-  cancelByClient, editRate, askRate, onSearch, clearSearch
+  openSettings, selectClientType, selectBT7Type, selectWorker, selectAdmin,
+  submitPin, closeLogin, setTheme, openProblemModal, closeProblemModal,
+  submitProblem, cancelByClient, editRate, askRate, onSearch, clearSearch,
+  proceedClientName, verifyClientPin, registerClient
 });
 </script>
 </body>
