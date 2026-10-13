@@ -21,7 +21,6 @@
   --text: #e0f2fe; --text-dim: #7dd3fc; --text-mute: #475569; --border: #1e3a5f;
   --accent: #0ea5e9; --accent-2: #14b8a6;
 }
-
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; transition: background 0.3s, color 0.3s; }
 h1 { font-size: 16px; margin-bottom: 5px; color: var(--accent); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
@@ -40,7 +39,6 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .add-form button:hover { opacity: 0.9; }
 @media (max-width: 1100px) { .add-form { grid-template-columns: 1fr 1fr 1fr; } }
 @media (max-width: 700px) { .add-form { grid-template-columns: 1fr 1fr; } }
-
 .search-wrap { display: flex; align-items: center; gap: 8px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 10px 14px; margin-bottom: 12px; transition: border-color 0.2s; }
 .search-wrap:focus-within { border-color: var(--accent); }
 .search-icon { font-size: 16px; color: var(--text-mute); }
@@ -50,7 +48,6 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .search-clear:hover { background: var(--danger); }
 .search-count { font-size: 11px; color: var(--accent); font-weight: bold; white-space: nowrap; }
 .search-count.no-results { color: var(--danger); }
-
 .tabs { display: flex; gap: 4px; margin-bottom: 12px; }
 .tabs button { flex: 1; padding: 9px; border: none; border-radius: 6px; background: var(--bg-card); color: var(--text-dim); font-weight: bold; cursor: pointer; font-size: 12px; transition: all 0.2s; }
 .tabs button.active { background: var(--accent); color: #fff; }
@@ -147,35 +144,66 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .modal-submit.heart { background: var(--heart); }
 .modal-submit:hover { opacity: 0.9; }
 
-/* ===== КЛИЕНТ NAME INPUT + DROPDOWN ===== */
-.name-wrap { position: relative; margin-bottom: 10px; }
-.name-input { width: 100%; padding: 12px 14px; border-radius: 8px; border: 2px solid var(--heart); background: var(--bg-input); color: var(--text); font-size: 15px; font-family: inherit; outline: none; }
-.name-input:focus { border-color: var(--heart); box-shadow: 0 0 0 3px rgba(255,77,109,0.2); }
-.name-input::placeholder { color: var(--text-mute); }
-.name-dropdown { position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px; background: var(--bg-card); border: 1px solid var(--heart); border-radius: 8px; max-height: 220px; overflow-y: auto; z-index: 100; display: none; box-shadow: 0 8px 24px rgba(0,0,0,0.5); }
-.name-dropdown.show { display: block; }
-.name-item { padding: 10px 14px; cursor: pointer; font-size: 14px; border-bottom: 1px solid var(--border); transition: background 0.15s; color: var(--text); }
-.name-item:last-child { border-bottom: none; }
-.name-item:hover, .name-item.active { background: rgba(255,77,109,0.15); color: var(--heart); }
-.name-item .heart-inline { color: var(--heart); margin-right: 6px; }
-.name-new { padding: 10px 14px; cursor: pointer; font-size: 13px; color: var(--accent-2); font-weight: bold; background: rgba(16,185,129,0.1); }
-.name-new:hover { background: rgba(16,185,129,0.2); }
-.name-empty { padding: 12px 14px; font-size: 12px; color: var(--text-mute); text-align: center; }
+/* SHIFT CHOOSER */
+.shift-choice { display: grid; grid-template-columns: 1fr; gap: 8px; margin-bottom: 10px; }
+.shift-choice button {
+  padding: 14px 12px; border: 2px solid var(--border); border-radius: 10px;
+  background: var(--bg-inner); color: var(--text); font-size: 14px; font-weight: bold;
+  cursor: pointer; transition: all 0.2s; text-align: left;
+  display: flex; justify-content: space-between; align-items: center; gap: 10px;
+}
+.shift-choice button:hover { transform: translateY(-1px); }
+.shift-choice button.morning { border-color: #f59e0b; }
+.shift-choice button.morning:hover { background: rgba(245,158,11,0.15); }
+.shift-choice button.evening { border-color: #a855f7; }
+.shift-choice button.evening:hover { background: rgba(168,85,247,0.15); }
+.shift-choice button.night { border-color: #3b82f6; }
+.shift-choice button.night:hover { background: rgba(59,130,246,0.15); }
+.shift-choice .time { font-size: 11px; color: var(--text-dim); font-weight: normal; }
+.shift-choice button.selected { box-shadow: 0 0 0 3px var(--accent-2); }
 
-.theme-toggle { position: fixed; bottom: 15px; left: 15px; display: flex; gap: 4px; z-index: 100; }
-.theme-toggle button { width: 30px; height: 30px; border-radius: 50%; border: 2px solid var(--border); cursor: pointer; font-size: 14px; background: var(--bg-card); color: var(--text); }
-.theme-toggle button.active { border-color: var(--accent); }
-.shift-group { margin-bottom: 12px; }
-.shift-summary { padding: 10px 14px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; color: var(--text-dim); display: flex; justify-content: space-between; align-items: center; user-select: none; gap: 8px; flex-wrap: wrap; }
-.shift-summary:hover { border-color: var(--accent); color: var(--text); }
+/* КУРС ВВОД */
+.rate-input-wrap { margin-bottom: 10px; }
+.rate-input-wrap input {
+  width: 100%; padding: 14px; border-radius: 8px; border: 2px solid var(--warning);
+  background: var(--bg-input); color: var(--warning); font-size: 22px;
+  font-family: monospace; font-weight: bold; text-align: center; outline: none;
+}
+.rate-input-wrap input:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+.rate-hint { font-size: 11px; color: var(--text-dim); text-align: center; margin-top: 6px; }
+
+/* АРХИВ — ДВОЙНОЙ СПОЙЛЕР */
+.date-group { margin-bottom: 10px; }
+.date-summary {
+  padding: 12px 16px; background: var(--bg-card); border: 2px solid var(--accent);
+  border-radius: 10px; cursor: pointer; font-size: 13px; font-weight: bold;
+  color: var(--accent); display: flex; justify-content: space-between;
+  align-items: center; gap: 10px; flex-wrap: wrap; user-select: none;
+}
+.date-summary:hover { background: rgba(168,85,247,0.1); }
+.date-summary .arrow { transition: transform 0.2s; }
+details[open] > .date-summary .arrow { transform: rotate(90deg); }
+details[open] > .date-summary { margin-bottom: 8px; }
+.date-content { padding-left: 8px; border-left: 2px solid var(--border); padding-left: 12px; }
+
+.shift-group { margin-bottom: 8px; }
+.shift-summary {
+  padding: 10px 14px; background: var(--bg-inner); border: 1px solid var(--border);
+  border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold;
+  color: var(--text-dim); display: flex; justify-content: space-between;
+  align-items: center; gap: 8px; flex-wrap: wrap; user-select: none;
+}
+.shift-summary:hover { border-color: var(--accent-2); color: var(--text); }
+.shift-summary.shift-morning { border-left: 3px solid #f59e0b; }
+.shift-summary.shift-evening { border-left: 3px solid #a855f7; }
+.shift-summary.shift-night { border-left: 3px solid #3b82f6; }
 .shift-summary .arrow { transition: transform 0.2s; }
-details[open] .shift-summary .arrow { transform: rotate(90deg); }
-details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); color: var(--accent); }
+details[open] > .shift-summary .arrow { transform: rotate(90deg); }
+details[open] > .shift-summary { margin-bottom: 6px; }
 .shift-content { padding-left: 0; }
+
 .admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
 .admin-info b { color: var(--accent); }
-.client-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--heart); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
-.client-info b { color: var(--heart); }
 </style>
 </head>
 <body>
@@ -185,10 +213,6 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 
 <div class="admin-info" id="adminInfo" style="display:none;">
   👑 <b>Режим админа</b> — только просмотр архива всех воркеров.
-</div>
-
-<div class="client-info" id="clientInfo" style="display:none;">
-  ❤️ <b>Режим клиента</b> — твои заявки выделены сердечком. Всё синхронизировано.
 </div>
 
 <div class="section" id="adminForm" style="display:none;">
@@ -219,10 +243,10 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 
 <div id="content" class="loading">Загрузка...</div>
 
-<div class="theme-toggle">
-  <button onclick="setTheme('dark')" data-theme-btn="dark" title="Тёмная">🌑</button>
-  <button onclick="setTheme('light')" data-theme-btn="light" title="Светлая">☀️</button>
-  <button onclick="setTheme('ocean')" data-theme-btn="ocean" title="Океан">🌊</button>
+<div class="theme-toggle" style="position:fixed;bottom:15px;left:15px;display:flex;gap:4px;z-index:100;">
+  <button onclick="setTheme('dark')" data-theme-btn="dark" title="Тёмная" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">🌑</button>
+  <button onclick="setTheme('light')" data-theme-btn="light" title="Светлая" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">☀️</button>
+  <button onclick="setTheme('ocean')" data-theme-btn="ocean" title="Океан" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">🌊</button>
 </div>
 
 <div class="mode-toggle">
@@ -232,11 +256,12 @@ details[open] .shift-summary { margin-bottom: 8px; border-color: var(--accent); 
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy, getDocs, where } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, query, orderBy } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const ADMIN_PIN = '0927';
 const WORKERS = { 'Denis': '1111', 'Dmitriy': '2222', 'Artem': '3333', 'Evgeniy': '4444' };
 const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
+const SHIFT_TIMES = { 'Утро': '06:00 - 14:00', 'Вечер': '14:00 - 22:00', 'Ночь': '22:00 - 06:00' };
 
 const firebaseConfig = {
   apiKey: "AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",
@@ -271,8 +296,9 @@ let warnedPayouts = new Set();
 let audioCtx = null;
 let notifyPermissionAsked = false;
 let searchQuery = '';
+let tempShiftChoice = null;
+let tempRate = '';
 
-// ============ ХЭШ PIN ============
 async function hashPin(pin) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('p2p_salt_' + pin));
   return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2, '0')).join('');
@@ -446,9 +472,10 @@ function showClientNameInput() {
     <div class="modal-box heart">
       <h3>❤️ Вход для клиента</h3>
       <p>Начни вводить имя — выбери из списка или создай новое</p>
-      <div class="name-wrap">
-        <input type="text" class="name-input" id="clientNameInput" placeholder="Введи своё имя..." autocomplete="off" autofocus>
-        <div class="name-dropdown" id="clientNameDropdown"></div>
+      <div style="position:relative;">
+        <input type="text" id="clientNameInput" placeholder="Введи своё имя..." autocomplete="off" autofocus
+               style="width:100%;padding:12px 14px;border-radius:8px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:15px;outline:none;">
+        <div id="clientNameDropdown" style="position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--bg-card);border:1px solid var(--heart);border-radius:8px;max-height:220px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(0,0,0,0.5);"></div>
       </div>
       <div class="pin-error" id="clientNameError"></div>
       <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
@@ -461,17 +488,17 @@ function showClientNameInput() {
 
   input.addEventListener('input', () => {
     const q = input.value.trim().toLowerCase();
-    if (!q) { dropdown.classList.remove('show'); return; }
+    if (!q) { dropdown.style.display = 'none'; return; }
     const matches = allClients.filter(c => c.name && c.name.toLowerCase().startsWith(q));
     if (matches.length === 0) {
-      dropdown.innerHTML = `<div class="name-new" onclick="proceedClientName('${esc(input.value.trim())}')">➕ Создать нового клиента "${esc(input.value.trim())}"</div>`;
-      dropdown.classList.add('show');
+      dropdown.innerHTML = `<div onclick="proceedClientName('${esc(input.value.trim())}')" style="padding:10px 14px;cursor:pointer;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,0.1);">➕ Создать нового "${esc(input.value.trim())}"</div>`;
+      dropdown.style.display = 'block';
       return;
     }
     dropdown.innerHTML = matches.map(c =>
-      `<div class="name-item" onclick="proceedClientName('${esc(c.name)}')"><span class="heart-inline">❤️</span>${esc(c.name)}</div>`
-    ).join('') + `<div class="name-new" onclick="proceedClientName('${esc(input.value.trim())}')">➕ Создать нового "${esc(input.value.trim())}"</div>`;
-    dropdown.classList.add('show');
+      `<div onclick="proceedClientName('${esc(c.name)}')" style="padding:10px 14px;cursor:pointer;font-size:14px;border-bottom:1px solid var(--border);color:var(--text);" onmouseover="this.style.background='rgba(255,77,109,0.15)'" onmouseout="this.style.background='transparent'"><span style="color:var(--heart);margin-right:6px;">❤️</span>${esc(c.name)}</div>`
+    ).join('') + `<div onclick="proceedClientName('${esc(input.value.trim())}')" style="padding:10px 14px;cursor:pointer;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,0.1);">➕ Создать нового "${esc(input.value.trim())}"</div>`;
+    dropdown.style.display = 'block';
   });
 
   input.addEventListener('keydown', e => {
@@ -486,17 +513,11 @@ async function proceedClientName(name) {
   name = name.trim();
   if (!name || name.length < 2) { alert('Минимум 2 символа'); return; }
   if (name.length > 30) { alert('Максимум 30 символов'); return; }
-
-  // Ищем существующего клиента (case-insensitive)
   const existing = allClients.find(c => c.name && c.name.toLowerCase() === name.toLowerCase());
-
   closeLogin();
-
   if (existing) {
-    // Вход
     showClientPinInput(existing.name);
   } else {
-    // Регистрация
     showClientRegister(name);
   }
 }
@@ -519,9 +540,7 @@ function showClientPinInput(name) {
   setTimeout(() => {
     const f = document.getElementById('pinField');
     f?.focus();
-    f?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') verifyClientPin(name);
-    });
+    f?.addEventListener('keydown', e => { if (e.key === 'Enter') verifyClientPin(name); });
   }, 50);
 }
 
@@ -559,9 +578,7 @@ function showClientRegister(name) {
   document.body.appendChild(overlay);
   setTimeout(() => {
     document.getElementById('pinField')?.focus();
-    document.getElementById('pinField2')?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') registerClient(name);
-    });
+    document.getElementById('pinField2')?.addEventListener('keydown', e => { if (e.key === 'Enter') registerClient(name); });
   }, 50);
 }
 
@@ -574,16 +591,10 @@ async function registerClient(name) {
   if (!/^\d+$/.test(pin1)) { err.textContent = '❌ Только цифры'; return; }
   try {
     const pinHash = await hashPin(pin1);
-    await addDoc(clientsRef, {
-      name: name,
-      pinHash: pinHash,
-      createdAt: Date.now()
-    });
+    await addDoc(clientsRef, { name, pinHash, createdAt: Date.now() });
     showToast('❤️ Добро пожаловать, ' + name + '!', 'heart');
     loginClient(name);
-  } catch(e) {
-    err.textContent = '❌ Ошибка: ' + e.message;
-  }
+  } catch(e) { err.textContent = '❌ Ошибка: ' + e.message; }
 }
 
 function loginClient(name) {
@@ -597,7 +608,7 @@ function loginClient(name) {
   showToast('❤️ Привет, ' + name + '!', 'heart');
 }
 
-// ============ BT7 (Воркеры/Админ) ============
+// ============ BT7 ============
 function selectBT7Type() {
   closeLogin();
   const overlay = document.createElement('div');
@@ -616,6 +627,7 @@ function selectBT7Type() {
 }
 function selectWorker(name) { closeLogin(); showLoginPin(name, 'worker'); }
 function selectAdmin() { closeLogin(); showLoginPin('Админ', 'admin'); }
+
 function showLoginPin(displayName, roleType) {
   const overlay = document.createElement('div');
   overlay.className = 'modal-overlay'; overlay.id = 'loginModal';
@@ -634,11 +646,10 @@ function showLoginPin(displayName, roleType) {
   setTimeout(() => {
     const f = document.getElementById('pinField');
     f?.focus();
-    f?.addEventListener('keydown', e => {
-      if (e.key === 'Enter') submitPin(roleType, displayName);
-    });
+    f?.addEventListener('keydown', e => { if (e.key === 'Enter') submitPin(roleType, displayName); });
   }, 50);
 }
+
 function submitPin(roleType, displayName) {
   const pin = document.getElementById('pinField')?.value;
   if (!pin) return;
@@ -659,39 +670,137 @@ function submitPin(roleType, displayName) {
     showToast('👑 Админ: просмотр архива');
     return;
   }
-  if (!shiftName) setTimeout(() => askShift(), 100);
-  else if (!shiftRate) setTimeout(() => askRate(), 100);
+  // Воркер — пошагово: смена → курс
+  if (!shiftName) askShiftModal();
+  else if (!shiftRate) askRateModal();
   else {
     updateModeUI(); render();
     const r = document.getElementById('rate');
     if (r) r.value = shiftRate;
+    showToast('✅ ' + workerName);
   }
-  showToast('✅ ' + workerName);
 }
 
-function askShift() {
-  const txt = '⏰ Выбери смену:\n\n' + SHIFTS.map((s, i) => `${i + 1}. ${s}`).join('\n') + '\n\nВведи номер:';
-  const v = prompt(txt, '1');
-  const idx = parseInt(v) - 1;
-  if (idx >= 0 && idx < SHIFTS.length) {
-    shiftName = SHIFTS[idx];
-    sessionStorage.setItem('shiftName', shiftName);
-    setTimeout(() => askRate(), 150);
+// ============ СМЕНА — МОДАЛЬНОЕ ОКНО ============
+function askShiftModal() {
+  tempShiftChoice = shiftName || null;
+  renderShiftModal();
+}
+
+function renderShiftModal() {
+  const existing = document.getElementById('shiftModal');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'shiftModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>⏰ Выбери смену</h3>
+      <p>Смена определит группировку в архиве</p>
+      <div class="shift-choice">
+        <button class="morning" onclick="pickShift('Утро')">
+          <span>🌅 Утро</span>
+          <span class="time">06:00 - 14:00</span>
+        </button>
+        <button class="evening" onclick="pickShift('Вечер')">
+          <span>🌆 Вечер</span>
+          <span class="time">14:00 - 22:00</span>
+        </button>
+        <button class="night" onclick="pickShift('Ночь')">
+          <span>🌙 Ночь</span>
+          <span class="time">22:00 - 06:00</span>
+        </button>
+      </div>
+      <div id="shiftSelected" style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:6px;"></div>
+      <button class="modal-submit" style="margin-top:10px;" onclick="confirmShift()">Подтвердить</button>
+      <button class="modal-cancel" onclick="cancelShift()">Отмена</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  updateShiftButtonHighlight();
+}
+
+function pickShift(s) {
+  tempShiftChoice = s;
+  updateShiftButtonHighlight();
+}
+
+function updateShiftButtonHighlight() {
+  const overlay = document.getElementById('shiftModal');
+  if (!overlay) return;
+  const btns = overlay.querySelectorAll('.shift-choice button');
+  btns.forEach(b => b.classList.remove('selected'));
+  if (tempShiftChoice === 'Утро') btns[0].classList.add('selected');
+  else if (tempShiftChoice === 'Вечер') btns[1].classList.add('selected');
+  else if (tempShiftChoice === 'Ночь') btns[2].classList.add('selected');
+  const info = document.getElementById('shiftSelected');
+  if (info) {
+    info.innerHTML = tempShiftChoice
+      ? '✅ Выбрано: <b style="color:var(--accent-2)">' + tempShiftChoice + '</b> (' + SHIFT_TIMES[tempShiftChoice] + ')'
+      : 'Нажми на смену выше';
   }
 }
-function askRate() {
-  const txt = '💱 Введи курс USDT на эту смену:\n\n(например: 88.15 — курс за 1 USDT в рублях)';
-  const v = prompt(txt, shiftRate || '');
-  if (v === null) return;
-  const r = parseFloat(v);
-  if (!r || r <= 0) { alert('Курс должен быть > 0'); return; }
-  shiftRate = r;
-  sessionStorage.setItem('shiftRate', shiftRate);
+
+function cancelShift() {
+  document.getElementById('shiftModal')?.remove();
+  if (!shiftName) showToast('❌ Смена не выбрана', 'err');
+}
+
+function confirmShift() {
+  if (!tempShiftChoice) { showToast('❌ Выбери смену', 'err'); return; }
+  shiftName = tempShiftChoice;
+  sessionStorage.setItem('shiftName', shiftName);
+  document.getElementById('shiftModal')?.remove();
+  // Следующий шаг — курс
+  if (!shiftRate) askRateModal();
+  else {
+    updateModeUI(); render();
+    showToast('✅ Смена: ' + shiftName);
+  }
+}
+
+// ============ КУРС — МОДАЛЬНОЕ ОКНО ============
+function askRateModal() {
+  tempRate = shiftRate ? String(shiftRate) : '';
+  const existing = document.getElementById('rateModal');
+  if (existing) existing.remove();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'rateModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>💱 Курс USDT</h3>
+      <p>Курс на смену. Можно изменить в каждой заявке.</p>
+      <div class="rate-input-wrap">
+        <input type="number" id="rateInput" step="0.01" placeholder="88.15" value="${tempRate}" autofocus>
+      </div>
+      <div class="rate-hint">Сколько ₽ за 1 USDT</div>
+      <button class="modal-submit" style="margin-top:10px;" onclick="confirmRate()">Сохранить</button>
+      <button class="modal-cancel" onclick="cancelRate()">${shiftRate ? 'Отмена' : 'Пропустить'}</button>
+    </div>`;
+  document.body.appendChild(overlay);
+  setTimeout(() => {
+    const inp = document.getElementById('rateInput');
+    inp?.focus();
+    inp?.select();
+    inp?.addEventListener('keydown', e => { if (e.key === 'Enter') confirmRate(); });
+  }, 50);
+}
+
+function cancelRate() {
+  document.getElementById('rateModal')?.remove();
   updateModeUI(); render();
-  const rateInput = document.getElementById('rate');
-  if (rateInput) rateInput.value = shiftRate;
+}
+
+function confirmRate() {
+  const v = parseFloat(document.getElementById('rateInput')?.value);
+  if (!v || v <= 0) { showToast('❌ Введи курс > 0', 'err'); return; }
+  shiftRate = v;
+  sessionStorage.setItem('shiftRate', shiftRate);
+  document.getElementById('rateModal')?.remove();
+  updateModeUI(); render();
+  const r = document.getElementById('rate');
+  if (r) r.value = shiftRate;
   showToast('💱 Курс: ' + shiftRate + ' ₽/USDT');
 }
+
 function closeLogin() { document.getElementById('loginModal')?.remove(); }
 
 // ============ НАСТРОЙКИ ============
@@ -707,23 +816,31 @@ function openSettings() {
     }
     return;
   }
-  const txt = '⚙️ Настройки\n\n' +
-    'Пользователь: ' + workerName + '\n' +
-    'Смена: ' + (shiftName || '—') + '\n' +
-    'Курс: ' + (shiftRate ? shiftRate + ' ₽/USDT' : '—') + '\n\n' +
-    '1. Сменить смену\n' +
-    '2. Сменить курс смены\n' +
-    '3. Звук: ' + (soundEnabled ? 'ВКЛ' : 'ВЫКЛ') + '\n' +
-    '4. Статистика за смену\n\n' +
-    'Введи номер:';
-  const v = prompt(txt);
-  if (v === '1') askShift();
-  else if (v === '2') askRate();
-  else if (v === '3') {
-    soundEnabled = !soundEnabled;
-    localStorage.setItem('soundEnabled', soundEnabled ? '1' : '0');
-    showToast(soundEnabled ? '🔊 ВКЛ' : '🔇 ВЫКЛ');
-  } else if (v === '4') showStats();
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay'; overlay.id = 'settingsModal';
+  overlay.innerHTML = `
+    <div class="modal-box">
+      <h3>⚙️ Настройки</h3>
+      <p>🛠 ${esc(workerName)} • ${esc(shiftName || '—')} • 💱 ${shiftRate || '—'}</p>
+      <div class="choice-btns">
+        <button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button>
+        <button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button>
+        <button onclick="toggleSound()">${soundEnabled ? '🔊 Выключить звук' : '🔇 Включить звук'}</button>
+        <button onclick="closeSettings(); showStats()">📊 Статистика за смену</button>
+      </div>
+      <button class="modal-cancel" onclick="closeSettings()">Закрыть</button>
+    </div>`;
+  document.body.appendChild(overlay);
+}
+
+function closeSettings() { document.getElementById('settingsModal')?.remove(); }
+
+function toggleSound() {
+  soundEnabled = !soundEnabled;
+  localStorage.setItem('soundEnabled', soundEnabled ? '1' : '0');
+  showToast(soundEnabled ? '🔊 ВКЛ' : '🔇 ВЫКЛ');
+  closeSettings();
+  if (role === 'worker') openSettings();
 }
 
 function showStats() {
@@ -753,7 +870,6 @@ function updateModeUI() {
   const settingsBtn = document.getElementById('settingsBtn');
   const form = document.getElementById('adminForm');
   const adminInfo = document.getElementById('adminInfo');
-  const clientInfo = document.getElementById('clientInfo');
   const badge = document.getElementById('workerBadge');
   const rateBadge = document.getElementById('rateBadge');
   const meInfo = document.getElementById('meInfo');
@@ -770,7 +886,6 @@ function updateModeUI() {
     form.style.display = 'none';
     settingsBtn.style.display = 'none';
     adminInfo.style.display = 'block';
-    clientInfo.style.display = 'none';
     badge.textContent = '👑 Админ'; badge.className = 'badge admin';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
     meInfo.textContent = '👑 Просмотр архива всех воркеров';
@@ -782,9 +897,8 @@ function updateModeUI() {
     form.style.display = 'block';
     settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
-    clientInfo.style.display = 'none';
     badge.textContent = '🛠 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
-    meInfo.textContent = '🛠 Воркер: ' + workerName + ' • смена: ' + (shiftName || '—');
+    meInfo.textContent = '🛠 ' + workerName + ' • ' + (shiftName || 'смена не выбрана');
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
@@ -798,10 +912,9 @@ function updateModeUI() {
     form.style.display = 'none';
     settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
-    clientInfo.style.display = 'block';
     badge.textContent = '❤️ ' + clientName; badge.className = 'badge client';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
-    meInfo.textContent = '❤️ Клиент: ' + clientName + ' — твои заявки с сердечком';
+    meInfo.textContent = '❤️ ' + clientName + ' — твои заявки с сердечком';
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
@@ -810,7 +923,6 @@ function updateModeUI() {
     form.style.display = 'none';
     settingsBtn.style.display = 'none';
     adminInfo.style.display = 'none';
-    clientInfo.style.display = 'none';
     badge.textContent = ''; badge.className = 'badge';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
     meInfo.textContent = '👤 Режим гостя — войди для работы';
@@ -845,14 +957,13 @@ function filterPayouts(list, tab) {
     if (tab === 'active') return list.filter(p => p.client === clientName);
     if (tab === 'done') return list.filter(p => p.client === clientName);
   }
-  // guest
   if (tab === 'available') return list;
   return [];
 }
 
 // ============ ДОБАВЛЕНИЕ ============
 async function addPayout() {
-  if (role !== 'worker') { alert('Только воркер может создавать заявки'); return; }
+  if (role !== 'worker') { alert('Только воркер'); return; }
   const cardNumber = document.getElementById('cardNumber').value.trim();
   const totalSum = parseFloat(document.getElementById('totalSum').value);
   const totalChecks = parseInt(document.getElementById('totalChecks').value);
@@ -889,14 +1000,14 @@ async function editRate(id) {
 
 // ============ ДЕЙСТВИЯ ============
 async function takePayout(id) {
-  if (role !== 'client') { alert('❌ Только клиент может брать заявки'); return; }
+  if (role !== 'client') { alert('❌ Только клиент'); return; }
   const p = payouts.find(x => x.id === id);
   if (!p || p.status !== 'available') return;
   await updateDoc(doc(db, 'payouts', id), {
     status: 'active', client: clientName, startedAt: Date.now()
   });
   setTab('active');
-  showToast('❤️ Заявка взята в работу!', 'heart');
+  showToast('❤️ Взято в работу!', 'heart');
 }
 
 async function uploadCheck(id, inputEl) {
@@ -940,7 +1051,7 @@ function openProblemModal(id) {
   overlay.className = 'modal-overlay'; overlay.id = 'problemModal';
   overlay.innerHTML = `
     <div class="modal-box">
-      <h3>⚠️ Сообщить о проблеме</h3>
+      <h3>⚠️ Проблема</h3>
       <p>Заявка на ${formatMoney(p.totalSum)}</p>
       <textarea class="modal-textarea" id="problemText" placeholder="Опиши проблему..."></textarea>
       <label class="modal-file-label" for="problemFile">📎 Прикрепить скриншот (опционально)</label>
@@ -1045,6 +1156,18 @@ function getCurrentShift() {
   if (h >= 14 && h < 22) return 'Вечер';
   return 'Ночь';
 }
+function getShiftEmoji(s) {
+  if (s === 'Утро') return '🌅';
+  if (s === 'Вечер') return '🌆';
+  if (s === 'Ночь') return '🌙';
+  return '⏰';
+}
+function getShiftClass(s) {
+  if (s === 'Утро') return 'shift-morning';
+  if (s === 'Вечер') return 'shift-evening';
+  if (s === 'Ночь') return 'shift-night';
+  return '';
+}
 
 // ============ РЕНДЕР ============
 function renderCard(p) {
@@ -1138,7 +1261,7 @@ function renderCard(p) {
   let metaHtml = '';
   if (role !== 'guest' && (p.createdBy || p.shift)) {
     const dateStr = new Date(p.createdAt).toLocaleString('ru-RU', {day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
-    metaHtml = `<div class="card-row small">🛠 ${esc(p.createdBy || '—')} • ${esc(p.shift || '—')} • ${dateStr}</div>`;
+    metaHtml = `<div class="card-row small">🛠 ${esc(p.createdBy || '—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift || '—')} • ${dateStr}</div>`;
   }
 
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
@@ -1162,59 +1285,78 @@ function renderCard(p) {
     </div>`;
 }
 
+// АРХИВ — двойной спойлер: 📅 Дата → ⏰ Смена
 function renderArchive(list) {
-  const groups = {};
+  // Группировка: сначала по дате, потом по смене
+  const byDate = {};
   list.forEach(p => {
     const d = new Date(p.createdAt);
     const dateKey = d.toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
-    let key, group;
-    if (role === 'admin') {
-      key = (p.createdBy || '—') + ' • ' + (p.shift || '—') + ' • ' + dateKey;
-      if (!groups[key]) groups[key] = { worker: p.createdBy || '—', shift: p.shift || '—', date: dateKey, items: [], latestAt: 0 };
-    } else if (role === 'client') {
-      key = (p.shift || 'Без смены') + ' • ' + dateKey;
-      if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
-    } else {
-      key = (p.shift || 'Без смены') + ' • ' + dateKey + ' • rate_' + (p.rate || 0);
-      if (!groups[key]) groups[key] = { shift: p.shift || '—', date: dateKey, rate: p.rate, items: [], latestAt: 0 };
-    }
-    groups[key].items.push(p);
-    if (p.createdAt > groups[key].latestAt) groups[key].latestAt = p.createdAt;
+    const shift = p.shift || 'Без смены';
+    if (!byDate[dateKey]) byDate[dateKey] = { date: dateKey, latestAt: 0, shifts: {} };
+    if (!byDate[dateKey].shifts[shift]) byDate[dateKey].shifts[shift] = [];
+    byDate[dateKey].shifts[shift].push(p);
+    if (p.createdAt > byDate[dateKey].latestAt) byDate[dateKey].latestAt = p.createdAt;
   });
-  const sortedKeys = Object.keys(groups).sort((a, b) => groups[b].latestAt - groups[a].latestAt);
+
+  const sortedDates = Object.keys(byDate).sort((a, b) => byDate[b].latestAt - byDate[a].latestAt);
   const currentShift = getCurrentShift();
   const todayStr = new Date().toLocaleDateString('ru-RU', {day:'2-digit', month:'2-digit', year:'numeric'});
 
   let html = '';
-  sortedKeys.forEach((key, idx) => {
-    const g = groups[key];
-    const isCurrent = role !== 'admin' && (g.shift === currentShift && g.date === todayStr);
-    const openAttr = (idx === 0 || isCurrent || !!searchQuery) ? ' open' : '';
-    const doneSum = g.items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-    const cancelCount = g.items.filter(p => p.status === 'cancelled').length;
+  sortedDates.forEach((dateKey, dateIdx) => {
+    const dayData = byDate[dateKey];
+    const isToday = dateKey === todayStr;
+    const totalCount = Object.values(dayData.shifts).reduce((s, arr) => s + arr.length, 0);
+    const totalDone = Object.values(dayData.shifts).flat().filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
 
-    let title;
-    if (role === 'admin') {
-      title = `🛠 ${esc(g.worker)} • ⏰ ${esc(g.shift)} • 📅 ${g.date}`;
-    } else if (role === 'client') {
-      title = `❤️ ${g.date} • ⏰ ${g.shift}`;
-    } else {
-      const rateTxt = g.rate ? ` • 💱 ${g.rate}` : '';
-      title = `${isCurrent ? '🔥 ' : '📦 '}${g.shift} • ${g.date}${rateTxt}`;
-    }
+    // Дата открыта если сегодня или первая
+    const dateOpenAttr = (dateIdx === 0 || isToday || !!searchQuery) ? ' open' : '';
 
-    html += `
-      <details class="shift-group"${openAttr}>
-        <summary class="shift-summary">
-          <span>${title}</span>
-          <span>${g.items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽ ${cancelCount ? '• ❌' + cancelCount : ''}</span>
+    html += `<details class="date-group"${dateOpenAttr}>
+      <summary class="date-summary">
+        <span>${isToday ? '🔥 ' : '📅 '}${dateKey}</span>
+        <span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span>
+        <span class="arrow">▶</span>
+      </summary>
+      <div class="date-content">`;
+
+    // Смены внутри даты
+    SHIFTS.forEach(shift => {
+      const items = dayData.shifts[shift] || [];
+      if (!items.length) return;
+      const isCurrentShift = isToday && shift === currentShift;
+      const shiftOpenAttr = (isCurrentShift || !!searchQuery) ? ' open' : '';
+      const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
+
+      html += `<details class="shift-group"${shiftOpenAttr}>
+        <summary class="shift-summary ${getShiftClass(shift)}">
+          <span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift] || ''}</span></span>
+          <span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span>
           <span class="arrow">▶</span>
         </summary>
         <div class="shift-content">
-          ${g.items.map(renderCard).join('')}
+          ${items.map(renderCard).join('')}
         </div>
       </details>`;
+    });
+
+    // Заявки без смены (на всякий случай)
+    if (dayData.shifts['Без смены'] && dayData.shifts['Без смены'].length) {
+      const items = dayData.shifts['Без смены'];
+      html += `<details class="shift-group">
+        <summary class="shift-summary">
+          <span>❓ Без смены</span>
+          <span>${items.length} заявок</span>
+          <span class="arrow">▶</span>
+        </summary>
+        <div class="shift-content">${items.map(renderCard).join('')}</div>
+      </details>`;
+    }
+
+    html += `</div></details>`;
   });
+
   return html;
 }
 
@@ -1283,7 +1425,6 @@ onSnapshot(clientsRef, snapshot => {
 onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   const newPayouts = snapshot.docs.map(d => ({id: d.id, ...d.data()}));
 
-  // Уведомления для клиента — новые доступные заявки
   if (role === 'client' && !isFirstSnapshot) {
     newPayouts.forEach(p => {
       if (!seenPayoutIds.has(p.id) && p.status === 'available') {
@@ -1299,7 +1440,6 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
     });
   }
 
-  // Уведомления для воркера
   if (role === 'worker') {
     newPayouts.forEach(p => {
       const prev = prevState.get(p.id);
@@ -1357,10 +1497,12 @@ setTimeout(() => {
 Object.assign(window, {
   takePayout, uploadCheck, finishPayout, returnToAvailable, deletePayout,
   addPayout, setTab, copyText, openLogin, extendTimer, saveCheckInput,
-  openSettings, selectClientType, selectBT7Type, selectWorker, selectAdmin,
-  submitPin, closeLogin, setTheme, openProblemModal, closeProblemModal,
-  submitProblem, cancelByClient, editRate, askRate, onSearch, clearSearch,
-  proceedClientName, verifyClientPin, registerClient
+  openSettings, closeSettings, toggleSound, selectClientType, selectBT7Type,
+  selectWorker, selectAdmin, submitPin, closeLogin, setTheme,
+  openProblemModal, closeProblemModal, submitProblem, cancelByClient,
+  editRate, onSearch, clearSearch, proceedClientName, verifyClientPin,
+  registerClient, askShiftModal, askRateModal, pickShift, confirmShift,
+  cancelShift, confirmRate, cancelRate
 });
 </script>
 </body>
