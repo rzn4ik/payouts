@@ -76,12 +76,49 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .card-row .rate-value { color: var(--warning); font-family: monospace; font-weight: bold; cursor: pointer; }
 .card-row .rate-value:hover { text-decoration: underline; }
 .card-row .highlight { background: rgba(168,85,247,0.35); padding: 0 2px; border-radius: 3px; }
-.timer { font-family: monospace; font-size: 14px; font-weight: bold; padding: 4px 10px; border-radius: 5px; background: var(--bg-inner); }
-.timer.green { color: var(--accent-2); }
-.timer.orange { color: var(--warning); }
-.timer.red { color: var(--danger); animation: blink 1s infinite; }
-.timer.gray { color: var(--text-mute); }
-@keyframes blink { 50% { opacity: 0.4; } }
+
+/* ═══ ТАЙМЕР: новые стили с красивым пульсом ═══ */
+.timer {
+  font-family: monospace;
+  font-size: 15px;
+  font-weight: bold;
+  padding: 5px 12px;
+  border-radius: 6px;
+  background: var(--bg-inner);
+  border: 1px solid var(--border);
+  letter-spacing: 0.5px;
+  transition: color 0.3s, border-color 0.3s, background 0.3s;
+}
+.timer.gray   { color: var(--text-mute); }
+.timer.green  { color: var(--accent-2); border-color: rgba(16,185,129,0.3); }
+.timer.yellow {
+  color: var(--warning);
+  border-color: rgba(245,158,11,0.45);
+  animation: timerPulseSlow 2.4s ease-in-out infinite;
+}
+.timer.orange {
+  color: #ff8c00;
+  border-color: rgba(255,140,0,0.65);
+  animation: timerPulseMedium 1.6s ease-in-out infinite;
+}
+.timer.red {
+  color: var(--danger);
+  border-color: var(--danger);
+  animation: timerPulseFast 0.9s ease-in-out infinite;
+}
+@keyframes timerPulseSlow {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0);        background: var(--bg-inner); }
+  50%      { box-shadow: 0 0 14px 1px rgba(245,158,11,0.55); background: rgba(245,158,11,0.12); }
+}
+@keyframes timerPulseMedium {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,140,0,0);         background: var(--bg-inner);      transform: scale(1); }
+  50%      { box-shadow: 0 0 18px 2px rgba(255,140,0,0.65); background: rgba(255,140,0,0.18); transform: scale(1.04); }
+}
+@keyframes timerPulseFast {
+  0%, 100% { box-shadow: 0 0 4px 0 rgba(239,68,68,0.35);    background: var(--bg-inner);      transform: scale(1); }
+  50%      { box-shadow: 0 0 24px 3px rgba(239,68,68,0.85); background: rgba(239,68,68,0.22); transform: scale(1.07); }
+}
+
 .progress-bar { height: 8px; background: var(--bg-inner); border-radius: 4px; overflow: hidden; margin: 6px 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), #00ff88); transition: width 0.3s; }
 .checks-list { margin: 6px 0; }
@@ -326,9 +363,19 @@ let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
 let prevState = new Map();
 let seenPayoutIds = new Set();
 let isFirstSnapshot = true;
-let warned15 = new Set();
-let warned10 = new Set();
-let warned5 = new Set();
+
+// ═══════════════════════════════════════════════════════════
+//  WARNED-СЕТЫ: персистентные в рамках сессии (не спамим после F5)
+// ═══════════════════════════════════════════════════════════
+let warned15 = new Set(JSON.parse(sessionStorage.getItem('warned15') || '[]'));
+let warned10 = new Set(JSON.parse(sessionStorage.getItem('warned10') || '[]'));
+let warned5  = new Set(JSON.parse(sessionStorage.getItem('warned5')  || '[]'));
+function persistWarned() {
+  sessionStorage.setItem('warned15', JSON.stringify([...warned15]));
+  sessionStorage.setItem('warned10', JSON.stringify([...warned10]));
+  sessionStorage.setItem('warned5',  JSON.stringify([...warned5]));
+}
+
 let audioCtx = null;
 let notifyPermissionAsked = false;
 let searchQuery = '';
@@ -1303,6 +1350,7 @@ async function extendTimer(id, minutes) {
   if (!p) return;
   await updateDoc(doc(db, 'payouts', id), { timerMin: p.timerMin + minutes });
   warned15.delete(id); warned10.delete(id); warned5.delete(id);
+  persistWarned();
   showToast('⏰ +' + minutes + ' мин');
 }
 
@@ -1352,14 +1400,24 @@ function renderCard(p) {
   if ((p.status === 'available' || p.status === 'active') && p.createdAt) {
     const limitMs = p.timerMin * 60000;
     const leftMs = limitMs - (Date.now() - p.createdAt);
+
+    // ═══ Классы таймера: gray / green / yellow / orange / red ═══
     let cls;
-    if (leftMs < 0) cls = 'red';
-    else if (leftMs < 5*60000) cls = 'orange';
-    else if (leftMs < 15*60000) cls = 'orange';
-    else cls = 'green';
-    if (p.status === 'available') cls = 'gray';
-    if (leftMs < 0) cardExtraClass = ' expired';
-    else if (leftMs < 10*60000) cardExtraClass = ' warning';
+    if (p.status === 'available') {
+      cls = 'gray';
+    } else {
+      if (leftMs < 0)              cls = 'red';
+      else if (leftMs < 5*60000)   cls = 'red';
+      else if (leftMs < 10*60000)  cls = 'orange';
+      else if (leftMs < 15*60000)  cls = 'yellow';
+      else                         cls = 'green';
+    }
+
+    if (p.status === 'active') {
+      if (leftMs < 0)              cardExtraClass = ' expired';
+      else if (leftMs < 10*60000)  cardExtraClass = ' warning';
+    }
+
     timerHtml = `<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
 
@@ -1613,6 +1671,9 @@ function render() {
   else el.innerHTML = list.map(renderCard).join('');
 }
 
+// ═══════════════════════════════════════════════════════════
+//  ГЛАВНЫЙ ТИК: обновляет таймеры + шлёт уведомления правильно
+// ═══════════════════════════════════════════════════════════
 setInterval(() => {
   document.querySelectorAll('[data-timer-start]').forEach(el => {
     const start = parseInt(el.dataset.timerStart);
@@ -1621,30 +1682,45 @@ setInterval(() => {
     const left = limit - (Date.now() - start);
     el.textContent = formatTime(left);
 
-    let cls = 'gray';
-    if (left < 0) cls = 'red';
-    else if (left < 5*60000) cls = 'red';
-    else if (left < 15*60000) cls = 'orange';
-    else if (el.classList.contains('green')) cls = 'green';
-    else if (el.classList.contains('gray')) cls = 'gray';
-    else cls = 'green';
-    el.className = 'timer ' + cls;
-
-    if (role !== 'worker') return;
     const p = payouts.find(x => x.id === id);
     if (!p) return;
+
+    // Класс таймера
+    let cls;
+    if (p.status === 'available') {
+      cls = 'gray';
+    } else if (p.status === 'active') {
+      if (left < 0)              cls = 'red';
+      else if (left < 5*60000)   cls = 'red';
+      else if (left < 10*60000)  cls = 'orange';
+      else if (left < 15*60000)  cls = 'yellow';
+      else                       cls = 'green';
+    } else {
+      cls = 'gray';
+    }
+    el.className = 'timer ' + cls;
+
+    // Уведомления только для собственных активных заявок воркера
+    if (role !== 'worker') return;
     if (p.createdBy !== workerName) return;
     if (p.status !== 'active') return;
 
-    if (left > 0 && left < 5 * 60 * 1000 && !warned5.has(id)) {
-      warned5.add(id);
-      strongNotify('🔴 5 МИНУТ!', formatMoney(p.totalSum) + ' — срочно!', { sound: 'warning', toastType: 'err', vibrate: [500, 200, 500, 200, 500] });
-    } else if (left > 0 && left < 10 * 60 * 1000 && !warned10.has(id)) {
-      warned10.add(id);
-      strongNotify('🟠 10 минут', formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300] });
-    } else if (left > 0 && left < 15 * 60 * 1000 && !warned15.has(id)) {
+    // ═══ КАСКАДНЫЙ ФИКС: помечаем все старшие пороги как пройденные ═══
+    if (left > 0 && left < 5 * 60000 && !warned5.has(id)) {
+      warned15.add(id); warned10.add(id); warned5.add(id);
+      persistWarned();
+      strongNotify('🔴 5 МИНУТ!', formatMoney(p.totalSum) + ' — срочно!',
+        { sound: 'warning', toastType: 'err', vibrate: [500, 200, 500, 200, 500] });
+    } else if (left > 0 && left < 10 * 60000 && !warned10.has(id)) {
+      warned15.add(id); warned10.add(id);
+      persistWarned();
+      strongNotify('🟠 10 минут', formatMoney(p.totalSum),
+        { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300] });
+    } else if (left > 0 && left < 15 * 60000 && !warned15.has(id)) {
       warned15.add(id);
-      strongNotify('🟡 15 минут', formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [200, 100, 200] });
+      persistWarned();
+      strongNotify('🟡 15 минут', formatMoney(p.totalSum),
+        { sound: 'warning', toastType: 'warn', vibrate: [200, 100, 200] });
     }
   });
 }, 1000);
