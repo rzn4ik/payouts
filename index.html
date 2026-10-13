@@ -9,7 +9,7 @@
   --bg: #0d0d15; --bg-card: #1a1a2a; --bg-inner: #0d0d15; --bg-input: #000;
   --text: #fff; --text-dim: #888; --text-mute: #555; --border: #2a2a3a;
   --accent: #a855f7; --accent-2: #10b981; --danger: #ef4444; --warning: #f59e0b;
-  --heart: #ff4d6d;
+  --heart: #ff4d6d; --info: #0ea5e9;
 }
 [data-theme="light"] {
   --bg: #f0f0f5; --bg-card: #ffffff; --bg-inner: #f7f7fa; --bg-input: #fff;
@@ -32,7 +32,7 @@ h1 { font-size: 16px; margin-bottom: 5px; color: var(--accent); display: flex; a
 .me { font-size: 11px; color: var(--text-dim); margin-bottom: 15px; }
 .section { background: var(--bg-card); border-radius: 10px; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
 h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
-.add-form { display: grid; grid-template-columns: 1.4fr 1.2fr 1fr 1fr 0.9fr 0.9fr 1fr auto; gap: 6px; align-items: center; }
+.add-form { display: grid; grid-template-columns: 1.1fr 1.2fr 1fr 1fr 0.85fr 0.85fr 0.85fr auto; gap: 6px; align-items: center; }
 .add-form input { padding: 8px 10px; border-radius: 6px; border: 1px solid var(--border); background: var(--bg-inner); color: var(--accent-2); font-size: 12px; font-family: monospace; width: 100%; min-width: 0; }
 .add-form input:focus { outline: none; border-color: var(--accent); }
 .add-form button { padding: 8px 14px; border: none; border-radius: 6px; background: var(--accent-2); color: #fff; font-weight: bold; cursor: pointer; white-space: nowrap; font-size: 12px; }
@@ -67,7 +67,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .card-row b { color: var(--accent); }
 .card-row .card-num { cursor: pointer; color: var(--accent-2); font-family: monospace; }
 .card-row .card-num:hover { text-decoration: underline; }
-.card-row .phone-num { cursor: pointer; color: #0ea5e9; font-family: monospace; }
+.card-row .phone-num { cursor: pointer; color: var(--info); font-family: monospace; }
 .card-row .phone-num:hover { text-decoration: underline; }
 .card-row .rate-value { color: var(--warning); font-family: monospace; font-weight: bold; cursor: pointer; }
 .card-row .rate-value:hover { text-decoration: underline; }
@@ -76,6 +76,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .timer.green { color: var(--accent-2); }
 .timer.orange { color: var(--warning); }
 .timer.red { color: var(--danger); animation: blink 1s infinite; }
+.timer.gray { color: var(--text-mute); }
 @keyframes blink { 50% { opacity: 0.4; } }
 .progress-bar { height: 8px; background: var(--bg-inner); border-radius: 4px; overflow: hidden; margin: 6px 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--accent-2), #00ff88); transition: width 0.3s; }
@@ -112,6 +113,7 @@ h2 { font-size: 11px; margin: 0 0 10px 0; color: var(--text-dim); text-transform
 .toast.err { background: var(--danger); }
 .toast.info { background: var(--accent); }
 .toast.heart { background: var(--heart); }
+.toast.blue { background: var(--info); }
 .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; display: flex; align-items: center; justify-content: center; padding: 20px; overflow-y: auto; }
 .modal-box { background: var(--bg-card); border: 1px solid var(--accent); border-radius: 12px; padding: 22px; max-width: 420px; width: 100%; color: var(--text); margin: auto; }
 .modal-box.heart { border-color: var(--heart); }
@@ -193,13 +195,13 @@ details[open] > .shift-summary { margin-bottom: 6px; }
 <div class="section" id="adminForm" style="display:none;">
   <h2>➕ Добавить заявку</h2>
   <div class="add-form">
-    <input id="cardNumber" placeholder="Номер карты">
     <input id="phone" placeholder="Телефон">
+    <input id="cardNumber" placeholder="Номер карты">
+    <input id="bank" placeholder="Банк">
     <input id="totalSum" type="number" placeholder="Сумма ₽">
     <input id="totalChecks" type="number" placeholder="Кол-во чеков">
     <input id="timerMin" type="number" placeholder="Таймер, мин" value="60">
     <input id="rate" type="number" placeholder="Курс" step="0.01">
-    <input id="bank" placeholder="Банк (опц.)">
     <button onclick="addPayout()">Добавить</button>
   </div>
 </div>
@@ -268,7 +270,9 @@ let checkInputs = JSON.parse(localStorage.getItem('checkInputs') || '{}');
 let prevState = new Map();
 let seenPayoutIds = new Set();
 let isFirstSnapshot = true;
-let warnedPayouts = new Set();
+let warned15 = new Set();
+let warned10 = new Set();
+let warned5 = new Set();
 let audioCtx = null;
 let notifyPermissionAsked = false;
 let searchQuery = '';
@@ -359,9 +363,9 @@ function playSound(type) {
     osc.connect(gain); gain.connect(audioCtx.destination);
     osc.type = 'sine';
     osc.frequency.setValueAtTime(440, now);
-    gain.gain.setValueAtTime(0.1, now);
-    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-    osc.start(now); osc.stop(now + 0.2);
+    gain.gain.setValueAtTime(0.15, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+    osc.start(now); osc.stop(now + 0.25);
   } else if (type === 'new') {
     [0, 0.2].forEach(d => {
       const osc = audioCtx.createOscillator();
@@ -373,6 +377,16 @@ function playSound(type) {
       gain.gain.exponentialRampToValueAtTime(0.01, now + d + 0.15);
       osc.start(now + d); osc.stop(now + d + 0.15);
     });
+  } else if (type === 'taken') {
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.connect(gain); gain.connect(audioCtx.destination);
+    osc.type = 'sine';
+    osc.frequency.setValueAtTime(600, now);
+    osc.frequency.linearRampToValueAtTime(950, now + 0.3);
+    gain.gain.setValueAtTime(0.3, now);
+    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
+    osc.start(now); osc.stop(now + 0.3);
   }
 }
 document.addEventListener('click', function askNotify() {
@@ -902,26 +916,76 @@ function filterPayouts(list, tab) {
   return [];
 }
 
+// ============ ПРОВЕРКА ДУБЛИКАТА (КАРТА + ТЕЛЕФОН) + СОЗДАНИЕ ============
 async function addPayout() {
   if (role !== 'worker') { alert('Только воркер'); return; }
-  const cardNumber = document.getElementById('cardNumber').value.trim();
   const phone = document.getElementById('phone').value.trim();
+  const cardNumber = document.getElementById('cardNumber').value.trim();
+  const bank = document.getElementById('bank').value.trim();
   const totalSum = parseFloat(document.getElementById('totalSum').value);
   const totalChecks = parseInt(document.getElementById('totalChecks').value);
   const timerMin = parseInt(document.getElementById('timerMin').value) || 60;
   const rate = parseFloat(document.getElementById('rate').value) || shiftRate || 0;
-  const bank = document.getElementById('bank').value.trim();
+
   if (!cardNumber || !totalSum || !totalChecks) { alert('Заполни поля'); return; }
   if (totalSum <= 0 || totalChecks <= 0) { alert('Сумма и чеки > 0'); return; }
   if (rate <= 0) { alert('Введи курс'); return; }
+
+  // ПРОВЕРКА: карта ИЛИ телефон уже выдавались сегодня?
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const normCard = (s) => (s || '').replace(/\s+/g, '');
+  const normPhone = (s) => (s || '').replace(/\D/g, '');
+
+  const cardClean = normCard(cardNumber);
+  const phoneClean = normPhone(phone);
+
+  const sameCardPayouts = cardClean
+    ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normCard(x.cardNumber) === cardClean)
+    : [];
+  const samePhonePayouts = phoneClean
+    ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normPhone(x.phone) === phoneClean)
+    : [];
+
+  const lines = [];
+  if (sameCardPayouts.length > 0) {
+    lines.push('💳 КАРТА уже выдавалась (' + sameCardPayouts.length + ' раз):');
+    sameCardPayouts.forEach(x => {
+      const t = new Date(x.createdAt).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+      const who = x.createdBy || '—';
+      const client = x.client ? ' • ' + x.client : ' • в пуле';
+      const status = x.status === 'done' ? ' ✅' : x.status === 'cancelled' ? ' ❌' : '';
+      lines.push(`   • ${t} • ${who}${client} • ${formatMoney(x.totalSum)}${status}`);
+    });
+  }
+  if (samePhonePayouts.length > 0) {
+    if (lines.length) lines.push('');
+    lines.push('📱 ТЕЛЕФОН уже выдавался (' + samePhonePayouts.length + ' раз):');
+    samePhonePayouts.forEach(x => {
+      const t = new Date(x.createdAt).toLocaleTimeString('ru-RU', {hour:'2-digit',minute:'2-digit'});
+      const who = x.createdBy || '—';
+      const client = x.client ? ' • ' + x.client : ' • в пуле';
+      const status = x.status === 'done' ? ' ✅' : x.status === 'cancelled' ? ' ❌' : '';
+      lines.push(`   • ${t} • ${who}${client} • ${formatMoney(x.totalSum)}${status}`);
+    });
+  }
+
+  if (lines.length) {
+    const ok = confirm(
+      `⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`
+    );
+    if (!ok) return;
+  }
+
   try {
     await addDoc(payoutsRef, {
-      cardNumber, phone, totalSum, totalChecks, timerMin, rate, bank: bank || '',
+      phone, cardNumber, bank,
+      totalSum, totalChecks, timerMin, rate,
       createdBy: workerName || 'Unknown', creatorRole: 'worker', shift: shiftName || '',
       status: 'available', client: null, checks: [],
       createdAt: Date.now(), startedAt: null, finishedAt: null
     });
-    ['cardNumber','phone','totalSum','totalChecks','bank'].forEach(id => document.getElementById(id).value = '');
+    ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id => document.getElementById(id).value = '');
     showToast('✅ Заявка создана (' + rate + ' ₽/USDT)');
   } catch(e) { alert('Ошибка: ' + e.message); }
 }
@@ -1070,7 +1134,7 @@ async function extendTimer(id, minutes) {
   const p = payouts.find(x => x.id === id);
   if (!p) return;
   await updateDoc(doc(db, 'payouts', id), { timerMin: p.timerMin + minutes });
-  warnedPayouts.delete(id);
+  warned15.delete(id); warned10.delete(id); warned5.delete(id);
   showToast('⏰ +' + minutes + ' мин');
 }
 
@@ -1117,13 +1181,18 @@ function renderCard(p) {
 
   let timerHtml = '';
   let cardExtraClass = '';
-  if (p.status === 'active' && p.startedAt) {
+  if ((p.status === 'available' || p.status === 'active') && p.createdAt) {
     const limitMs = p.timerMin * 60000;
-    const leftMs = limitMs - (Date.now() - p.startedAt);
-    const cls = leftMs < 0 ? 'red' : (leftMs < 5*60000 ? 'orange' : 'green');
+    const leftMs = limitMs - (Date.now() - p.createdAt);
+    let cls;
+    if (leftMs < 0) cls = 'red';
+    else if (leftMs < 5*60000) cls = 'orange';
+    else if (leftMs < 15*60000) cls = 'orange';
+    else cls = 'green';
+    if (p.status === 'available') cls = 'gray';
     if (leftMs < 0) cardExtraClass = ' expired';
     else if (leftMs < 10*60000) cardExtraClass = ' warning';
-    timerHtml = `<span class="timer ${cls}" data-timer-start="${p.startedAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
+    timerHtml = `<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
 
   let actions = '';
@@ -1203,7 +1272,6 @@ function renderCard(p) {
 
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
 
-  // ТЕЛЕФОН
   const phoneHtml = p.phone ? `<div class="card-row small">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
 
   const heartPrefix = isMine ? '❤️ ' : '';
@@ -1323,14 +1391,37 @@ setInterval(() => {
     const id = el.dataset.payoutId;
     const left = limit - (Date.now() - start);
     el.textContent = formatTime(left);
-    el.className = 'timer ' + (left < 0 ? 'red' : (left < 5*60000 ? 'orange' : 'green'));
-    if (left > 0 && left < 10 * 60 * 1000 && !warnedPayouts.has(id)) {
-      warnedPayouts.add(id);
-      if (role === 'worker') {
-        playSound('warning');
-        const p = payouts.find(x => x.id === id);
-        if (p) showToast('⏰ ' + formatMoney(p.totalSum) + ' — <10 мин', 'warn');
-      }
+
+    let cls = 'gray';
+    if (left < 0) cls = 'red';
+    else if (left < 5*60000) cls = 'red';
+    else if (left < 15*60000) cls = 'orange';
+    else if (el.classList.contains('green')) cls = 'green';
+    else if (el.classList.contains('gray')) cls = 'gray';
+    else cls = 'green';
+    el.className = 'timer ' + cls;
+
+    if (role !== 'worker') return;
+    const p = payouts.find(x => x.id === id);
+    if (!p) return;
+    if (p.createdBy !== workerName) return;
+    if (p.status !== 'active') return;
+
+    if (left > 0 && left < 5 * 60 * 1000 && !warned5.has(id)) {
+      warned5.add(id);
+      playSound('warning');
+      showToast('🔴 5 минут! ' + formatMoney(p.totalSum), 'err');
+      showNotification('🔴 5 минут до конца', formatMoney(p.totalSum));
+    } else if (left > 0 && left < 10 * 60 * 1000 && !warned10.has(id)) {
+      warned10.add(id);
+      playSound('warning');
+      showToast('🟠 10 минут. ' + formatMoney(p.totalSum), 'warn');
+      showNotification('🟠 10 минут', formatMoney(p.totalSum));
+    } else if (left > 0 && left < 15 * 60 * 1000 && !warned15.has(id)) {
+      warned15.add(id);
+      playSound('warning');
+      showToast('🟡 15 минут. ' + formatMoney(p.totalSum), 'warn');
+      showNotification('🟡 15 минут', formatMoney(p.totalSum));
     }
   });
 }, 1000);
@@ -1365,23 +1456,36 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
       const problemsCount = (p.problems || []).length;
       if (prev) {
         const isMyPayout = (p.createdBy === workerName);
+
+        if (isMyPayout && prev.status === 'available' && p.status === 'active') {
+          playSound('taken');
+          showToast('🟢 Взяли в работу: ' + formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''), 'blue');
+          showNotification('🟢 Заявку взяли', formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''));
+        }
+
         if (isMyPayout && checksCount > prev.checksCount) {
           const lastCheck = p.checks[checksCount - 1];
           playSound('check');
           showToast('💰 ' + formatMoney(p.totalSum) + ' — +' + formatMoney(lastCheck.sum));
           showNotification('💰 Чек оплачен', formatMoney(p.totalSum) + ' → +' + formatMoney(lastCheck.sum));
         }
+
         if (isMyPayout && problemsCount > prev.problemsCount) {
           playSound('warning');
           showToast('⚠️ Проблема: ' + formatMoney(p.totalSum), 'warn');
+          showNotification('⚠️ Проблема', 'Заявка ' + formatMoney(p.totalSum));
         }
+
         if (isMyPayout && prev.status !== 'cancelled' && p.status === 'cancelled') {
           playSound('warning');
           showToast('❌ Клиент отменил: ' + formatMoney(p.totalSum), 'err');
+          showNotification('❌ Клиент отменил', formatMoney(p.totalSum));
         }
+
         if (isMyPayout && prev.status === 'active' && p.status === 'done') {
           playSound('check');
-          showToast('🎉 ' + formatMoney(p.totalSum) + ' закрыта');
+          showToast('🎉 Заявка закрыта: ' + formatMoney(p.totalSum));
+          showNotification('🎉 Заявка закрыта', formatMoney(p.totalSum));
         }
       }
     });
@@ -1391,7 +1495,8 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
   newPayouts.forEach(p => prevState.set(p.id, {
     status: p.status,
     checksCount: (p.checks || []).length,
-    problemsCount: (p.problems || []).length
+    problemsCount: (p.problems || []).length,
+    client: p.client || null
   }));
   newPayouts.forEach(p => seenPayoutIds.add(p.id));
   isFirstSnapshot = false;
