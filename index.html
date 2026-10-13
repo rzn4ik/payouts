@@ -137,9 +137,10 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .pin-row input.heart{border-color:var(--heart);color:var(--heart)}
 .pin-row button{padding:10px 18px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
 .pin-row button.heart{background:var(--heart)}
+.pin-row button:disabled{opacity:.5;cursor:not-allowed}
 .pin-masked{-webkit-text-security:disc;text-security:disc;-moz-text-security:disc}
 .pin-error{color:var(--danger);font-size:11px;margin-top:6px;min-height:14px;text-align:center}
-.pin-hint{color:var(--accent-2);font-size:11px;margin-top:6px;min-height:14px;text-align:center}
+.first-time-badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;margin-bottom:8px}
 .uname-wrap{position:relative;margin-bottom:10px}
 .uname-input{width:100%;padding:14px 16px 14px 42px;border-radius:10px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:16px;font-family:monospace;outline:none;font-weight:bold}
 .uname-input:focus{border-color:var(--heart);box-shadow:0 0 0 3px rgba(255,77,109,.2)}
@@ -215,7 +216,6 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 .client-content{padding-left:20px;border-left:2px dashed var(--border);margin-left:8px}
 .admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
 .admin-info b{color:var(--accent)}
-.first-time-badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;margin-bottom:8px}
 </style>
 </head>
 <body>
@@ -270,7 +270,6 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-// ✅ Список сотрудников (только имена, БЕЗ PIN'ов в коде)
 const STAFF_WORKERS = ['Denis', 'Dmitriy', 'Artem', 'Evgeniy'];
 const STAFF_ADMIN = 'Админ';
 const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
@@ -284,7 +283,6 @@ const payoutsRef = collection(db, 'payouts');
 const clientsRef = collection(db, 'clients');
 const staffRef = collection(db, 'staff');
 
-// ═══ SANITIZE РЕКВИЗИТОВ ═══
 function sanitizeReq(v){
   if(!v)return v;
   return String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
@@ -338,7 +336,7 @@ setInterval(()=>syncClock(true),30*60*1000);
 // ═══ СОСТОЯНИЕ ═══
 let payouts=[];
 let allClients=[];
-let allStaff=new Map();  // name → {name, role, pinHash, createdAt}
+let allStaff=new Map();
 let currentTab='available';
 let role=sessionStorage.getItem('role')||'guest';
 let workerName=sessionStorage.getItem('workerName')||'';
@@ -373,7 +371,6 @@ let originalTitle=document.title;
 let titleFlashInterval=null;
 let originalFavicon=null;
 
-// ═══ ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ ═══
 function shouldSendNotify(dedupeKey, windowMs=8000){
   try{
     const storageKey='notif_dedupe_'+dedupeKey;
@@ -487,9 +484,7 @@ function showToast(msg,type=''){
   document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
 }
 
-// ═══════════════════════════════════════════════════════════
-//  ЛОГИН
-// ═══════════════════════════════════════════════════════════
+// ═══ ЛОГИН ═══
 function openLogin(){
   if(role!=='guest'){
     if(confirm('Выйти из аккаунта?')){
@@ -593,27 +588,23 @@ function loginClient(username){
   showToast('❤️ Привет, '+username+'!','heart');
 }
 
-// ── Сотрудники (воркеры + админ) ──
+// ── Сотрудники ──
 function selectBT7Type(){
   closeLogin();
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
   const workerBtns = STAFF_WORKERS.map(w=>{
     const reg = allStaff.has(w) ? ' registered' : '';
-    const regTitle = allStaff.has(w) ? 'title="PIN уже установлен"' : 'title="Первый вход — установить PIN"';
-    return `<button class="${reg}" ${regTitle} onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;
+    return `<button class="${reg}" onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;
   }).join('');
   const adminReg = allStaff.has(STAFF_ADMIN) ? ' registered' : '';
-  const adminTitle = allStaff.has(STAFF_ADMIN) ? 'title="PIN уже установлен"' : 'title="Первый вход — установить PIN"';
-  overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${workerBtns}<button class="admin-btn ${adminReg}" ${adminTitle} onclick="proceedStaffLogin('${STAFF_ADMIN}','admin')">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${workerBtns}<button class="admin-btn ${adminReg}" onclick="proceedStaffLogin('${STAFF_ADMIN}','admin')">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
   document.body.appendChild(overlay);
 }
-
 async function proceedStaffLogin(displayName, roleType){
   closeLogin();
   let existing = allStaff.get(displayName);
   if(!existing){
-    // На случай если снапшот ещё не пришёл — читаем напрямую
     try{
       const snap = await getDoc(doc(db,'staff',displayName));
       if(snap.exists()){ existing = snap.data(); allStaff.set(displayName, existing); }
@@ -622,7 +613,6 @@ async function proceedStaffLogin(displayName, roleType){
   if(existing) showStaffPinInput(displayName, roleType);
   else showStaffRegister(displayName, roleType);
 }
-
 function showStaffRegister(displayName, roleType){
   const roleLabel = roleType==='admin' ? 'Админ' : 'Воркер';
   const overlay=document.createElement('div');
@@ -632,7 +622,7 @@ function showStaffRegister(displayName, roleType){
       <div class="first-time-badge">🆕 Первый вход</div>
       <h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3>
       <p><b>${roleLabel}</b> входит впервые.<br>Придумай личный PIN для входа.</p>
-      <p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! PIN хранится в зашифрованном виде и восстановить его нельзя.</p>
+      <p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! Восстановить нельзя.</p>
       <div class="pin-row" style="flex-direction:column;gap:8px;">
         <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN (4-6 цифр)" autofocus>
         <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN">
@@ -649,7 +639,6 @@ function showStaffRegister(displayName, roleType){
     document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerStaff(displayName,roleType);});
   },50);
 }
-
 async function registerStaff(displayName, roleType){
   const pin1=document.getElementById('pinField')?.value;
   const pin2=document.getElementById('pinField2')?.value;
@@ -661,10 +650,9 @@ async function registerStaff(displayName, roleType){
   const btn = document.querySelector('#loginModal .pin-row button');
   if(btn){btn.disabled=true;btn.textContent='⏳...';}
   try{
-    // Проверяем ещё раз что никто не занял имя
     const snap = await getDoc(doc(db,'staff',displayName));
     if(snap.exists()){
-      err.textContent = '❌ Этот сотрудник уже зарегистрирован — введи PIN';
+      err.textContent = '❌ Уже зарегистрирован — введи PIN';
       setTimeout(()=>showStaffPinInput(displayName, roleType), 900);
       return;
     }
@@ -673,14 +661,13 @@ async function registerStaff(displayName, roleType){
       name: displayName, role: roleType, pinHash, createdAt: now()
     });
     allStaff.set(displayName, {name:displayName, role:roleType, pinHash, createdAt:now()});
-    showToast('✅ PIN установлен','');
+    showToast('✅ PIN установлен');
     completeStaffLogin(roleType, displayName);
   }catch(e){
     err.textContent='❌ Ошибка: '+e.message;
     if(btn){btn.disabled=false;btn.textContent='Создать PIN и войти';}
   }
 }
-
 function showStaffPinInput(displayName, roleType){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
@@ -702,7 +689,6 @@ function showStaffPinInput(displayName, roleType){
     f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyStaffPin(displayName,roleType);});
   },50);
 }
-
 async function verifyStaffPin(displayName, roleType){
   const pin=document.getElementById('pinField')?.value;
   if(!pin)return;
@@ -724,7 +710,6 @@ async function verifyStaffPin(displayName, roleType){
     if(btn){btn.disabled=false;btn.textContent='Войти';}
   }
 }
-
 function completeStaffLogin(roleType, displayName){
   role = roleType;
   workerName = (roleType==='worker') ? displayName : STAFF_ADMIN;
@@ -745,8 +730,6 @@ function completeStaffLogin(roleType, displayName){
     showToast('✅ '+workerName);
   }
 }
-
-// ── Смена PIN ──
 function openPinChange(){
   if(role!=='worker'&&role!=='admin'){showToast('Только для сотрудников');return;}
   const overlay=document.createElement('div');
@@ -800,7 +783,7 @@ async function submitPinChange(){
   }
 }
 
-// ═══ СМЕНА / КУРС ═══
+// ── Смена / Курс ──
 function askShiftModal(){tempShiftChoice=shiftName||null;renderShiftModal();}
 function renderShiftModal(){
   const existing=document.getElementById('shiftModal');if(existing)existing.remove();
@@ -846,7 +829,7 @@ function confirmRate(){
   showToast('💱 Курс: '+shiftRate+' ₽/USDT');
 }
 
-// ═══ НАСТРОЙКИ ═══
+// ── Настройки ──
 function openSettings(){
   if(role==='guest'){showToast('Сначала войди');return;}
   if(role==='client'){
@@ -957,8 +940,6 @@ function setTab(tab){
   if(el)el.classList.add('active');
   render();
 }
-
-// ═══ ФИЛЬТР (личные архивы) ═══
 function filterPayouts(list,tab){
   if(role==='admin'){
     if(tab==='done'||tab==='expired')return list;
@@ -1451,7 +1432,6 @@ onSnapshot(clientsRef,snapshot=>{
   allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
 },err=>{console.warn('Clients snapshot error:',err.message);});
 
-// ✅ staff — сотрудники (воркеры + админ)
 onSnapshot(staffRef,snapshot=>{
   allStaff.clear();
   snapshot.docs.forEach(d=>allStaff.set(d.id,{name:d.id,...d.data()}));
@@ -1466,4 +1446,54 @@ onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
         const age=now()-p.createdAt;
         if(age>=0&&age<120000){
           const rateTxt=p.rate?' • 💱 '+p.rate:'';const bankTxt=p.bank?' • '+p.bank:'';
-          strongNotify('❤️ Новая
+          strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,{sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});
+        }
+      }
+    });
+  }
+  if(role==='worker'){
+    newPayouts.forEach(p=>{
+      const prev=prevState.get(p.id);
+      const checksCount=(p.checks||[]).length;
+      const problemsCount=(p.problems||[]).length;
+      if(prev){
+        const isMyPayout=(p.createdBy===workerName);
+        if(isMyPayout&&prev.status==='available'&&p.status==='active'){strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),{sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status});}
+        if(isMyPayout&&checksCount>prev.checksCount){const lastCheck=p.checks[checksCount-1];strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),{sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount});}
+        if(isMyPayout&&problemsCount>prev.problemsCount){strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount});}
+        if(isMyPayout&&prev.status!=='cancelled'&&p.status==='cancelled'){strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),{sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id});}
+        if(isMyPayout&&prev.status==='active'&&p.status==='done'){strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),{sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id});}
+        if(isMyPayout&&prev.status==='available'&&p.status==='expired'){strongNotify('⏰ Заявка просрочена',formatMoney(p.totalSum)+' — в «Просрочено»',{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'expired_'+p.id});}
+        if(isMyPayout&&prev.status==='expired'&&p.status==='available'){strongNotify('🔄 Возрождена в пул',formatMoney(p.totalSum),{sound:'taken',toastType:'info',vibrate:[100,50,100],dedupeKey:'revived_'+p.id+'_'+p.createdAt});}
+      }
+    });
+  }
+  prevState.clear();
+  newPayouts.forEach(p=>prevState.set(p.id,{status:p.status,checksCount:(p.checks||[]).length,problemsCount:(p.problems||[]).length,client:p.client||null}));
+  newPayouts.forEach(p=>seenPayoutIds.add(p.id));
+  isFirstSnapshot=false;
+  payouts=newPayouts;
+  render();
+},err=>{document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;});
+
+updateModeUI();
+render();
+
+setTimeout(()=>{const rateInput=document.getElementById('rate');if(rateInput&&shiftRate)rateInput.value=shiftRate;},200);
+
+Object.assign(window,{
+  takePayout,uploadCheck,finishPayout,returnToAvailable,deletePayout,
+  addPayout,setTab,copyText,openLogin,extendTimer,saveCheckInput,
+  openSettings,closeSettings,toggleSound,selectClientType,selectBT7Type,
+  closeLogin,setTheme,
+  openProblemModal,closeProblemModal,submitProblem,cancelByClient,
+  editRate,onSearch,clearSearch,proceedClientUsername,verifyClientPin,
+  registerClient,askShiftModal,askRateModal,pickShift,confirmShift,
+  cancelShift,confirmRate,cancelRate,syncClock,
+  revivePayout,closeReviveModal,confirmRevive,
+  proceedStaffLogin,registerStaff,verifyStaffPin,completeStaffLogin,
+  openPinChange,closePinChange,submitPinChange
+});
+</script>
+</body>
+</html>
