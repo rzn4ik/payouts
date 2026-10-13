@@ -23,6 +23,10 @@
 }
 * { box-sizing: border-box; margin: 0; padding: 0; }
 body { font-family: -apple-system, Arial, sans-serif; background: var(--bg); color: var(--text); padding: 15px; min-height: 100vh; transition: background 0.3s, color 0.3s; }
+@keyframes pulseAlert {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.95; }
+}
 h1 { font-size: 16px; margin-bottom: 5px; color: var(--accent); display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-weight: 600; }
 .badge { font-size: 10px; padding: 3px 8px; border-radius: 8px; background: var(--border); color: var(--text-dim); font-weight: 500; }
 .badge.admin { background: var(--accent); color: #fff; }
@@ -214,9 +218,6 @@ details[open] > .date-summary { margin-bottom: 8px; }
 details[open] > .shift-summary .arrow { transform: rotate(90deg); }
 details[open] > .shift-summary { margin-bottom: 6px; }
 .shift-content { padding-left: 0; }
-.admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
-.admin-info b { color: var(--accent); }
-/* ═══ ГРУППИРОВКА ПО КЛИЕНТАМ ═══ */
 .client-group { margin-bottom: 6px; }
 .client-summary {
   padding: 10px 14px 10px 20px; background: var(--bg-card); border: 1px solid var(--border);
@@ -234,6 +235,8 @@ details[open] > .shift-summary { margin-bottom: 6px; }
 details[open] > .client-summary .arrow { transform: rotate(90deg); }
 details[open] > .client-summary { margin-bottom: 6px; border-left-color: #229ED9; }
 .client-content { padding-left: 20px; border-left: 2px dashed var(--border); margin-left: 8px; }
+.admin-info { padding: 12px 14px; background: var(--bg-card); border: 1px solid var(--accent); border-radius: 8px; font-size: 12px; color: var(--text-dim); margin-bottom: 12px; text-align: center; }
+.admin-info b { color: var(--accent); }
 </style>
 </head>
 <body>
@@ -331,6 +334,100 @@ let notifyPermissionAsked = false;
 let searchQuery = '';
 let tempShiftChoice = null;
 let tempRate = '';
+let unreadCount = 0;
+let originalTitle = document.title;
+let titleFlashInterval = null;
+let originalFavicon = null;
+
+// ═══════════════════════════════════════════════════════════
+//  СИЛЬНАЯ СИСТЕМА УВЕДОМЛЕНИЙ
+// ═══════════════════════════════════════════════════════════
+function strongNotify(title, body, opts = {}) {
+  try { playSound(opts.sound || 'warning'); } catch(e) {}
+  try { if (navigator.vibrate) navigator.vibrate(opts.vibrate || [200, 100, 200]); } catch(e) {}
+  try { showToast('🔔 ' + title, opts.toastType || 'warn'); } catch(e) {}
+  try { addUnreadAndFlashTitle(title); } catch(e) {}
+  try { setUnreadFavicon(); } catch(e) {}
+  try {
+    if ('Notification' in window && Notification.permission === 'granted') {
+      new Notification(title, { body, tag: opts.tag || 'payout-' + Date.now() });
+    }
+  } catch(e) {}
+  try {
+    if (document.hidden && (!('Notification' in window) || Notification.permission !== 'granted')) {
+      showInPageAlert(title, body);
+    }
+  } catch(e) {}
+}
+
+function addUnreadAndFlashTitle(newTitle) {
+  unreadCount++;
+  if (titleFlashInterval) return;
+  let showOriginal = false;
+  titleFlashInterval = setInterval(() => {
+    document.title = showOriginal ? originalTitle : `🔴 (${unreadCount}) ${newTitle.substring(0, 30)}`;
+    showOriginal = !showOriginal;
+  }, 800);
+}
+
+function resetTitleFlash() {
+  if (titleFlashInterval) { clearInterval(titleFlashInterval); titleFlashInterval = null; }
+  unreadCount = 0;
+  document.title = originalTitle;
+  resetFavicon();
+}
+
+function setUnreadFavicon() {
+  try {
+    if (!originalFavicon) {
+      const link = document.querySelector("link[rel*='icon']");
+      if (link) originalFavicon = link.href;
+    }
+    const canvas = document.createElement('canvas');
+    canvas.width = 64; canvas.height = 64;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#ef4444';
+    ctx.beginPath(); ctx.arc(32, 32, 30, 0, 2 * Math.PI); ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.font = 'bold 44px Arial';
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('!', 32, 34);
+    let link = document.querySelector("link[rel*='icon']") || document.createElement('link');
+    link.rel = 'icon';
+    link.href = canvas.toDataURL('image/png');
+    document.head.appendChild(link);
+  } catch(e) {}
+}
+
+function resetFavicon() {
+  try {
+    if (originalFavicon) {
+      let link = document.querySelector("link[rel*='icon']");
+      if (link) link.href = originalFavicon;
+    }
+  } catch(e) {}
+}
+
+function showInPageAlert(title, body) {
+  const old = document.getElementById('inPageAlert');
+  if (old) old.remove();
+  const el = document.createElement('div');
+  el.id = 'inPageAlert';
+  el.style.cssText = 'position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:pulseAlert 1s infinite;';
+  el.innerHTML = `
+    <div style="background:#1a1a2a;border:3px solid #ef4444;border-radius:16px;padding:30px;max-width:500px;text-align:center;color:#fff;box-shadow:0 0 60px rgba(239,68,68,0.8);">
+      <div style="font-size:64px;margin-bottom:15px;">🔔</div>
+      <div style="font-size:22px;font-weight:bold;margin-bottom:15px;color:#ef4444;">${esc(title)}</div>
+      <div style="font-size:15px;margin-bottom:25px;color:#ddd;line-height:1.6;">${esc(body)}</div>
+      <button onclick="document.getElementById('inPageAlert').remove()" style="padding:14px 40px;border:none;border-radius:8px;background:#10b981;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;">OK</button>
+      <div style="font-size:11px;color:#666;margin-top:15px;">💡 Разрешите уведомления, чтобы получать пуши в фоне</div>
+    </div>`;
+  document.body.appendChild(el);
+  setTimeout(() => { el.remove(); }, 30000);
+}
+
+document.addEventListener('visibilitychange', () => { if (!document.hidden) resetTitleFlash(); });
+window.addEventListener('focus', () => { resetTitleFlash(); });
 
 async function hashPin(pin) {
   const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode('p2p_salt_' + pin));
@@ -448,15 +545,30 @@ document.addEventListener('click', function askNotify() {
   notifyPermissionAsked = true;
   initAudio();
   if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission().catch(()=>{});
+    const overlay = document.createElement('div');
+    overlay.className = 'modal-overlay'; overlay.id = 'notifyPreModal';
+    overlay.innerHTML = `
+      <div class="modal-box">
+        <h3>🔔 Включить уведомления</h3>
+        <p>Чтобы не пропускать заявки и важные события, разрешите уведомления.</p>
+        <p style="font-size:11px;">Звук и вибрация работают <b>всегда</b>. Пуши нужны для работы в фоне.</p>
+        <button class="modal-submit" id="notifyYes">✅ Разрешить</button>
+        <button class="modal-cancel" id="notifyNo">Позже</button>
+      </div>`;
+    document.body.appendChild(overlay);
+    document.getElementById('notifyYes').onclick = async () => {
+      document.getElementById('notifyPreModal')?.remove();
+      try { await Notification.requestPermission(); } catch(e) {}
+    };
+    document.getElementById('notifyNo').onclick = () => {
+      document.getElementById('notifyPreModal')?.remove();
+    };
   }
   document.removeEventListener('click', askNotify);
 }, { once: true });
 async function showNotification(title, body) {
   if (!('Notification' in window)) return;
-  if (Notification.permission === 'default') {
-    try { await Notification.requestPermission(); } catch(e) {}
-  }
+  if (Notification.permission === 'default') { try { await Notification.requestPermission(); } catch(e) {} }
   if (Notification.permission === 'granted') {
     try { new Notification(title, { body, tag: 'payout-' + Date.now() }); } catch(e) {}
   }
@@ -527,11 +639,8 @@ function showClientUsernameInput() {
 
   input.addEventListener('input', () => {
     let v = input.value;
-    if (v.length > 0 && v[0] !== '@') {
-      input.value = '@' + v.replace(/@/g, '');
-    }
+    if (v.length > 0 && v[0] !== '@') { input.value = '@' + v.replace(/@/g, ''); }
     const q = input.value.trim().toLowerCase().replace(/^@/, '');
-
     if (!q) { dropdown.classList.remove('show'); return; }
 
     const matches = allClients
@@ -560,7 +669,6 @@ function showClientUsernameInput() {
       const clean = '@' + q.replace(/[^a-z0-9_]/gi, '');
       html += `<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
     }
-
     dropdown.innerHTML = html;
     dropdown.classList.add('show');
   });
@@ -569,9 +677,7 @@ function showClientUsernameInput() {
     if (e.key === 'Enter') {
       const v = input.value.trim();
       if (v && v.length > 1) proceedClientUsername(v);
-    } else if (e.key === 'Escape') {
-      dropdown.classList.remove('show');
-    }
+    } else if (e.key === 'Escape') { dropdown.classList.remove('show'); }
   });
 
   setTimeout(() => {
@@ -588,17 +694,12 @@ async function proceedClientUsername(username) {
   username = username.trim();
   if (username[0] !== '@') username = '@' + username;
   username = '@' + username.slice(1).replace(/[^a-zA-Z0-9_]/g, '').toLowerCase();
-
   if (username.length < 3) { alert('❌ Слишком короткий username'); return; }
   if (username.length > 33) { alert('❌ Слишком длинный username'); return; }
-
   const existing = allClients.find(c => c.username && c.username.toLowerCase() === username.toLowerCase());
   closeLogin();
-  if (existing) {
-    showClientPinInput(existing.username);
-  } else {
-    showClientRegister(username);
-  }
+  if (existing) showClientPinInput(existing.username);
+  else showClientRegister(username);
 }
 
 function showClientPinInput(username) {
@@ -772,18 +873,9 @@ function renderShiftModal() {
       <h3>⏰ Выбери смену</h3>
       <p>Смена определит группировку в архиве</p>
       <div class="shift-choice">
-        <button class="morning" onclick="pickShift('Утро')">
-          <span>🌅 Утро</span>
-          <span class="time">06:00 - 14:00</span>
-        </button>
-        <button class="evening" onclick="pickShift('Вечер')">
-          <span>🌆 Вечер</span>
-          <span class="time">14:00 - 22:00</span>
-        </button>
-        <button class="night" onclick="pickShift('Ночь')">
-          <span>🌙 Ночь</span>
-          <span class="time">22:00 - 06:00</span>
-        </button>
+        <button class="morning" onclick="pickShift('Утро')"><span>🌅 Утро</span><span class="time">06:00 - 14:00</span></button>
+        <button class="evening" onclick="pickShift('Вечер')"><span>🌆 Вечер</span><span class="time">14:00 - 22:00</span></button>
+        <button class="night" onclick="pickShift('Ночь')"><span>🌙 Ночь</span><span class="time">22:00 - 06:00</span></button>
       </div>
       <div id="shiftSelected" style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:6px;"></div>
       <button class="modal-submit" style="margin-top:10px;" onclick="confirmShift()">Подтвердить</button>
@@ -818,10 +910,7 @@ function confirmShift() {
   sessionStorage.setItem('shiftName', shiftName);
   document.getElementById('shiftModal')?.remove();
   if (!shiftRate) askRateModal();
-  else {
-    updateModeUI(); render();
-    showToast('✅ Смена: ' + shiftName);
-  }
+  else { updateModeUI(); render(); showToast('✅ Смена: ' + shiftName); }
 }
 
 function askRateModal() {
@@ -844,8 +933,7 @@ function askRateModal() {
   document.body.appendChild(overlay);
   setTimeout(() => {
     const inp = document.getElementById('rateInput');
-    inp?.focus();
-    inp?.select();
+    inp?.focus(); inp?.select();
     inp?.addEventListener('keydown', e => { if (e.key === 'Enter') confirmRate(); });
   }, 50);
 }
@@ -914,12 +1002,8 @@ function showStats() {
   const totalSum = done.reduce((s, p) => s + p.totalSum, 0);
   alert(
     `📊 Статистика за сегодня (${now.toLocaleDateString('ru-RU')})\n` +
-    `👤 Воркер: ${workerName}\n` +
-    `⏰ Смена: ${shiftName || '—'}\n` +
-    `💱 Курс: ${shiftRate || '—'} ₽/USDT\n\n` +
-    `✅ Закрыто: ${done.length}\n` +
-    `🔥 В работе: ${active.length}\n` +
-    `❌ Отменено: ${cancelled.length}\n` +
+    `👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName || '—'}\n💱 Курс: ${shiftRate || '—'} ₽/USDT\n\n` +
+    `✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n❌ Отменено: ${cancelled.length}\n` +
     `💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`
   );
 }
@@ -942,34 +1026,27 @@ function updateModeUI() {
 
   if (role === 'admin') {
     btn.textContent = '👑 Админ (просмотр)'; btn.className = 'admin';
-    form.style.display = 'none';
-    settingsBtn.style.display = 'none';
+    form.style.display = 'none'; settingsBtn.style.display = 'none';
     adminInfo.style.display = 'block';
     badge.textContent = '👑 Админ'; badge.className = 'badge admin';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
     meInfo.textContent = '👑 Просмотр архива всех воркеров';
-    tabAvail.classList.add('hidden');
-    tabAct.classList.add('hidden');
+    tabAvail.classList.add('hidden'); tabAct.classList.add('hidden');
     tabDone.classList.add('active');
   } else if (role === 'worker') {
     btn.textContent = '🛠 ' + workerName; btn.className = 'worker';
-    form.style.display = 'block';
-    settingsBtn.style.display = 'block';
+    form.style.display = 'block'; settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
     badge.textContent = '🛠 ' + workerName + ' • ' + (shiftName || '?'); badge.className = 'badge worker';
     meInfo.textContent = '🛠 ' + workerName + ' • ' + (shiftName || 'смена не выбрана');
     if (currentTab === 'available') tabAvail.classList.add('active');
     else if (currentTab === 'active') tabAct.classList.add('active');
     else tabDone.classList.add('active');
-    if (shiftRate) {
-      rateBadge.textContent = '💱 ' + shiftRate + ' ₽'; rateBadge.className = 'badge rate';
-    } else {
-      rateBadge.textContent = ''; rateBadge.className = 'badge';
-    }
+    if (shiftRate) { rateBadge.textContent = '💱 ' + shiftRate + ' ₽'; rateBadge.className = 'badge rate'; }
+    else { rateBadge.textContent = ''; rateBadge.className = 'badge'; }
   } else if (role === 'client') {
     btn.textContent = '❤️ ' + clientUsername; btn.className = 'client';
-    form.style.display = 'none';
-    settingsBtn.style.display = 'block';
+    form.style.display = 'none'; settingsBtn.style.display = 'block';
     adminInfo.style.display = 'none';
     badge.textContent = '❤️ ' + clientUsername; badge.className = 'badge client';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
@@ -979,8 +1056,7 @@ function updateModeUI() {
     else tabDone.classList.add('active');
   } else {
     btn.textContent = '🔒 Войти'; btn.className = '';
-    form.style.display = 'none';
-    settingsBtn.style.display = 'none';
+    form.style.display = 'none'; settingsBtn.style.display = 'none';
     adminInfo.style.display = 'none';
     badge.textContent = ''; badge.className = 'badge';
     rateBadge.textContent = ''; rateBadge.className = 'badge';
@@ -1019,7 +1095,6 @@ function filterPayouts(list, tab) {
 
 async function addPayout() {
   if (role !== 'worker') { alert('❌ Только воркер может создавать заявки'); return; }
-
   const phone = document.getElementById('phone').value.trim();
   const cardNumber = document.getElementById('cardNumber').value.trim();
   const bank = document.getElementById('bank').value.trim();
@@ -1033,25 +1108,16 @@ async function addPayout() {
   if (!totalSum || totalSum <= 0) errors.push('💰 Укажи сумму');
   if (!totalChecks || totalChecks <= 0) errors.push('📄 Укажи количество чеков');
   if (rate <= 0) errors.push('💱 Укажи курс (или задай в настройках смены)');
-  if (errors.length > 0) {
-    alert('⚠️ Заполни поля:\n\n' + errors.join('\n'));
-    return;
-  }
+  if (errors.length > 0) { alert('⚠️ Заполни поля:\n\n' + errors.join('\n')); return; }
 
-  const todayStart = new Date();
-  todayStart.setHours(0, 0, 0, 0);
+  const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
   const normCard = (s) => (s || '').replace(/\s+/g, '');
   const normPhone = (s) => (s || '').replace(/\D/g, '');
-
   const cardClean = normCard(cardNumber);
   const phoneClean = normPhone(phone);
 
-  const sameCardPayouts = cardClean
-    ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normCard(x.cardNumber) === cardClean)
-    : [];
-  const samePhonePayouts = phoneClean
-    ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normPhone(x.phone) === phoneClean)
-    : [];
+  const sameCardPayouts = cardClean ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normCard(x.cardNumber) === cardClean) : [];
+  const samePhonePayouts = phoneClean ? payouts.filter(x => x.createdAt >= todayStart.getTime() && normPhone(x.phone) === phoneClean) : [];
 
   const lines = [];
   if (sameCardPayouts.length > 0) {
@@ -1075,18 +1141,14 @@ async function addPayout() {
       lines.push(`   • ${t} • ${who}${client} • ${formatMoney(x.totalSum)}${status}`);
     });
   }
-
   if (lines.length) {
-    const ok = confirm(
-      `⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`
-    );
+    const ok = confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);
     if (!ok) return;
   }
 
   try {
     await addDoc(payoutsRef, {
-      phone, cardNumber, bank,
-      totalSum, totalChecks, timerMin, rate,
+      phone, cardNumber, bank, totalSum, totalChecks, timerMin, rate,
       createdBy: workerName || 'Unknown', creatorRole: 'worker', shift: shiftName || '',
       status: 'available', client: null, checks: [],
       createdAt: Date.now(), startedAt: null, finishedAt: null
@@ -1308,21 +1370,17 @@ function renderCard(p) {
     } else if (role === 'worker') {
       actions = `<div class="card-actions">`;
       if (canEditRate) actions += `<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;
-      if (p.createdBy === workerName) {
-        actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
-      }
+      if (p.createdBy === workerName) actions += `<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;
       actions += `</div>`;
     }
   } else if (p.status === 'active') {
     const savedSum = checkInputs[p.id] || '';
     const canUpload = isMine || role === 'worker';
     if (canUpload) {
-      actions = `
-        <div class="check-form">
+      actions = `<div class="check-form">
           <div class="check-form-title">💵 Загрузить чек</div>
           <div class="check-form-row">
-            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01"
-                   value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
+            <input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)">
             <input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)">
             <label for="checkFile_${p.id}">📎 Чек</label>
           </div>
@@ -1335,12 +1393,12 @@ function renderCard(p) {
       </div>`;
     }
     if (role === 'worker') {
-      actions += `<div class="card-actions">`;
-      actions += `<button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>`;
-      actions += `<button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>`;
-      actions += `<button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>`;
-      actions += `<button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>`;
-      actions += `</div>`;
+      actions += `<div class="card-actions">
+        <button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button>
+        <button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button>
+        <button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button>
+        <button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button>
+      </div>`;
     }
   }
 
@@ -1357,8 +1415,7 @@ function renderCard(p) {
   if ((p.problems || []).length) {
     problemsHtml = `<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;">
       <div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>
-      ${p.problems.map(pr => `
-        <div class="check-item" style="background:rgba(239,68,68,0.1);">
+      ${p.problems.map(pr => `<div class="check-item" style="background:rgba(239,68,68,0.1);">
           <span style="font-size:11px;">${esc(pr.text || '(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>
           ${pr.file ? `<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>` : ''}
         </div>`).join('')}
@@ -1377,10 +1434,8 @@ function renderCard(p) {
   }
 
   const rateHtml = p.rate ? `<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate ? `onclick="editRate('${p.id}')"` : ''}>${p.rate} ₽/USDT</span>${canEditRate ? ' ✏️' : ''}</div>` : '';
-
   const cardHtml = p.cardNumber ? `<div class="card-row">💳 Карта: <span class="card-num" onclick="copyText('${esc(p.cardNumber)}')">${highlightMatch(p.cardNumber)}</span></div>` : '';
   const phoneHtml = p.phone ? `<div class="card-row">📱 Телефон: <span class="phone-num" onclick="copyText('${esc(p.phone)}')">${highlightMatch(p.phone)}</span></div>` : '';
-
   const heartPrefix = isMine ? '❤️ ' : '';
 
   return `
@@ -1401,11 +1456,7 @@ function renderCard(p) {
     </div>`;
 }
 
-// ═══════════════════════════════════════════════════════════
-//  АРХИВ: Дата → Смена → Клиент (с автоподсчётом)
-// ═══════════════════════════════════════════════════════════
 function renderArchive(list) {
-  // Уровень 1: дата → смена
   const byDate = {};
   list.forEach(p => {
     const d = new Date(p.createdAt);
@@ -1444,16 +1495,12 @@ function renderArchive(list) {
       const shiftOpenAttr = (isCurrentShift || !!searchQuery) ? ' open' : '';
       const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
 
-      // Уровень 2: смена → клиенты
-      // Группируем по клиенту
       const byClient = {};
       items.forEach(p => {
         const client = p.client || '(без клиента)';
         if (!byClient[client]) byClient[client] = [];
         byClient[client].push(p);
       });
-
-      // Сортируем клиентов: сначала по сумме выполненных, потом по алфавиту
       const clientKeys = Object.keys(byClient).sort((a, b) => {
         const sumA = byClient[a].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
         const sumB = byClient[b].filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
@@ -1469,52 +1516,37 @@ function renderArchive(list) {
         </summary>
         <div class="shift-content">`;
 
-      // Отрисовка клиентов
       clientKeys.forEach(clientKey => {
         const clientPayouts = byClient[clientKey];
         const clientDone = clientPayouts.filter(p => p.status === 'done');
         const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
         const clientActive = clientPayouts.filter(p => p.status === 'active');
         const clientAvailable = clientPayouts.filter(p => p.status === 'available');
-
-        const doneSum = clientDone.reduce((s, p) => s + p.totalSum, 0);
-        const cancelCount = clientCancelled.length;
-        const activeCount = clientActive.length;
-        const availCount = clientAvailable.length;
-        const totalClientSum = clientPayouts.reduce((s, p) => s + p.totalSum, 0);
-
+        const doneSum2 = clientDone.reduce((s, p) => s + p.totalSum, 0);
         const isClient = clientKey !== '(без клиента)';
-        const clientName = isClient ? clientKey : '(без клиента)';
 
         html += `<details class="client-group">
           <summary class="client-summary">
-            <span>
-              ${isClient ? '✈️ ' : '👤 '}
-              <span class="client-name">${esc(clientName)}</span>
-            </span>
+            <span>${isClient ? '✈️ ' : '👤 '}<span class="client-name">${esc(clientKey)}</span></span>
             <span class="client-stats">
               <span class="badge-count">${clientPayouts.length} заявок</span>
-              <span class="sum-done">✅ ${formatMoney(doneSum)}</span>
-              ${cancelCount ? `<span class="sum-cancel">❌ ${cancelCount}</span>` : ''}
-              ${activeCount ? `<span style="color:var(--warning)">🔥 ${activeCount}</span>` : ''}
-              ${availCount ? `<span style="color:var(--accent)">⏳ ${availCount}</span>` : ''}
+              <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
+              ${clientCancelled.length ? `<span class="sum-cancel">❌ ${clientCancelled.length}</span>` : ''}
+              ${clientActive.length ? `<span style="color:var(--warning)">🔥 ${clientActive.length}</span>` : ''}
+              ${clientAvailable.length ? `<span style="color:var(--accent)">⏳ ${clientAvailable.length}</span>` : ''}
             </span>
             <span class="arrow">▶</span>
           </summary>
-          <div class="client-content">
-            ${clientPayouts.map(renderCard).join('')}
-          </div>
+          <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
         </details>`;
       });
 
       html += `</div></details>`;
     });
 
-    // Смена "Без смены" — если есть
     if (dayData.shifts['Без смены'] && dayData.shifts['Без смены'].length) {
       const items = dayData.shifts['Без смены'];
       const doneSum = items.filter(p => p.status === 'done').reduce((s, p) => s + p.totalSum, 0);
-
       const byClient = {};
       items.forEach(p => {
         const client = p.client || '(без клиента)';
@@ -1522,7 +1554,6 @@ function renderArchive(list) {
         byClient[client].push(p);
       });
       const clientKeys = Object.keys(byClient).sort();
-
       html += `<details class="shift-group">
         <summary class="shift-summary">
           <span>❓ Без смены</span>
@@ -1530,16 +1561,14 @@ function renderArchive(list) {
           <span class="arrow">▶</span>
         </summary>
         <div class="shift-content">`;
-
       clientKeys.forEach(clientKey => {
         const clientPayouts = byClient[clientKey];
         const clientDone = clientPayouts.filter(p => p.status === 'done');
         const clientCancelled = clientPayouts.filter(p => p.status === 'cancelled');
         const doneSum2 = clientDone.reduce((s, p) => s + p.totalSum, 0);
-        const isClient = clientKey !== '(без клиента)';
         html += `<details class="client-group">
           <summary class="client-summary">
-            <span>${isClient ? '✈️ ' : '👤 '}<span class="client-name">${esc(clientKey)}</span></span>
+            <span>✈️ <span class="client-name">${esc(clientKey)}</span></span>
             <span class="client-stats">
               <span class="badge-count">${clientPayouts.length} заявок</span>
               <span class="sum-done">✅ ${formatMoney(doneSum2)}</span>
@@ -1550,13 +1579,10 @@ function renderArchive(list) {
           <div class="client-content">${clientPayouts.map(renderCard).join('')}</div>
         </details>`;
       });
-
       html += `</div></details>`;
     }
-
     html += `</div></details>`;
   });
-
   return html;
 }
 
@@ -1573,10 +1599,7 @@ function render() {
     if (searchQuery) {
       countEl.textContent = list.length ? '🔍 ' + list.length : '❌ 0';
       countEl.className = 'search-count' + (list.length ? '' : ' no-results');
-    } else {
-      countEl.textContent = '';
-      countEl.className = 'search-count';
-    }
+    } else { countEl.textContent = ''; countEl.className = 'search-count'; }
   }
   if (!list.length) {
     el.innerHTML = `<div class="empty">${
@@ -1615,19 +1638,13 @@ setInterval(() => {
 
     if (left > 0 && left < 5 * 60 * 1000 && !warned5.has(id)) {
       warned5.add(id);
-      playSound('warning');
-      showToast('🔴 5 минут! ' + formatMoney(p.totalSum), 'err');
-      showNotification('🔴 5 минут до конца', formatMoney(p.totalSum));
+      strongNotify('🔴 5 МИНУТ!', formatMoney(p.totalSum) + ' — срочно!', { sound: 'warning', toastType: 'err', vibrate: [500, 200, 500, 200, 500] });
     } else if (left > 0 && left < 10 * 60 * 1000 && !warned10.has(id)) {
       warned10.add(id);
-      playSound('warning');
-      showToast('🟠 10 минут. ' + formatMoney(p.totalSum), 'warn');
-      showNotification('🟠 10 минут', formatMoney(p.totalSum));
+      strongNotify('🟠 10 минут', formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300] });
     } else if (left > 0 && left < 15 * 60 * 1000 && !warned15.has(id)) {
       warned15.add(id);
-      playSound('warning');
-      showToast('🟡 15 минут. ' + formatMoney(p.totalSum), 'warn');
-      showNotification('🟡 15 минут', formatMoney(p.totalSum));
+      strongNotify('🟡 15 минут', formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [200, 100, 200] });
     }
   });
 }, 1000);
@@ -1645,11 +1662,9 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
       if (!seenPayoutIds.has(p.id) && p.status === 'available') {
         const age = Date.now() - p.createdAt;
         if (age < 120000) {
-          playSound('new');
           const rateTxt = p.rate ? ' • 💱 ' + p.rate : '';
           const bankTxt = p.bank ? ' • ' + p.bank : '';
-          showToast('❤️ Новая заявка: ' + formatMoney(p.totalSum), 'heart');
-          showNotification('❤️ Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt);
+          strongNotify('❤️ Новая заявка!', formatMoney(p.totalSum) + bankTxt + rateTxt, { sound: 'new', toastType: 'heart', vibrate: [100, 50, 100] });
         }
       }
     });
@@ -1664,34 +1679,20 @@ onSnapshot(query(payoutsRef, orderBy('createdAt', 'desc')), snapshot => {
         const isMyPayout = (p.createdBy === workerName);
 
         if (isMyPayout && prev.status === 'available' && p.status === 'active') {
-          playSound('taken');
-          showToast('🟢 Взяли в работу: ' + formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''), 'blue');
-          showNotification('🟢 Заявку взяли', formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''));
+          strongNotify('🟢 Взяли в работу', formatMoney(p.totalSum) + (p.client ? ' • ' + p.client : ''), { sound: 'taken', toastType: 'blue', vibrate: [50, 30, 50] });
         }
-
         if (isMyPayout && checksCount > prev.checksCount) {
           const lastCheck = p.checks[checksCount - 1];
-          playSound('check');
-          showToast('💰 ' + formatMoney(p.totalSum) + ' — +' + formatMoney(lastCheck.sum));
-          showNotification('💰 Чек оплачен', formatMoney(p.totalSum) + ' → +' + formatMoney(lastCheck.sum));
+          strongNotify('💰 Чек оплачен', formatMoney(p.totalSum) + ' → +' + formatMoney(lastCheck.sum), { sound: 'check', toastType: '', vibrate: [200, 100, 200] });
         }
-
         if (isMyPayout && problemsCount > prev.problemsCount) {
-          playSound('warning');
-          showToast('⚠️ Проблема: ' + formatMoney(p.totalSum), 'warn');
-          showNotification('⚠️ Проблема', 'Заявка ' + formatMoney(p.totalSum));
+          strongNotify('⚠️ Проблема от клиента', 'Заявка ' + formatMoney(p.totalSum), { sound: 'warning', toastType: 'warn', vibrate: [300, 100, 300, 100, 300] });
         }
-
         if (isMyPayout && prev.status !== 'cancelled' && p.status === 'cancelled') {
-          playSound('warning');
-          showToast('❌ Клиент отменил: ' + formatMoney(p.totalSum), 'err');
-          showNotification('❌ Клиент отменил', formatMoney(p.totalSum));
+          strongNotify('❌ Клиент отменил', formatMoney(p.totalSum), { sound: 'warning', toastType: 'err', vibrate: [300, 100, 300] });
         }
-
         if (isMyPayout && prev.status === 'active' && p.status === 'done') {
-          playSound('check');
-          showToast('🎉 Заявка закрыта: ' + formatMoney(p.totalSum));
-          showNotification('🎉 Заявка закрыта', formatMoney(p.totalSum));
+          strongNotify('🎉 Заявка закрыта', formatMoney(p.totalSum), { sound: 'check', toastType: '', vibrate: [100, 50, 100, 50, 200] });
         }
       }
     });
