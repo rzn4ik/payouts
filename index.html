@@ -26,10 +26,9 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .add-form input{padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-inner);color:var(--accent-2);font-size:12px;font-family:monospace;width:100%;min-width:0}
 .add-form input:focus{outline:none;border-color:var(--accent)}
 .add-form button{padding:8px 14px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap;font-size:12px}
-.add-form button:hover{opacity:.9}
 @media(max-width:1300px){.add-form{grid-template-columns:1fr 1fr 1fr 1fr}}
 @media(max-width:700px){.add-form{grid-template-columns:1fr 1fr}}
-.search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px;transition:border-color .2s}
+.search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px}
 .search-wrap:focus-within{border-color:var(--accent)}
 .search-icon{font-size:16px;color:var(--text-mute)}
 .search-input{flex:1;padding:6px 0;border:none;background:transparent;color:var(--text);font-size:14px;font-family:inherit;outline:none;min-width:0}
@@ -64,7 +63,7 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .phone-num:hover{text-decoration:underline}
 .rate-value{color:var(--warning);font-family:monospace;font-weight:bold;cursor:pointer}
 .rate-value:hover{text-decoration:underline}
-.card-row .highlight{background:rgba(168,85,247,.35);padding:0 2px;border-radius:3px}
+.highlight{background:rgba(168,85,247,.35);padding:0 2px;border-radius:3px}
 .expired-tag{display:inline-block;font-size:10px;font-weight:bold;padding:3px 8px;border-radius:6px;background:var(--danger);color:#fff;margin-bottom:4px}
 .timer{font-family:monospace;font-size:15px;font-weight:bold;padding:5px 12px;border-radius:6px;background:var(--bg-inner);border:1px solid var(--border);letter-spacing:.5px;transition:color .3s,border-color .3s,background .3s}
 .timer.gray{color:var(--text-mute)}
@@ -81,10 +80,8 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .checks-list{margin:6px 0}
 .check-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--bg-inner);border-radius:5px;margin-bottom:3px;font-size:11px}
 .check-item a{color:var(--accent-2);text-decoration:none}
-.check-item a:hover{text-decoration:underline}
 .card-actions{display:flex;gap:5px;margin-top:8px;flex-wrap:wrap}
 .card-actions button{padding:6px 12px;border:none;border-radius:5px;background:var(--accent);color:#fff;font-size:11px;cursor:pointer;font-weight:600}
-.card-actions button:hover{opacity:.85}
 .card-actions button.green{background:var(--accent-2)}
 .card-actions button.red{background:var(--danger)}
 .card-actions button.gray{background:var(--text-mute)}
@@ -96,10 +93,8 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .check-form-title{font-size:11px;color:var(--accent-2);margin-bottom:6px;font-weight:bold}
 .check-form-row{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
 .check-form input[type="number"]{padding:8px 12px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--accent-2);font-size:15px;font-family:monospace;width:130px;font-weight:bold}
-.check-form input[type="number"]:focus{outline:none;border-color:var(--accent-2)}
 .check-form input[type="file"]{display:none}
 .check-form label{padding:8px 14px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
-.check-form label:hover{opacity:.9}
 .mode-toggle{position:fixed;bottom:15px;right:15px;display:flex;gap:6px;z-index:100}
 .mode-toggle button{padding:10px 16px;border-radius:20px;border:none;background:var(--accent-2);color:#fff;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.3);font-size:12px}
 .mode-toggle button.admin{background:var(--accent)}
@@ -120,15 +115,11 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .modal-box.heart h3{color:var(--heart)}
 .modal-box p{font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
 .choice-btns{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
-.choice-btns button{padding:16px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:15px;font-weight:bold;cursor:pointer;transition:all .2s}
-.choice-btns button:hover{border-color:var(--accent-2);transform:translateY(-1px)}
+.choice-btns button{padding:16px 12px;border:1px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:15px;font-weight:bold;cursor:pointer}
 .choice-btns button.client-btn{border-color:var(--heart);color:var(--heart)}
-.choice-btns button.client-btn:hover{background:rgba(255,77,109,.1)}
 .choice-btns button.bt7-btn{border-color:var(--accent-2);color:var(--accent-2)}
-.choice-btns button.bt7-btn:hover{background:rgba(16,185,129,.1)}
 .worker-btns{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:10px}
-.worker-btns button{padding:14px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s}
-.worker-btns button:hover{border-color:var(--accent-2);background:rgba(16,185,129,.1);transform:translateY(-1px)}
+.worker-btns button{padding:14px 8px;border:1px solid var(--border);border-radius:8px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer}
 .worker-btns button.admin-btn{grid-column:1/-1;border-color:var(--accent);color:var(--accent)}
 .worker-btns button.registered::after{content:' ✓';color:var(--accent-2);font-weight:bold}
 .pin-row{display:flex;gap:6px;margin-top:10px}
@@ -143,76 +134,58 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .first-time-badge{display:inline-block;font-size:11px;padding:3px 8px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;margin-bottom:8px}
 .uname-wrap{position:relative;margin-bottom:10px}
 .uname-input{width:100%;padding:14px 16px 14px 42px;border-radius:10px;border:2px solid var(--heart);background:var(--bg-input);color:var(--text);font-size:16px;font-family:monospace;outline:none;font-weight:bold}
-.uname-input:focus{border-color:var(--heart);box-shadow:0 0 0 3px rgba(255,77,109,.2)}
-.uname-input::placeholder{color:var(--text-mute);font-weight:normal}
+.uname-input:focus{border-color:var(--heart)}
 .uname-icon{position:absolute;left:14px;top:50%;transform:translateY(-50%);font-size:18px;color:#229ED9;pointer-events:none}
 .uname-dropdown{position:absolute;top:100%;left:0;right:0;margin-top:4px;background:var(--bg-card);border:1px solid var(--heart);border-radius:10px;max-height:240px;overflow-y:auto;z-index:100;display:none;box-shadow:0 8px 24px rgba(0,0,0,.5)}
 .uname-dropdown.show{display:block}
-.uname-item{padding:12px 16px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--border);color:var(--text);font-family:monospace;transition:background .15s;display:flex;align-items:center;gap:8px}
-.uname-item:last-child{border-bottom:none}
-.uname-item:hover,.uname-item.active{background:rgba(255,77,109,.15)}
+.uname-item{padding:12px 16px;cursor:pointer;font-size:15px;border-bottom:1px solid var(--border);font-family:monospace;display:flex;align-items:center;gap:8px}
+.uname-item:hover{background:rgba(255,77,109,.15)}
 .uname-item .heart-inline{color:var(--heart)}
 .uname-item .highlight-prefix{color:var(--accent-2);font-weight:bold}
 .uname-new{padding:12px 16px;cursor:pointer;font-size:13px;color:var(--accent-2);font-weight:bold;background:rgba(16,185,129,.1);font-family:monospace}
-.uname-new:hover{background:rgba(16,185,129,.2)}
 .modal-cancel{margin-top:10px;padding:6px 12px;border:none;background:transparent;color:var(--text-dim);cursor:pointer;font-size:12px;display:block;margin-left:auto;margin-right:auto}
-.modal-cancel:hover{color:var(--text)}
-.modal-textarea,.modal-input{width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--text);font-size:13px;margin-bottom:8px;font-family:inherit}
-.modal-textarea{min-height:70px;resize:vertical}
+.modal-textarea{width:100%;padding:10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-input);color:var(--text);font-size:13px;margin-bottom:8px;min-height:70px;resize:vertical;font-family:inherit}
 .modal-file-label{display:block;padding:10px;border-radius:6px;background:var(--bg-inner);color:var(--accent-2);text-align:center;cursor:pointer;font-size:12px;border:1px dashed var(--accent-2);margin-bottom:8px}
-.modal-file-label:hover{background:var(--bg-card)}
 .modal-submit{width:100%;padding:11px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
 .modal-submit.heart{background:var(--heart)}
-.modal-submit:hover{opacity:.9}
 .modal-submit:disabled{opacity:.5;cursor:not-allowed}
 .shift-choice{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
-.shift-choice button{padding:14px 12px;border:2px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;transition:all .2s;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px}
-.shift-choice button:hover{transform:translateY(-1px)}
+.shift-choice button{padding:14px 12px;border:2px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .shift-choice button.morning{border-color:#f59e0b}
-.shift-choice button.morning:hover{background:rgba(245,158,11,.15)}
 .shift-choice button.evening{border-color:#a855f7}
-.shift-choice button.evening:hover{background:rgba(168,85,247,.15)}
 .shift-choice button.night{border-color:#3b82f6}
-.shift-choice button.night:hover{background:rgba(59,130,246,.15)}
 .shift-choice .time{font-size:11px;color:var(--text-dim);font-weight:normal}
 .shift-choice button.selected{box-shadow:0 0 0 3px var(--accent-2)}
 .rate-input-wrap{margin-bottom:10px}
 .rate-input-wrap input{width:100%;padding:14px;border-radius:8px;border:2px solid var(--warning);background:var(--bg-input);color:var(--warning);font-size:22px;font-family:monospace;font-weight:bold;text-align:center;outline:none}
-.rate-input-wrap input:focus{border-color:var(--accent-2);box-shadow:0 0 0 3px rgba(16,185,129,.2)}
 .rate-hint{font-size:11px;color:var(--text-dim);text-align:center;margin-top:6px}
 .revive-confirm{display:flex;gap:8px;align-items:flex-start;margin:12px 0;font-size:13px;cursor:pointer;padding:10px;background:var(--bg-inner);border-radius:8px;border:1px solid var(--border)}
-.revive-confirm input{margin-top:2px;flex-shrink:0}
-.revive-confirm span{line-height:1.4}
 .revive-confirm.checked{border-color:var(--accent-2)}
 .date-group{margin-bottom:10px}
 .date-summary{padding:12px 16px;background:var(--bg-card);border:2px solid var(--accent);border-radius:10px;cursor:pointer;font-size:13px;font-weight:bold;color:var(--accent);display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;user-select:none}
-.date-summary:hover{background:rgba(168,85,247,.1)}
 .date-summary .arrow{transition:transform .2s}
 details[open]>.date-summary .arrow{transform:rotate(90deg)}
 details[open]>.date-summary{margin-bottom:8px}
 .date-content{padding-left:12px;border-left:2px solid var(--border)}
 .shift-group{margin-bottom:8px}
 .shift-summary{padding:10px 14px;background:var(--bg-inner);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
-.shift-summary:hover{border-color:var(--accent-2);color:var(--text)}
 .shift-summary.shift-morning{border-left:3px solid #f59e0b}
 .shift-summary.shift-evening{border-left:3px solid #a855f7}
 .shift-summary.shift-night{border-left:3px solid #3b82f6}
 .shift-summary .arrow{transition:transform .2s}
 details[open]>.shift-summary .arrow{transform:rotate(90deg)}
 details[open]>.shift-summary{margin-bottom:6px}
-.shift-content{padding-left:0}
 .client-group{margin-bottom:6px}
-.client-summary{padding:10px 14px 10px 20px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #229ED9;border-radius:8px;cursor:pointer;font-size:12px;color:var(--text);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
-.client-summary:hover{background:rgba(34,158,217,.1);border-color:#229ED9}
+.client-summary{padding:10px 14px 10px 20px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #229ED9;border-radius:8px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
 .client-summary .client-name{font-family:monospace;font-weight:bold;color:#229ED9}
 .client-summary .client-stats{font-size:11px;color:var(--text-dim);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.client-summary .client-stats .sum-done{color:var(--accent-2);font-weight:bold}
-.client-summary .client-stats .sum-cancel{color:var(--danger);font-weight:bold}
-.client-summary .client-stats .sum-expired{color:var(--danger);font-weight:bold}
-.client-summary .client-stats .badge-count{background:var(--border);padding:2px 6px;border-radius:6px;font-size:10px}
+.client-summary .sum-done{color:var(--accent-2);font-weight:bold}
+.client-summary .sum-cancel{color:var(--danger);font-weight:bold}
+.client-summary .sum-expired{color:var(--danger);font-weight:bold}
+.client-summary .badge-count{background:var(--border);padding:2px 6px;border-radius:6px;font-size:10px}
 .client-summary .arrow{transition:transform .2s}
 details[open]>.client-summary .arrow{transform:rotate(90deg)}
-details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
+details[open]>.client-summary{margin-bottom:6px}
 .client-content{padding-left:20px;border-left:2px dashed var(--border);margin-left:8px}
 .admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
 .admin-info b{color:var(--accent)}
@@ -220,9 +193,8 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 </head>
 <body>
 
-<h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock" title="Смещение часов">🕐 —</span></h1>
+<h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock">🕐 —</span></h1>
 <div class="me" id="meInfo">Загрузка...</div>
-
 <div class="admin-info" id="adminInfo" style="display:none;">👑 <b>Режим админа</b> — только просмотр архива всех воркеров.</div>
 
 <div class="section" id="adminForm" style="display:none;">
@@ -255,7 +227,7 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 
 <div id="content" class="loading">Загрузка...</div>
 
-<div class="theme-toggle" style="position:fixed;bottom:15px;left:15px;display:flex;gap:4px;z-index:100;">
+<div style="position:fixed;bottom:15px;left:15px;display:flex;gap:4px;z-index:100;">
   <button onclick="setTheme('dark')" data-theme-btn="dark" title="Тёмная" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">🌑</button>
   <button onclick="setTheme('light')" data-theme-btn="light" title="Светлая" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">☀️</button>
   <button onclick="setTheme('ocean')" data-theme-btn="ocean" title="Океан" style="width:30px;height:30px;border-radius:50%;border:2px solid var(--border);cursor:pointer;font-size:14px;background:var(--bg-card);color:var(--text);">🌊</button>
@@ -270,18 +242,18 @@ details[open]>.client-summary{margin-bottom:6px;border-left-color:#229ED9}
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
-const STAFF_WORKERS = ['Denis', 'Dmitriy', 'Artem', 'Evgeniy'];
-const STAFF_ADMIN = 'Админ';
-const SHIFTS = ['Утро', 'Вечер', 'Ночь'];
-const SHIFT_TIMES = { 'Утро':'06:00 - 14:00', 'Вечер':'14:00 - 22:00', 'Ночь':'22:00 - 06:00' };
+const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'];
+const STAFF_ADMIN='Админ';
+const SHIFTS=['Утро','Вечер','Ночь'];
+const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
 
-const firebaseConfig = {apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
+const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
-const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
-const payoutsRef = collection(db, 'payouts');
-const clientsRef = collection(db, 'clients');
-const staffRef = collection(db, 'staff');
+const app=initializeApp(firebaseConfig);
+const db=getFirestore(app);
+const payoutsRef=collection(db,'payouts');
+const clientsRef=collection(db,'clients');
+const staffRef=collection(db,'staff');
 
 function sanitizeReq(v){
   if(!v)return v;
@@ -289,16 +261,16 @@ function sanitizeReq(v){
 }
 
 // ═══ СЕРВЕРНОЕ ВРЕМЯ ═══
-const MAX_OFFSET_MS = 10*60*1000;
-let clockOffset = parseInt(sessionStorage.getItem('clockOffset'))||0;
-let clockSynced = sessionStorage.getItem('clockSynced')==='1';
+const MAX_OFFSET_MS=10*60*1000;
+let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
+let clockSynced=sessionStorage.getItem('clockSynced')==='1';
 if(Math.abs(clockOffset)>MAX_OFFSET_MS){clockOffset=0;clockSynced=false;sessionStorage.removeItem('clockOffset');sessionStorage.removeItem('clockSynced');}
 function updateClockBadge(){
   const b=document.getElementById('clockBadge');if(!b)return;
   const sec=Math.round(clockOffset/1000);
-  if(!clockSynced){b.textContent='🕐 ?';b.className='badge clock';b.title='Не синхронизировано';}
-  else if(Math.abs(sec)<5){b.textContent='🕐 OK';b.className='badge clock';b.title='Синхронизировано';}
-  else{b.textContent='🕐 '+(sec>=0?'+':'')+sec+'с';b.className='badge clock'+(Math.abs(sec)>60?' bad':'');b.title='Смещение: '+sec+'с';}
+  if(!clockSynced){b.textContent='🕐 ?';b.className='badge clock';}
+  else if(Math.abs(sec)<5){b.textContent='🕐 OK';b.className='badge clock';}
+  else{b.textContent='🕐 '+(sec>=0?'+':'')+sec+'с';b.className='badge clock'+(Math.abs(sec)>60?' bad':'');}
 }
 async function syncClock(silent=false){
   const endpoints=[
@@ -320,12 +292,11 @@ async function syncClock(silent=false){
       sessionStorage.setItem('clockOffset',String(clockOffset));
       sessionStorage.setItem('clockSynced','1');
       updateClockBadge();
-      if(!silent)showToast('🕐 Синхронизировано (Δ '+(clockOffset>=0?'+':'')+Math.round(clockOffset/1000)+'с)');
+      if(!silent)showToast('🕐 Синхронизировано');
       if(changed){try{render();}catch(e){}}
       return true;
     }catch(e){}
   }
-  if(!silent)console.warn('🕐 Clock sync failed');
   updateClockBadge();
   return false;
 }
@@ -351,7 +322,6 @@ let seenPayoutIds=new Set();
 let isFirstSnapshot=true;
 let expiringIds=new Set();
 let takingIds=new Set();
-
 let warned15=new Set(JSON.parse(sessionStorage.getItem('warned15')||'[]'));
 let warned10=new Set(JSON.parse(sessionStorage.getItem('warned10')||'[]'));
 let warned5=new Set(JSON.parse(sessionStorage.getItem('warned5')||'[]'));
@@ -360,7 +330,6 @@ function persistWarned(){
   sessionStorage.setItem('warned10',JSON.stringify([...warned10]));
   sessionStorage.setItem('warned5',JSON.stringify([...warned5]));
 }
-
 let audioCtx=null;
 let notifyPermissionAsked=false;
 let searchQuery='';
@@ -371,7 +340,8 @@ let originalTitle=document.title;
 let titleFlashInterval=null;
 let originalFavicon=null;
 
-function shouldSendNotify(dedupeKey, windowMs=8000){
+// ═══ ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ ═══
+function shouldSendNotify(dedupeKey,windowMs=8000){
   try{
     const storageKey='notif_dedupe_'+dedupeKey;
     const nowMs=Date.now();
@@ -397,7 +367,6 @@ function strongNotify(title,body,opts={}){
   try{addUnreadAndFlashTitle(title);}catch(e){}
   try{setUnreadFavicon();}catch(e){}
   try{if('Notification' in window&&Notification.permission==='granted'){new Notification(title,{body,tag:'payout-'+dedupeKey,renotify:false});}}catch(e){}
-  try{if(document.hidden&&(!('Notification' in window)||Notification.permission!=='granted')){showInPageAlert(title,body);}}catch(e){}
 }
 function addUnreadAndFlashTitle(newTitle){
   unreadCount++;
@@ -420,13 +389,6 @@ function setUnreadFavicon(){
   }catch(e){}
 }
 function resetFavicon(){try{if(originalFavicon){let link=document.querySelector("link[rel*='icon']");if(link)link.href=originalFavicon;}}catch(e){}}
-function showInPageAlert(title,body){
-  const old=document.getElementById('inPageAlert');if(old)old.remove();
-  const el=document.createElement('div');el.id='inPageAlert';
-  el.style.cssText='position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.85);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;animation:pulseAlert 1s infinite;';
-  el.innerHTML=`<div style="background:#1a1a2a;border:3px solid #ef4444;border-radius:16px;padding:30px;max-width:500px;text-align:center;color:#fff;box-shadow:0 0 60px rgba(239,68,68,.8);"><div style="font-size:64px;margin-bottom:15px;">🔔</div><div style="font-size:22px;font-weight:bold;margin-bottom:15px;color:#ef4444;">${esc(title)}</div><div style="font-size:15px;margin-bottom:25px;color:#ddd;line-height:1.6;">${esc(body)}</div><button onclick="document.getElementById('inPageAlert').remove()" style="padding:14px 40px;border:none;border-radius:8px;background:#10b981;color:#fff;font-size:16px;font-weight:bold;cursor:pointer;">OK</button></div>`;
-  document.body.appendChild(el);setTimeout(()=>{el.remove();},30000);
-}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetTitleFlash();});
 window.addEventListener('focus',()=>{resetTitleFlash();});
 
@@ -511,7 +473,7 @@ function selectClientType(){closeLogin();showClientUsernameInput();}
 function showClientUsernameInput(){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Вход для клиента</h3><p>Введи свой <b>@username</b> из Telegram</p><div class="uname-wrap"><span class="uname-icon">✈️</span><input type="text" class="uname-input" id="unameInput" placeholder="@username" autocomplete="off" autofocus maxlength="33"><div class="uname-dropdown" id="unameDropdown"></div></div><div class="pin-error" id="unameError"></div><p style="font-size:10px;color:var(--text-mute);margin-top:6px;">Начни вводить — появятся совпадения из базы</p><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Вход для клиента</h3><p>Введи свой <b>@username</b> из Telegram</p><div class="uname-wrap"><span class="uname-icon">✈️</span><input type="text" class="uname-input" id="unameInput" placeholder="@username" autocomplete="off" autofocus maxlength="33"><div class="uname-dropdown" id="unameDropdown"></div></div><div class="pin-error" id="unameError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   const input=document.getElementById('unameInput');
   const dropdown=document.getElementById('unameDropdown');
@@ -588,58 +550,66 @@ function loginClient(username){
   showToast('❤️ Привет, '+username+'!','heart');
 }
 
-// ── Сотрудники ──
+// ── Сотрудники (воркеры + админ) ──
 function selectBT7Type(){
   closeLogin();
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  const workerBtns = STAFF_WORKERS.map(w=>{
-    const reg = allStaff.has(w) ? ' registered' : '';
+  const workerBtns=STAFF_WORKERS.map(w=>{
+    const reg=allStaff.has(w)?' registered':'';
     return `<button class="${reg}" onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;
   }).join('');
-  const adminReg = allStaff.has(STAFF_ADMIN) ? ' registered' : '';
+  const adminReg=allStaff.has(STAFF_ADMIN)?' registered':'';
   overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${workerBtns}<button class="admin-btn ${adminReg}" onclick="proceedStaffLogin('${STAFF_ADMIN}','admin')">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
   document.body.appendChild(overlay);
 }
-async function proceedStaffLogin(displayName, roleType){
+async function proceedStaffLogin(displayName,roleType){
   closeLogin();
-  let existing = allStaff.get(displayName);
+  if(!navigator.onLine){alert('❌ Нет интернета. Проверь соединение.');return;}
+  let existing=allStaff.get(displayName);
   if(!existing){
-    try{
-      const snap = await getDoc(doc(db,'staff',displayName));
-      if(snap.exists()){ existing = snap.data(); allStaff.set(displayName, existing); }
-    }catch(e){}
+    showToast('⏳ Проверяем...');
+    let lastErr=null;
+    for(let attempt=0;attempt<3;attempt++){
+      try{
+        const snap=await getDoc(doc(db,'staff',displayName));
+        if(snap.exists()){existing=snap.data();allStaff.set(displayName,existing);}
+        lastErr=null;break;
+      }catch(e){
+        lastErr=e;
+        const m=(e.message||'').toLowerCase();
+        if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){
+          await new Promise(r=>setTimeout(r,900));
+          continue;
+        }
+        break;
+      }
+    }
+    if(lastErr){
+      const m=(lastErr.message||'').toLowerCase();
+      if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){
+        alert('❌ Не удалось связаться с сервером.\n\nПроверь:\n• Интернет\n• Открыт ли сайт через http/https (не file://)\n• Firestore Rules\n\nПопробуй Ctrl+Shift+R');
+        return;
+      }
+      alert('❌ Ошибка: '+lastErr.message);
+      return;
+    }
   }
-  if(existing) showStaffPinInput(displayName, roleType);
-  else showStaffRegister(displayName, roleType);
+  if(existing)showStaffPinInput(displayName,roleType);
+  else showStaffRegister(displayName,roleType);
 }
-function showStaffRegister(displayName, roleType){
-  const roleLabel = roleType==='admin' ? 'Админ' : 'Воркер';
+function showStaffRegister(displayName,roleType){
+  const roleLabel=roleType==='admin'?'Админ':'Воркер';
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`
-    <div class="modal-box">
-      <div class="first-time-badge">🆕 Первый вход</div>
-      <h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3>
-      <p><b>${roleLabel}</b> входит впервые.<br>Придумай личный PIN для входа.</p>
-      <p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! Восстановить нельзя.</p>
-      <div class="pin-row" style="flex-direction:column;gap:8px;">
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN (4-6 цифр)" autofocus>
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN">
-      </div>
-      <div class="pin-error" id="pinError"></div>
-      <div class="pin-row" style="margin-top:10px;">
-        <button style="width:100%;" onclick="registerStaff('${esc(displayName)}','${roleType}')">Создать PIN и войти</button>
-      </div>
-      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
-    </div>`;
+  overlay.innerHTML=`<div class="modal-box"><div class="first-time-badge">🆕 Первый вход</div><h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3><p><b>${roleLabel}</b> входит впервые.<br>Придумай личный PIN для входа.</p><p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! Восстановить нельзя.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN (4-6 цифр)" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button style="width:100%;" onclick="registerStaff('${esc(displayName)}','${roleType}')">Создать PIN и войти</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   setTimeout(()=>{
     document.getElementById('pinField')?.focus();
     document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerStaff(displayName,roleType);});
   },50);
 }
-async function registerStaff(displayName, roleType){
+async function registerStaff(displayName,roleType){
   const pin1=document.getElementById('pinField')?.value;
   const pin2=document.getElementById('pinField2')?.value;
   const err=document.getElementById('pinError');
@@ -647,41 +617,39 @@ async function registerStaff(displayName, roleType){
   if(pin1.length>6){err.textContent='❌ PIN максимум 6 цифр';return;}
   if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}
   if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}
-  const btn = document.querySelector('#loginModal .pin-row button');
+  if(!navigator.onLine){err.textContent='❌ Нет интернета';return;}
+  const btn=document.querySelector('#loginModal .pin-row button');
   if(btn){btn.disabled=true;btn.textContent='⏳...';}
   try{
-    const snap = await getDoc(doc(db,'staff',displayName));
-    if(snap.exists()){
-      err.textContent = '❌ Уже зарегистрирован — введи PIN';
-      setTimeout(()=>showStaffPinInput(displayName, roleType), 900);
+    const pinHash=await hashPin(pin1);
+    await runTransaction(db,async(tx)=>{
+      const ref=doc(db,'staff',displayName);
+      const snap=await tx.get(ref);
+      if(snap.exists())throw new Error('ALREADY_EXISTS');
+      tx.set(ref,{name:displayName,role:roleType,pinHash,createdAt:now()});
+    });
+    allStaff.set(displayName,{name:displayName,role:roleType,pinHash,createdAt:now()});
+    showToast('✅ PIN установлен');
+    completeStaffLogin(roleType,displayName);
+  }catch(e){
+    const m=(e.message||'').toLowerCase();
+    if(e.message==='ALREADY_EXISTS'){
+      err.textContent='❌ Уже зарегистрирован — введи PIN';
+      setTimeout(()=>showStaffPinInput(displayName,roleType),900);
       return;
     }
-    const pinHash = await hashPin(pin1);
-    await setDoc(doc(db,'staff',displayName),{
-      name: displayName, role: roleType, pinHash, createdAt: now()
-    });
-    allStaff.set(displayName, {name:displayName, role:roleType, pinHash, createdAt:now()});
-    showToast('✅ PIN установлен');
-    completeStaffLogin(roleType, displayName);
-  }catch(e){
-    err.textContent='❌ Ошибка: '+e.message;
+    if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){
+      err.textContent='❌ Нет связи с сервером. Проверь интернет.';
+    }else{
+      err.textContent='❌ Ошибка: '+e.message;
+    }
     if(btn){btn.disabled=false;btn.textContent='Создать PIN и войти';}
   }
 }
-function showStaffPinInput(displayName, roleType){
+function showStaffPinInput(displayName,roleType){
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`
-    <div class="modal-box">
-      <h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3>
-      <p>Введи свой PIN-код</p>
-      <div class="pin-row">
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus>
-        <button onclick="verifyStaffPin('${esc(displayName)}','${roleType}')">Войти</button>
-      </div>
-      <div class="pin-error" id="pinError"></div>
-      <button class="modal-cancel" onclick="closeLogin()">Отмена</button>
-    </div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3><p>Введи свой PIN-код</p><div class="pin-row"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus><button onclick="verifyStaffPin('${esc(displayName)}','${roleType}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   setTimeout(()=>{
     const f=document.getElementById('pinField');
@@ -689,66 +657,42 @@ function showStaffPinInput(displayName, roleType){
     f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyStaffPin(displayName,roleType);});
   },50);
 }
-async function verifyStaffPin(displayName, roleType){
-  const pin=document.getElementById('pinField')?.value;
-  if(!pin)return;
+async function verifyStaffPin(displayName,roleType){
+  const pin=document.getElementById('pinField')?.value;if(!pin)return;
   const err=document.getElementById('pinError');
   const btn=document.querySelector('#loginModal .pin-row button');
   if(btn){btn.disabled=true;btn.textContent='⏳...';}
   try{
     const hashed=await hashPin(pin);
-    const existing = allStaff.get(displayName);
+    const existing=allStaff.get(displayName);
     if(!existing||existing.pinHash!==hashed){
       err.textContent='❌ Неверный PIN';
       document.getElementById('pinField').value='';
       if(btn){btn.disabled=false;btn.textContent='Войти';}
       return;
     }
-    completeStaffLogin(roleType, displayName);
+    completeStaffLogin(roleType,displayName);
   }catch(e){
     err.textContent='❌ Ошибка: '+e.message;
     if(btn){btn.disabled=false;btn.textContent='Войти';}
   }
 }
-function completeStaffLogin(roleType, displayName){
-  role = roleType;
-  workerName = (roleType==='worker') ? displayName : STAFF_ADMIN;
-  sessionStorage.setItem('role', role);
-  sessionStorage.setItem('workerName', workerName);
+function completeStaffLogin(roleType,displayName){
+  role=roleType;
+  workerName=(roleType==='worker')?displayName:STAFF_ADMIN;
+  sessionStorage.setItem('role',role);
+  sessionStorage.setItem('workerName',workerName);
   closeLogin();
-  if(role==='admin'){
-    currentTab='done'; updateModeUI(); render();
-    showToast('👑 Админ: просмотр');
-    return;
-  }
-  if(!shiftName) askShiftModal();
-  else if(!shiftRate) askRateModal();
-  else{
-    updateModeUI(); render();
-    const r=document.getElementById('rate');
-    if(r) r.value=shiftRate;
-    showToast('✅ '+workerName);
-  }
+  if(role==='admin'){currentTab='done';updateModeUI();render();showToast('👑 Админ: просмотр');return;}
+  if(!shiftName)askShiftModal();
+  else if(!shiftRate)askRateModal();
+  else{updateModeUI();render();const r=document.getElementById('rate');if(r)r.value=shiftRate;showToast('✅ '+workerName);}
 }
 function openPinChange(){
   if(role!=='worker'&&role!=='admin'){showToast('Только для сотрудников');return;}
   const overlay=document.createElement('div');
   overlay.className='modal-overlay';overlay.id='pinChangeModal';
-  overlay.innerHTML=`
-    <div class="modal-box">
-      <h3>🔑 Смена PIN</h3>
-      <p>${esc(workerName)}</p>
-      <div class="pin-row" style="flex-direction:column;gap:8px;">
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="oldPin" maxlength="6" placeholder="Текущий PIN" autofocus>
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin" maxlength="6" placeholder="Новый PIN (4-6 цифр)">
-        <input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin2" maxlength="6" placeholder="Повтори новый PIN">
-      </div>
-      <div class="pin-error" id="pinError"></div>
-      <div class="pin-row" style="margin-top:10px;">
-        <button style="width:100%;" onclick="submitPinChange()">Сменить PIN</button>
-      </div>
-      <button class="modal-cancel" onclick="closePinChange()">Отмена</button>
-    </div>`;
+  overlay.innerHTML=`<div class="modal-box"><h3>🔑 Смена PIN</h3><p>${esc(workerName)}</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="oldPin" maxlength="6" placeholder="Текущий PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin" maxlength="6" placeholder="Новый PIN (4-6 цифр)"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin2" maxlength="6" placeholder="Повтори новый PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button style="width:100%;" onclick="submitPinChange()">Сменить PIN</button></div><button class="modal-cancel" onclick="closePinChange()">Отмена</button></div>`;
   document.body.appendChild(overlay);
   setTimeout(()=>document.getElementById('oldPin')?.focus(),50);
 }
@@ -773,7 +717,7 @@ async function submitPinChange(){
       return;
     }
     const newHash=await hashPin(n1);
-    await updateDoc(doc(db,'staff',workerName),{pinHash:newHash, pinChangedAt:now()});
+    await updateDoc(doc(db,'staff',workerName),{pinHash:newHash,pinChangedAt:now()});
     allStaff.set(workerName,{...existing,pinHash:newHash,pinChangedAt:now()});
     showToast('✅ PIN изменён');
     closePinChange();
@@ -985,14 +929,14 @@ async function addPayout(){
   const lines=[];
   if(sameCardPayouts.length>0){
     lines.push('💳 КАРТА уже выдавалась ('+sameCardPayouts.length+' раз):');
-    sameCardPayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);});
+    sameCardPayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);});
   }
   if(samePhonePayouts.length>0){
     if(lines.length)lines.push('');
     lines.push('📱 ТЕЛЕФОН уже выдавался ('+samePhonePayouts.length+' раз):');
-    samePhonePayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push(`   • ${t} • ${x.createdBy||'—'}${client} • ${formatMoney(x.totalSum)}${status}`);});
+    samePhonePayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'});const client=x.client?' • '+x.client:' • в пуле';const status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);});
   }
-  if(lines.length){const ok=confirm(`⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n${lines.join('\n')}\n\nПродолжить создание заявки?`);if(!ok)return;}
+  if(lines.length){const ok=confirm('⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n'+lines.join('\n')+'\n\nПродолжить создание заявки?');if(!ok)return;}
   try{
     await addDoc(payoutsRef,{phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',status:'available',client:null,checks:[],createdAt:now(),startedAt:null,finishedAt:null});
     ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id=>document.getElementById(id).value='');
@@ -1143,11 +1087,7 @@ async function confirmRevive(id){
   if(!mins||mins<1||mins>1440){showToast('❌ Таймер от 1 до 1440 мин','err');return;}
   const btn=document.getElementById('reviveSubmit');btn.disabled=true;btn.textContent='⏳...';
   try{
-    await updateDoc(doc(db,'payouts',id),{
-      status:'available',client:null,startedAt:null,timerMin:mins,
-      createdAt:now(),originalCreatedAt:p.originalCreatedAt||p.createdAt,
-      revivedAt:now(),revivedBy:workerName,reviveCount:(p.reviveCount||0)+1
-    });
+    await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null,timerMin:mins,createdAt:now(),originalCreatedAt:p.originalCreatedAt||p.createdAt,revivedAt:now(),revivedBy:workerName,reviveCount:(p.reviveCount||0)+1});
     warned15.delete(id);warned10.delete(id);warned5.delete(id);persistWarned();
     expiringIds.delete(id);
     closeReviveModal();
@@ -1173,7 +1113,7 @@ function getCurrentShift(){const h=new Date(now()).getHours();if(h>=6&&h<14)retu
 function getShiftEmoji(s){if(s==='Утро')return '🌅';if(s==='Вечер')return '🌆';if(s==='Ночь')return '🌙';return '⏰';}
 function getShiftClass(s){if(s==='Утро')return 'shift-morning';if(s==='Вечер')return 'shift-evening';if(s==='Ночь')return 'shift-night';return '';}
 
-// ═══ РЕНДЕР КАРТОЧКИ ═══
+// ═══ РЕНДЕР ═══
 function renderCard(p){
   const paid=paidSum(p);
   const left=Math.max(0,p.totalSum-paid);
@@ -1203,7 +1143,6 @@ function renderCard(p){
     if(p.status==='active'){if(leftMs<0)cardExtraClass=' expired';else if(leftMs<10*60000)cardExtraClass=' warning';}
     timerHtml=`<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
-
   let expiredTagHtml='';
   if(p.status==='expired'){expiredTagHtml=`<div class="expired-tag">⏰ Не обработана — время истекло</div>`;}
   let revivedTagHtml='';
@@ -1211,7 +1150,6 @@ function renderCard(p){
     const t=new Date(p.revivedAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'});
     revivedTagHtml=`<div class="card-row small" style="color:var(--info)">🔄 Возрождена: ${t} • ${esc(p.revivedBy||'—')}${p.reviveCount>1?' (×'+p.reviveCount+')':''}</div>`;
   }
-
   let actions='';
   if(p.status==='available'){
     if(role==='client'){
@@ -1235,7 +1173,6 @@ function renderCard(p){
       actions=`<div class="card-actions"><button class="green" onclick="revivePayout('${p.id}')">🔄 Вернуть в пул</button><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;
     }
   }
-
   let checksHtml='';
   if((p.checks||[]).length){
     checksHtml=`<div class="checks-list">`+p.checks.map((c,i)=>`<div class="check-item"><span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b> <span style="color:var(--text-mute);font-size:10px">${new Date(c.uploadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span><a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a></div>`).join('')+`</div>`;
@@ -1255,24 +1192,16 @@ function renderCard(p){
   const cardHtml=p.cardNumber?`<div class="card-row">💳 Карта: <span class="card-num" data-copy="${esc(p.cardNumber)}">${highlightMatch(p.cardNumber)}</span></div>`:'';
   const phoneHtml=p.phone?`<div class="card-row">📱 Телефон: <span class="phone-num" data-copy="${esc(p.phone)}">${highlightMatch(p.phone)}</span></div>`:'';
   const heartPrefix=isMine?'❤️ ':'';
-
-  return `
-    <div class="card ${p.status}${cardExtraClass}${isMine?' mine':''}">
+  return `<div class="card ${p.status}${cardExtraClass}${isMine?' mine':''}">
       <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
-      ${expiredTagHtml}
-      ${revivedTagHtml}
-      ${cardHtml}
-      ${phoneHtml}
+      ${expiredTagHtml}${revivedTagHtml}${cardHtml}${phoneHtml}
       ${p.bank?`<div class="card-row small">🏦 ${esc(p.bank)}</div>`:''}
       ${rateHtml}
       ${p.client?`<div class="card-row small">❤️ Клиент: ✈️ ${highlightMatch(p.client)}</div>`:''}
       ${metaHtml}
       <div class="progress-bar"><div class="progress-fill" style="width:${pct}%"></div></div>
       <div class="card-row small">💰 Оплачено: <b>${formatMoney(paid)}</b> / ${formatMoney(p.totalSum)} • Осталось: <b>${formatMoney(left)}</b> • 📄 ${checksCount}/${p.totalChecks}</div>
-      ${checksHtml}
-      ${problemsHtml}
-      ${cancelHtml}
-      ${actions}
+      ${checksHtml}${problemsHtml}${cancelHtml}${actions}
     </div>`;
 }
 
