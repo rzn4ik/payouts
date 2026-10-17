@@ -240,7 +240,8 @@ details[open]>.client-summary{margin-bottom:6px}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+// ✅ ДОБАВЛЕН initializeFirestore и enableIndexedDbPersistence для обхода блокировок
+import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'];
 const STAFF_ADMIN='Админ';
@@ -250,7 +251,23 @@ const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Но
 const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
 const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
+
+// ✅ ФИКС: Принудительно включаем длинные опросы (HTTP) вместо WebSocket
+const db=initializeFirestore(app, {
+  experimentalForceLongPolling: true,
+  experimentalAutoDetectLongPolling: true,
+  useFetchStreams: false
+});
+
+// ✅ Включаем офлайн-кэш (чтобы сайт не падал при кратковременных обрывах)
+enableIndexedDbPersistence(db).catch((err)=>{
+  if(err.code==='failed-precondition'){
+    console.warn("Кэш не включен: открыто несколько вкладок.");
+  }else if(err.code==='unimplemented'){
+    console.warn("Браузер не поддерживает кэш.");
+  }
+});
+
 const payoutsRef=collection(db,'payouts');
 const clientsRef=collection(db,'clients');
 const staffRef=collection(db,'staff');
@@ -260,7 +277,6 @@ function sanitizeReq(v){
   return String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim();
 }
 
-// ═══ СЕРВЕРНОЕ ВРЕМЯ ═══
 const MAX_OFFSET_MS=10*60*1000;
 let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
 let clockSynced=sessionStorage.getItem('clockSynced')==='1';
@@ -304,7 +320,6 @@ function now(){return Date.now()+clockOffset;}
 if(!clockSynced)syncClock(true);else updateClockBadge();
 setInterval(()=>syncClock(true),30*60*1000);
 
-// ═══ СОСТОЯНИЕ ═══
 let payouts=[];
 let allClients=[];
 let allStaff=new Map();
@@ -340,7 +355,6 @@ let originalTitle=document.title;
 let titleFlashInterval=null;
 let originalFavicon=null;
 
-// ═══ ДЕДУПЛИКАЦИЯ УВЕДОМЛЕНИЙ ═══
 function shouldSendNotify(dedupeKey,windowMs=8000){
   try{
     const storageKey='notif_dedupe_'+dedupeKey;
@@ -446,7 +460,6 @@ function showToast(msg,type=''){
   document.body.appendChild(el);setTimeout(()=>el.remove(),3000);
 }
 
-// ═══ ЛОГИН ═══
 function openLogin(){
   if(role!=='guest'){
     if(confirm('Выйти из аккаунта?')){
@@ -468,7 +481,6 @@ function showLoginChoice(){
 }
 function closeLogin(){document.getElementById('loginModal')?.remove();}
 
-// ── Клиенты ──
 function selectClientType(){closeLogin();showClientUsernameInput();}
 function showClientUsernameInput(){
   const overlay=document.createElement('div');
@@ -550,7 +562,6 @@ function loginClient(username){
   showToast('❤️ Привет, '+username+'!','heart');
 }
 
-// ── Сотрудники (воркеры + админ) ──
 function selectBT7Type(){
   closeLogin();
   const overlay=document.createElement('div');
@@ -727,7 +738,6 @@ async function submitPinChange(){
   }
 }
 
-// ── Смена / Курс ──
 function askShiftModal(){tempShiftChoice=shiftName||null;renderShiftModal();}
 function renderShiftModal(){
   const existing=document.getElementById('shiftModal');if(existing)existing.remove();
@@ -773,7 +783,6 @@ function confirmRate(){
   showToast('💱 Курс: '+shiftRate+' ₽/USDT');
 }
 
-// ── Настройки ──
 function openSettings(){
   if(role==='guest'){showToast('Сначала войди');return;}
   if(role==='client'){
@@ -904,7 +913,7 @@ function filterPayouts(list,tab){
   return [];
 }
 
-// ═══ СОЗДАНИЕ ═══
+// ═══ СОЗДАНИЕ И УПРАВЛЕНИЕ ═══
 async function addPayout(){
   if(role!=='worker'){alert('❌ Только воркер может создавать заявки');return;}
   const phone=sanitizeReq(document.getElementById('phone').value);
@@ -951,8 +960,6 @@ async function editRate(id){
   await updateDoc(doc(db,'payouts',id),{rate:r});
   showToast('💱 Курс: '+r+' ₽/USDT');
 }
-
-// ═══ АТОМАРНЫЙ ЗАХВАТ ═══
 async function takePayout(id){
   if(role!=='client'){alert('❌ Только клиент');return;}
   if(takingIds.has(id))return;
@@ -981,7 +988,6 @@ async function takePayout(id){
     else showToast('Ошибка: '+m,'err');
   }finally{takingIds.delete(id);}
 }
-
 async function uploadCheck(id,inputEl){
   const p=payouts.find(x=>x.id===id);if(!p)return;
   const isOwner=(role==='client'&&p.client===clientUsername)||(role==='worker');
@@ -1305,7 +1311,7 @@ function render(){
   else el.innerHTML=list.map(renderCard).join('');
 }
 
-// ═══ ТИК ═══
+// ═══ ТАЙМЕРЫ ═══
 setInterval(()=>{
   if(role==='worker'){
     payouts.forEach(p=>{
