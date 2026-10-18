@@ -167,26 +167,6 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 details[open]>.date-summary .arrow{transform:rotate(90deg)}
 details[open]>.date-summary{margin-bottom:8px}
 .date-content{padding-left:12px;border-left:2px solid var(--border)}
-.shift-group{margin-bottom:8px}
-.shift-summary{padding:10px 14px;background:var(--bg-inner);border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:12px;font-weight:bold;color:var(--text-dim);display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
-.shift-summary.shift-morning{border-left:3px solid #f59e0b}
-.shift-summary.shift-evening{border-left:3px solid #a855f7}
-.shift-summary.shift-night{border-left:3px solid #3b82f6}
-.shift-summary .arrow{transition:transform .2s}
-details[open]>.shift-summary .arrow{transform:rotate(90deg)}
-details[open]>.shift-summary{margin-bottom:6px}
-.client-group{margin-bottom:6px}
-.client-summary{padding:10px 14px 10px 20px;background:var(--bg-card);border:1px solid var(--border);border-left:3px solid #229ED9;border-radius:8px;cursor:pointer;font-size:12px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;user-select:none}
-.client-summary .client-name{font-family:monospace;font-weight:bold;color:#229ED9}
-.client-summary .client-stats{font-size:11px;color:var(--text-dim);display:flex;gap:8px;flex-wrap:wrap;align-items:center}
-.client-summary .sum-done{color:var(--accent-2);font-weight:bold}
-.client-summary .sum-cancel{color:var(--danger);font-weight:bold}
-.client-summary .sum-expired{color:var(--danger);font-weight:bold}
-.client-summary .badge-count{background:var(--border);padding:2px 6px;border-radius:6px;font-size:10px}
-.client-summary .arrow{transition:transform .2s}
-details[open]>.client-summary .arrow{transform:rotate(90deg)}
-details[open]>.client-summary{margin-bottom:6px}
-.client-content{padding-left:20px;border-left:2px dashed var(--border);margin-left:8px}
 .admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
 .admin-info b{color:var(--accent)}
 </style>
@@ -240,8 +220,7 @@ details[open]>.client-summary{margin-bottom:6px}
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-// ✅ ДОБАВЛЕН initializeFirestore и enableIndexedDbPersistence для обхода блокировок
-import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction, enableIndexedDbPersistence } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'];
 const STAFF_ADMIN='Админ';
@@ -252,20 +231,11 @@ const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomai
 
 const app=initializeApp(firebaseConfig);
 
-// ✅ ФИКС: Принудительно включаем длинные опросы (HTTP) вместо WebSocket
+// ✅ ФИКС: Только длинные опросы (без кэша, чтобы не ломалось)
 const db=initializeFirestore(app, {
   experimentalForceLongPolling: true,
   experimentalAutoDetectLongPolling: true,
   useFetchStreams: false
-});
-
-// ✅ Включаем офлайн-кэш (чтобы сайт не падал при кратковременных обрывах)
-enableIndexedDbPersistence(db).catch((err)=>{
-  if(err.code==='failed-precondition'){
-    console.warn("Кэш не включен: открыто несколько вкладок.");
-  }else if(err.code==='unimplemented'){
-    console.warn("Браузер не поддерживает кэш.");
-  }
 });
 
 const payoutsRef=collection(db,'payouts');
@@ -913,7 +883,7 @@ function filterPayouts(list,tab){
   return [];
 }
 
-// ═══ СОЗДАНИЕ И УПРАВЛЕНИЕ ═══
+// ═══ ЛОГИКА ЗАЯВОК ═══
 async function addPayout(){
   if(role!=='worker'){alert('❌ Только воркер может создавать заявки');return;}
   const phone=sanitizeReq(document.getElementById('phone').value);
@@ -1117,9 +1087,8 @@ document.addEventListener('click',(e)=>{
 });
 function getCurrentShift(){const h=new Date(now()).getHours();if(h>=6&&h<14)return 'Утро';if(h>=14&&h<22)return 'Вечер';return 'Ночь';}
 function getShiftEmoji(s){if(s==='Утро')return '🌅';if(s==='Вечер')return '🌆';if(s==='Ночь')return '🌙';return '⏰';}
-function getShiftClass(s){if(s==='Утро')return 'shift-morning';if(s==='Вечер')return 'shift-evening';if(s==='Ночь')return 'shift-night';return '';}
 
-// ═══ РЕНДЕР ═══
+// ═══ РЕНДЕР КАРТОЧКИ ═══
 function renderCard(p){
   const paid=paidSum(p);
   const left=Math.max(0,p.totalSum-paid);
@@ -1211,72 +1180,41 @@ function renderCard(p){
     </div>`;
 }
 
+// ═══ ПЕРЕРАБОТАННЫЙ АРХИВ (Только по датам) ═══
 function renderArchive(list){
   const byDate={};
   list.forEach(p=>{
     const d=new Date(p.createdAt);
     const dateKey=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
-    const shift=p.shift||'Без смены';
-    if(!byDate[dateKey])byDate[dateKey]={date:dateKey,latestAt:0,shifts:{}};
-    if(!byDate[dateKey].shifts[shift])byDate[dateKey].shifts[shift]=[];
-    byDate[dateKey].shifts[shift].push(p);
-    if(p.createdAt>byDate[dateKey].latestAt)byDate[dateKey].latestAt=p.createdAt;
+    if(!byDate[dateKey]) byDate[dateKey]={date:dateKey, latestAt:0, items:[]};
+    byDate[dateKey].items.push(p);
+    if(p.createdAt>byDate[dateKey].latestAt) byDate[dateKey].latestAt=p.createdAt;
   });
+
+  // Сортируем даты: новые сверху
   const sortedDates=Object.keys(byDate).sort((a,b)=>byDate[b].latestAt-byDate[a].latestAt);
-  const currentShift=getCurrentShift();
   const todayStr=new Date(now()).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
   let html='';
-  sortedDates.forEach((dateKey,dateIdx)=>{
+
+  sortedDates.forEach((dateKey, idx)=>{
     const dayData=byDate[dateKey];
     const isToday=dateKey===todayStr;
-    const totalCount=Object.values(dayData.shifts).reduce((s,arr)=>s+arr.length,0);
-    const totalDone=Object.values(dayData.shifts).flat().filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-    const dateOpenAttr=(dateIdx===0||isToday||!!searchQuery)?' open':'';
-    html+=`<details class="date-group"${dateOpenAttr}><summary class="date-summary"><span>${isToday?'🔥 ':'📅 '}${dateKey}</span><span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="date-content">`;
-    SHIFTS.forEach(shift=>{
-      const items=dayData.shifts[shift]||[];
-      if(!items.length)return;
-      const isCurrentShift=isToday&&shift===currentShift;
-      const shiftOpenAttr=(isCurrentShift||!!searchQuery)?' open':'';
-      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-      const byClient={};
-      items.forEach(p=>{const client=p.client||'(без клиента)';if(!byClient[client])byClient[client]=[];byClient[client].push(p);});
-      const clientKeys=Object.keys(byClient).sort((a,b)=>{
-        const sumA=byClient[a].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-        const sumB=byClient[b].filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-        if(sumB!==sumA)return sumB-sumA;return a.localeCompare(b,'ru');
-      });
-      html+=`<details class="shift-group"${shiftOpenAttr}><summary class="shift-summary ${getShiftClass(shift)}"><span>${getShiftEmoji(shift)} ${shift} <span style="font-size:10px;color:var(--text-mute);font-weight:normal;">${SHIFT_TIMES[shift]||''}</span></span><span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="shift-content">`;
-      clientKeys.forEach(clientKey=>{
-        const clientPayouts=byClient[clientKey];
-        const clientDone=clientPayouts.filter(p=>p.status==='done');
-        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
-        const clientActive=clientPayouts.filter(p=>p.status==='active');
-        const clientAvailable=clientPayouts.filter(p=>p.status==='available');
-        const clientExpired=clientPayouts.filter(p=>p.status==='expired');
-        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
-        const isClient=clientKey!=='(без клиента)';
-        html+=`<details class="client-group"><summary class="client-summary"><span>${isClient?'✈️ ':'👤 '}<span class="client-name">${esc(clientKey)}</span></span><span class="client-stats"><span class="badge-count">${clientPayouts.length} заявок</span><span class="sum-done">✅ ${formatMoney(doneSum2)}</span>${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}${clientExpired.length?`<span class="sum-expired">⏰ ${clientExpired.length}</span>`:''}${clientActive.length?`<span style="color:var(--warning)">🔥 ${clientActive.length}</span>`:''}${clientAvailable.length?`<span style="color:var(--accent)">⏳ ${clientAvailable.length}</span>`:''}</span><span class="arrow">▶</span></summary><div class="client-content">${clientPayouts.map(renderCard).join('')}</div></details>`;
-      });
-      html+=`</div></details>`;
-    });
-    if(dayData.shifts['Без смены']&&dayData.shifts['Без смены'].length){
-      const items=dayData.shifts['Без смены'];
-      const doneSum=items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-      const byClient={};
-      items.forEach(p=>{const client=p.client||'(без клиента)';if(!byClient[client])byClient[client]=[];byClient[client].push(p);});
-      const clientKeys=Object.keys(byClient).sort();
-      html+=`<details class="shift-group"><summary class="shift-summary"><span>❓ Без смены</span><span>${items.length} заявок • ${Math.round(doneSum).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary><div class="shift-content">`;
-      clientKeys.forEach(clientKey=>{
-        const clientPayouts=byClient[clientKey];
-        const clientDone=clientPayouts.filter(p=>p.status==='done');
-        const clientCancelled=clientPayouts.filter(p=>p.status==='cancelled');
-        const clientExpired=clientPayouts.filter(p=>p.status==='expired');
-        const doneSum2=clientDone.reduce((s,p)=>s+p.totalSum,0);
-        html+=`<details class="client-group"><summary class="client-summary"><span>✈️ <span class="client-name">${esc(clientKey)}</span></span><span class="client-stats"><span class="badge-count">${clientPayouts.length} заявок</span><span class="sum-done">✅ ${formatMoney(doneSum2)}</span>${clientCancelled.length?`<span class="sum-cancel">❌ ${clientCancelled.length}</span>`:''}${clientExpired.length?`<span class="sum-expired">⏰ ${clientExpired.length}</span>`:''}</span><span class="arrow">▶</span></summary><div class="client-content">${clientPayouts.map(renderCard).join('')}</div></details>`;
-      });
-      html+=`</div></details>`;
-    }
+    const totalCount=dayData.items.length;
+    const totalDone=dayData.items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
+    const openAttr=(idx===0||isToday||!!searchQuery)?' open':'';
+
+    html+=`<details class="date-group"${openAttr}>
+      <summary class="date-summary">
+        <span>${isToday?'🔥 ':'📅 '}${dateKey}</span>
+        <span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span>
+        <span class="arrow">▶</span>
+      </summary>
+      <div class="date-content">`;
+
+    // Внутри даты сортируем заявки: новые сверху, старые снизу
+    const sortedItems = dayData.items.sort((a,b)=>b.createdAt-a.createdAt);
+    html += sortedItems.map(renderCard).join('');
+
     html+=`</div></details>`;
   });
   return html;
@@ -1361,7 +1299,7 @@ setInterval(()=>{
   });
 },1000);
 
-// ═══ ПОДПИСКИ FIREBASE ═══
+// ═══ ПОДПИСКИ ═══
 onSnapshot(clientsRef,snapshot=>{
   allClients=snapshot.docs.map(d=>d.data());
   allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
