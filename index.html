@@ -220,16 +220,24 @@ window.addEventListener('error', function(e) {
 </div>
 
 <script type="module">
-// ✅ МЕНЯЕМ CDN НА JSDELIVR (ОН НЕ БЛОКИРУЕТСЯ В РФ)
-import { initializeApp } from "https://cdn.jsdelivr.net/npm/firebase@10.7.0/firebase-app.js";
-import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://cdn.jsdelivr.net/npm/firebase@10.7.0/firebase-firestore.js";
+// ✅ ИСПОЛЬЗУЕМ +esm ДЛЯ ПРАВИЛЬНОЙ СБОРКИ ЗАВИСИМОСТЕЙ
+import { initializeApp } from "https://cdn.jsdelivr.net/npm/@firebase/app@10.7.0/+esm";
+import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction, getFirestore } from "https://cdn.jsdelivr.net/npm/@firebase/firestore@10.7.0/+esm";
 
 const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'], STAFF_ADMIN='Админ', SHIFTS=['Утро','Вечер','Ночь'], SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
 const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
 const app=initializeApp(firebaseConfig);
-// ✅ ВКЛЮЧАЕМ LONG POLLING (ОБХОД БЛОКИРОВОК WEBSOCKET)
-const db=initializeFirestore(app, { experimentalForceLongPolling: true }); 
+
+// ✅ БЕЗОПАСНАЯ ИНИЦИАЛИЗАЦИЯ (обход бага с регистрацией)
+let db;
+try {
+  db = initializeFirestore(app, { experimentalForceLongPolling: true });
+} catch(e) {
+  console.warn("Переход на стандартный Firestore", e);
+  db = getFirestore(app);
+}
+
 const payoutsRef=collection(db,'payouts'), clientsRef=collection(db,'clients'), staffRef=collection(db,'staff');
 
 function sanitizeReq(v){return v?String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim():v;}
