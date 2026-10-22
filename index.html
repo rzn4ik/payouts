@@ -171,23 +171,11 @@ details[open]>.date-summary{margin-bottom:8px}
 <body>
 
 <div id="jsError" style="display:none; background:#ef4444; color:#fff; padding:15px; margin-bottom:15px; border-radius:8px; font-weight:bold; font-size:14px; z-index:99999; position:relative;"></div>
-
 <script>
-// ГЛОБАЛЬНЫЙ ПЕРЕХВАТ ОШИБОК
 window.addEventListener('error', function(e) {
   var el = document.getElementById('jsError');
   if(el){ el.style.display='block'; el.innerText = 'ОШИБКА JS: ' + e.message; }
 });
-// ТАЙМЕР НА ЗАВИСАНИЕ (Если Firebase не грузится за 4 сек)
-setTimeout(function() {
-  if (!window.appReady) {
-    var el = document.getElementById('jsError');
-    if(el) {
-      el.style.display='block'; 
-      el.innerHTML = '❌ Не удалось загрузить библиотеку Firebase.<br>Провайдер блокирует доступ к CDN. Попробуйте использовать VPN или смените сеть.';
-    }
-  }
-}, 4000);
 </script>
 
 <h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock">🕐 —</span></h1>
@@ -232,23 +220,29 @@ setTimeout(function() {
 </div>
 
 <script type="module">
-// ✅ ИСПОЛЬЗУЕМ ESM.SH (НАДЕЖНЫЙ CDN)
-import { initializeApp } from "https://esm.sh/firebase@10.7.0/app";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction, initializeFirestore } from "https://esm.sh/firebase@10.7.0/firestore";
+// ✅ ОФИЦИАЛЬНЫЙ CDN GOOGLE
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
+import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
 
 const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'], STAFF_ADMIN='Админ', SHIFTS=['Утро','Вечер','Ночь'], SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
 const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
-const app=initializeApp(firebaseConfig);
-window.appReady = true; // Сигнал, что скрипт загрузился
+const app = initializeApp(firebaseConfig);
 
+// ✅ ИНИЦИАЛИЗАЦИЯ ЧЕРЕЗ GETFIRESTORE (НАДЕЖНЕЕ)
 let db;
 try {
-  db = initializeFirestore(app, { experimentalForceLongPolling: true });
-} catch(e) {
-  console.warn("Переход на стандартный Firestore", e);
   db = getFirestore(app);
+  // Принудительно включаем Long Polling для обхода блокировок WebSocket
+  // Делаем это после инициализации, чтобы не было бага с регистрацией
+  db.settings = { experimentalForceLongPolling: true };
+} catch (e) {
+  console.error("Ошибка инициализации Firestore:", e);
+  document.getElementById('jsError').style.display = 'block';
+  document.getElementById('jsError').innerText = 'Ошибка базы данных: ' + e.message;
 }
+
+window.appReady = true; // Сигнал, что скрипт загрузился
 
 const payoutsRef=collection(db,'payouts'), clientsRef=collection(db,'clients'), staffRef=collection(db,'staff');
 
