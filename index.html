@@ -9,7 +9,7 @@
 [data-theme="light"]{--bg:#f0f0f5;--bg-card:#fff;--bg-inner:#f7f7fa;--bg-input:#fff;--text:#1a1a2a;--text-dim:#666;--text-mute:#999;--border:#e0e0e8;--accent:#7c3aed;--accent-2:#059669}
 [data-theme="ocean"]{--bg:#0a1628;--bg-card:#122236;--bg-inner:#0a1628;--bg-input:#0a1628;--text:#e0f2fe;--text-dim:#7dd3fc;--text-mute:#475569;--border:#1e3a5f;--accent:#0ea5e9;--accent-2:#14b8a6}
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);padding:15px;min-height:100vh}
+body{font-family:-apple-system,Arial,sans-serif;background:var(--bg);color:var(--text);padding:15px;min-height:100vh;transition:background .3s,color .3s}
 h1{font-size:16px;margin-bottom:5px;color:var(--accent);display:flex;align-items:center;gap:8px;flex-wrap:wrap;font-weight:600}
 .badge{font-size:10px;padding:3px 8px;border-radius:8px;background:var(--border);color:var(--text-dim);font-weight:500}
 .badge.admin{background:var(--accent);color:#fff}
@@ -24,55 +24,58 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .add-form{display:grid;grid-template-columns:1.1fr 1.2fr 1fr 1fr .85fr .85fr .85fr auto;gap:6px;align-items:center}
 .add-form input{padding:8px 10px;border-radius:6px;border:1px solid var(--border);background:var(--bg-inner);color:var(--accent-2);font-size:12px;font-family:monospace;width:100%;min-width:0}
 .add-form input:focus{outline:none;border-color:var(--accent)}
-.add-form button{padding:8px 14px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
+.add-form button{padding:8px 14px;border:none;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;white-space:nowrap;font-size:12px}
 @media(max-width:1300px){.add-form{grid-template-columns:1fr 1fr 1fr 1fr}}
 @media(max-width:700px){.add-form{grid-template-columns:1fr 1fr}}
 .search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg-card);border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:12px}
 .search-wrap:focus-within{border-color:var(--accent)}
 .search-icon{font-size:16px;color:var(--text-mute)}
-.search-input{flex:1;padding:6px 0;border:none;background:transparent;color:var(--text);font-size:14px;outline:none}
+.search-input{flex:1;padding:6px 0;border:none;background:transparent;color:var(--text);font-size:14px;font-family:inherit;outline:none;min-width:0}
 .search-input::placeholder{color:var(--text-mute)}
-.search-clear{padding:4px 10px;border:none;border-radius:5px;background:var(--text-mute);color:#fff;cursor:pointer;font-size:12px}
-.search-count{font-size:11px;color:var(--accent);font-weight:bold}
+.search-clear{padding:4px 10px;border:none;border-radius:5px;background:var(--text-mute);color:#fff;cursor:pointer;font-size:12px;font-weight:bold}
+.search-clear:hover{background:var(--danger)}
+.search-count{font-size:11px;color:var(--accent);font-weight:bold;white-space:nowrap}
 .search-count.no-results{color:var(--danger)}
 .tabs{display:flex;gap:4px;margin-bottom:12px}
-.tabs button{flex:1;padding:9px;border:none;border-radius:6px;background:var(--bg-card);color:var(--text-dim);font-weight:bold;cursor:pointer;font-size:12px}
+.tabs button{flex:1;padding:9px;border:none;border-radius:6px;background:var(--bg-card);color:var(--text-dim);font-weight:bold;cursor:pointer;font-size:12px;transition:all .2s}
 .tabs button.active{background:var(--accent);color:#fff}
 .tabs button.hidden{display:none}
 .tabs button.expired-tab.active{background:var(--danger);color:#fff}
-.card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--text-mute);border-radius:8px;padding:12px;margin-bottom:8px}
+.tabs button.expired-tab{color:var(--danger)}
+.card{background:var(--bg-card);border:1px solid var(--border);border-left:3px solid var(--text-mute);border-radius:8px;padding:12px;margin-bottom:8px;transition:all .2s}
 .card.available{border-left-color:var(--accent)}
 .card.active{border-left-color:var(--accent-2)}
 .card.active.warning{border-left-color:var(--warning)}
 .card.active.expired{border-left-color:var(--danger)}
 .card.done{border-left-color:var(--text-mute);opacity:.7}
 .card.cancelled{border-left-color:var(--danger);opacity:.6}
-.card.expired{border-left-color:var(--danger);background:rgba(239,68,68,.05)}
+.card.expired{border-left-color:var(--danger);background:linear-gradient(180deg,var(--bg-card) 0%,rgba(239,68,68,.06) 100%)}
 .card.mine{box-shadow:0 0 0 2px var(--heart)}
 .card-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;flex-wrap:wrap;gap:5px}
 .card-header b{font-size:15px;color:var(--text);font-weight:700}
 .card-row{font-size:12px;margin-bottom:4px}
 .card-row.small{font-size:10px;color:var(--text-dim)}
 .card-row b{color:var(--accent)}
-.card-num,.phone-num{cursor:pointer;font-family:monospace;white-space:nowrap}
-.card-num{color:var(--accent-2)}
-.phone-num{color:var(--info)}
-.card-num:hover,.phone-num:hover{text-decoration:underline}
+.card-num{cursor:pointer;color:var(--accent-2);font-family:monospace;white-space:nowrap}
+.card-num:hover{text-decoration:underline}
+.phone-num{cursor:pointer;color:var(--info);font-family:monospace;white-space:nowrap}
+.phone-num:hover{text-decoration:underline}
 .rate-value{color:var(--warning);font-family:monospace;font-weight:bold;cursor:pointer}
+.rate-value:hover{text-decoration:underline}
 .highlight{background:rgba(168,85,247,.35);padding:0 2px;border-radius:3px}
 .expired-tag{display:inline-block;font-size:10px;font-weight:bold;padding:3px 8px;border-radius:6px;background:var(--danger);color:#fff;margin-bottom:4px}
-.timer{font-family:monospace;font-size:15px;font-weight:bold;padding:5px 12px;border-radius:6px;background:var(--bg-inner);border:1px solid var(--border)}
+.timer{font-family:monospace;font-size:15px;font-weight:bold;padding:5px 12px;border-radius:6px;background:var(--bg-inner);border:1px solid var(--border);letter-spacing:.5px;transition:color .3s,border-color .3s,background .3s}
 .timer.gray{color:var(--text-mute)}
 .timer.green{color:var(--accent-2);border-color:rgba(16,185,129,.3)}
 .timer.yellow{color:var(--warning);border-color:rgba(245,158,11,.45);animation:timerPulseSlow 2.4s ease-in-out infinite}
 .timer.orange{color:#ff8c00;border-color:rgba(255,140,0,.65);animation:timerPulseMedium 1.6s ease-in-out infinite}
 .timer.red{color:var(--danger);border-color:var(--danger);animation:timerPulseFast .9s ease-in-out infinite}
 .timer.dead{color:var(--danger);border-color:var(--danger);background:rgba(239,68,68,.15);text-decoration:line-through}
-@keyframes timerPulseSlow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0)}50%{box-shadow:0 0 14px 1px rgba(245,158,11,.55);background:rgba(245,158,11,.12)}}
-@keyframes timerPulseMedium{0%,100%{box-shadow:0 0 0 0 rgba(255,140,0,0);transform:scale(1)}50%{box-shadow:0 0 18px 2px rgba(255,140,0,.65);background:rgba(255,140,0,.18);transform:scale(1.04)}}
-@keyframes timerPulseFast{0%,100%{box-shadow:0 0 4px 0 rgba(239,68,68,.35);transform:scale(1)}50%{box-shadow:0 0 24px 3px rgba(239,68,68,.85);background:rgba(239,68,68,.22);transform:scale(1.07)}}
+@keyframes timerPulseSlow{0%,100%{box-shadow:0 0 0 0 rgba(245,158,11,0);background:var(--bg-inner)}50%{box-shadow:0 0 14px 1px rgba(245,158,11,.55);background:rgba(245,158,11,.12)}}
+@keyframes timerPulseMedium{0%,100%{box-shadow:0 0 0 0 rgba(255,140,0,0);background:var(--bg-inner);transform:scale(1)}50%{box-shadow:0 0 18px 2px rgba(255,140,0,.65);background:rgba(255,140,0,.18);transform:scale(1.04)}}
+@keyframes timerPulseFast{0%,100%{box-shadow:0 0 4px 0 rgba(239,68,68,.35);background:var(--bg-inner);transform:scale(1)}50%{box-shadow:0 0 24px 3px rgba(239,68,68,.85);background:rgba(239,68,68,.22);transform:scale(1.07)}}
 .progress-bar{height:8px;background:var(--bg-inner);border-radius:4px;overflow:hidden;margin:6px 0}
-.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-2),#00ff88)}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent-2),#00ff88);transition:width .3s}
 .checks-list{margin:6px 0}
 .check-item{display:flex;justify-content:space-between;align-items:center;padding:6px 8px;background:var(--bg-inner);border-radius:5px;margin-bottom:3px;font-size:11px}
 .check-item a{color:var(--accent-2);text-decoration:none}
@@ -92,11 +95,11 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .check-form input[type="file"]{display:none}
 .check-form label{padding:8px 14px;border-radius:6px;background:var(--accent-2);color:#fff;font-weight:bold;cursor:pointer;font-size:12px}
 .mode-toggle{position:fixed;bottom:15px;right:15px;display:flex;gap:6px;z-index:100}
-.mode-toggle button{padding:10px 16px;border-radius:20px;border:none;background:var(--accent-2);color:#fff;cursor:pointer;font-weight:bold;font-size:12px}
+.mode-toggle button{padding:10px 16px;border-radius:20px;border:none;background:var(--accent-2);color:#fff;cursor:pointer;font-weight:bold;box-shadow:0 4px 12px rgba(0,0,0,.3);font-size:12px}
 .mode-toggle button.admin{background:var(--accent)}
 .mode-toggle button.worker{background:var(--accent-2)}
 .mode-toggle button.client{background:var(--heart)}
-.mode-toggle button.settings{background:var(--text-mute)}
+.mode-toggle button.settings{background:var(--text-mute);padding:10px 14px}
 .loading{text-align:center;padding:25px;color:var(--text-mute)}
 .toast{position:fixed;top:15px;left:50%;transform:translateX(-50%);background:var(--accent-2);color:#fff;padding:10px 18px;border-radius:8px;font-weight:bold;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.4);font-size:13px;max-width:90%;text-align:center}
 .toast.warn{background:var(--warning);color:#000}
@@ -142,6 +145,7 @@ h2{font-size:11px;margin:0 0 10px 0;color:var(--text-dim);text-transform:upperca
 .modal-file-label{display:block;padding:10px;border-radius:6px;background:var(--bg-inner);color:var(--accent-2);text-align:center;cursor:pointer;font-size:12px;border:1px dashed var(--accent-2);margin-bottom:8px}
 .modal-submit{width:100%;padding:11px;border:none;border-radius:6px;background:var(--accent);color:#fff;font-weight:bold;cursor:pointer;font-size:13px}
 .modal-submit.heart{background:var(--heart)}
+.modal-submit:disabled{opacity:.5;cursor:not-allowed}
 .shift-choice{display:grid;grid-template-columns:1fr;gap:8px;margin-bottom:10px}
 .shift-choice button{padding:14px 12px;border:2px solid var(--border);border-radius:10px;background:var(--bg-inner);color:var(--text);font-size:14px;font-weight:bold;cursor:pointer;text-align:left;display:flex;justify-content:space-between;align-items:center;gap:10px}
 .shift-choice button.morning{border-color:#f59e0b}
@@ -161,12 +165,18 @@ details[open]>.date-summary .arrow{transform:rotate(90deg)}
 details[open]>.date-summary{margin-bottom:8px}
 .date-content{padding-left:12px;border-left:2px solid var(--border)}
 .admin-info{padding:12px 14px;background:var(--bg-card);border:1px solid var(--accent);border-radius:8px;font-size:12px;color:var(--text-dim);margin-bottom:12px;text-align:center}
+.admin-info b{color:var(--accent)}
 </style>
 </head>
 <body>
 
-<!-- Вывод ошибок на экран -->
 <div id="jsError" style="display:none; background:#ef4444; color:#fff; padding:15px; margin-bottom:15px; border-radius:8px; font-weight:bold; font-size:14px; z-index:99999; position:relative;"></div>
+<script>
+window.addEventListener('error', function(e) {
+  var el = document.getElementById('jsError');
+  if(el){ el.style.display='block'; el.innerText = 'ОШИБКА JS: ' + e.message; }
+});
+</script>
 
 <h1>📊 Панель заявок <span id="workerBadge" class="badge"></span> <span id="rateBadge" class="badge rate"></span> <span id="clockBadge" class="badge clock">🕐 —</span></h1>
 <div class="me" id="meInfo">Загрузка...</div>
@@ -206,81 +216,83 @@ details[open]>.date-summary{margin-bottom:8px}
 
 <div class="mode-toggle">
   <button id="settingsBtn" class="settings" onclick="openSettings()" style="display:none;" title="Настройки">⚙</button>
-  <button id="modeBtn" onclick="openLogin()">🔒 Войти</button>
+  <button id="modeBtn" onclick="handleLoginClick()" disabled style="opacity:0.5; cursor:not-allowed;">⏳ Загрузка...</button>
 </div>
 
-<script>
-window.onerror = function(msg, url, line, col, error) {
-  var el = document.getElementById('jsError');
-  if(el){ el.style.display='block'; el.innerText = 'ОШИБКА JS: ' + msg + ' (строка ' + line + ')'; }
-  return false;
-};
-</script>
-
 <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-app.js";
-import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore.js";
+// ✅ МЕНЯЕМ CDN НА JSDELIVR (ОН НЕ БЛОКИРУЕТСЯ В РФ)
+import { initializeApp } from "https://cdn.jsdelivr.net/npm/firebase@10.7.0/firebase-app.js";
+import { initializeFirestore, collection, addDoc, onSnapshot, doc, updateDoc, deleteDoc, getDoc, setDoc, query, orderBy, runTransaction } from "https://cdn.jsdelivr.net/npm/firebase@10.7.0/firebase-firestore.js";
 
-const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'];
-const STAFF_ADMIN='Админ';
-const SHIFTS=['Утро','Вечер','Ночь'];
-const SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
+const STAFF_WORKERS=['Denis','Dmitriy','Artem','Evgeniy'], STAFF_ADMIN='Админ', SHIFTS=['Утро','Вечер','Ночь'], SHIFT_TIMES={'Утро':'06:00 - 14:00','Вечер':'14:00 - 22:00','Ночь':'22:00 - 06:00'};
 const firebaseConfig={apiKey:"AIzaSyAmzPymfy7OL4mBo4HV6MeXLNF-HqyvnaU",authDomain:"p2ppro-77db8.firebaseapp.com",projectId:"p2ppro-77db8",storageBucket:"p2ppro-77db8.firebasestorage.app",messagingSenderId:"11682384845",appId:"1:11682384845:web:e593073c123912adc45284",measurementId:"GZ-B7JPRP7ZF"};
 
 const app=initializeApp(firebaseConfig);
-const db=getFirestore(app);
-const payoutsRef=collection(db,'payouts');
-const clientsRef=collection(db,'clients');
-const staffRef=collection(db,'staff');
+// ✅ ВКЛЮЧАЕМ LONG POLLING (ОБХОД БЛОКИРОВОК WEBSOCKET)
+const db=initializeFirestore(app, { experimentalForceLongPolling: true }); 
+const payoutsRef=collection(db,'payouts'), clientsRef=collection(db,'clients'), staffRef=collection(db,'staff');
 
 function sanitizeReq(v){return v?String(v).replace(/\u00A0/g,' ').replace(/[\u200B-\u200D\uFEFF]/g,'').replace(/\r\n/g,'\n').replace(/\r/g,'\n').trim():v;}
 
 const MAX_OFFSET_MS=10*60*1000;
-let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0;
-let clockSynced=sessionStorage.getItem('clockSynced')==='1';
+let clockOffset=parseInt(sessionStorage.getItem('clockOffset'))||0, clockSynced=sessionStorage.getItem('clockSynced')==='1';
 if(Math.abs(clockOffset)>MAX_OFFSET_MS){clockOffset=0;clockSynced=false;sessionStorage.removeItem('clockOffset');sessionStorage.removeItem('clockSynced');}
 
-function updateClockBadge(){const b=document.getElementById('clockBadge');if(!b)return;const sec=Math.round(clockOffset/1000);if(!clockSynced){b.textContent='🕐 ?';b.className='badge clock';}else if(Math.abs(sec)<5){b.textContent='🕐 OK';b.className='badge clock';}else{b.textContent='🕐 '+(sec>=0?'+':'')+sec+'с';b.className='badge clock'+(Math.abs(sec)>60?' bad':'');}}
+function updateClockBadge(){
+  const b=document.getElementById('clockBadge');
+  if(!b) { return; }
+  const sec=Math.round(clockOffset/1000);
+  if(!clockSynced){
+    b.textContent='🕐 ?';b.className='badge clock';
+    return;
+  }
+  if(Math.abs(sec)<5){
+    b.textContent='🕐 OK';b.className='badge clock';
+    return;
+  }
+  b.textContent='🕐 '+(sec>=0?'+':'')+sec+'с';b.className='badge clock'+(Math.abs(sec)>60?' bad':'');
+}
 
 async function syncClock(silent=false){
   const eps=[{url:'https://timeapi.io/api/Time/current/zone?timeZone=UTC',parse:d=>new Date(d.dateTime.endsWith('Z')?d.dateTime:d.dateTime+'Z').getTime()},{url:'https://worldtimeapi.org/api/timezone/Etc/UTC',parse:d=>new Date(d.datetime).getTime()},{url:'https://worldtimeapi.org/api/ip',parse:d=>new Date(d.datetime).getTime()}];
   for(const ep of eps){
     try{
-      const t0=Date.now();const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),6000);
-      const r=await fetch(ep.url,{cache:'no-store',signal:ctrl.signal});clearTimeout(to);
-      const t1=Date.now();if(!r.ok)continue;
-      const data=await r.json();const serverMs=ep.parse(data);
-      if(!serverMs||isNaN(serverMs))continue;
+      const t0=Date.now(),ctrl=new AbortController(),to=setTimeout(()=>ctrl.abort(),6000),r=await fetch(ep.url,{cache:'no-store',signal:ctrl.signal});
+      clearTimeout(to);
+      const t1=Date.now();if(!r.ok){ continue; }
+      const data=await r.json(),serverMs=ep.parse(data);
+      if(!serverMs||isNaN(serverMs)){ continue; }
       const newOffset=serverMs-Math.round((t0+t1)/2);
-      if(Math.abs(newOffset)>MAX_OFFSET_MS)continue;
+      if(Math.abs(newOffset)>MAX_OFFSET_MS){ continue; }
       const changed=Math.abs(newOffset-clockOffset)>30000;
       clockOffset=newOffset;clockSynced=true;
       sessionStorage.setItem('clockOffset',String(clockOffset));sessionStorage.setItem('clockSynced','1');
-      updateClockBadge();if(!silent)showToast('🕐 Синхронизировано');if(changed){try{render();}catch(e){}}
+      updateClockBadge();
+      if(!silent){ showToast('🕐 Синхронизировано'); }
+      if(changed){ try{render();}catch(e){} }
       return true;
     }catch(e){}
   }
-  updateClockBadge();return false;
+  updateClockBadge();
+  return false;
 }
 function now(){return Date.now()+clockOffset;}
-if(!clockSynced)syncClock(true);else updateClockBadge();
+if(!clockSynced){syncClock(true);}
+if(clockSynced){updateClockBadge();}
 setInterval(()=>syncClock(true),30*60*1000);
 
-let payouts=[],allClients=[],allStaff=new Map();
-let currentTab='available', role=sessionStorage.getItem('role')||'guest', workerName=sessionStorage.getItem('workerName')||'';
-let shiftName=sessionStorage.getItem('shiftName')||'', shiftRate=parseFloat(sessionStorage.getItem('shiftRate'))||0, clientUsername=sessionStorage.getItem('clientUsername')||'';
-let soundEnabled=localStorage.getItem('soundEnabled')!=='0', theme=localStorage.getItem('theme')||'dark';
-let checkInputs=JSON.parse(localStorage.getItem('checkInputs')||'{}'), prevState=new Map(), seenPayoutIds=new Set(), isFirstSnapshot=true, expiringIds=new Set(), takingIds=new Set();
-let warned15=new Set(JSON.parse(sessionStorage.getItem('warned15')||'[]')), warned10=new Set(JSON.parse(sessionStorage.getItem('warned10')||'[]')), warned5=new Set(JSON.parse(sessionStorage.getItem('warned5')||'[]'));
+let payouts=[],allClients=[],allStaff=new Map(),currentTab='available',role=sessionStorage.getItem('role')||'guest',workerName=sessionStorage.getItem('workerName')||'',shiftName=sessionStorage.getItem('shiftName')||'',shiftRate=parseFloat(sessionStorage.getItem('shiftRate'))||0,clientUsername=sessionStorage.getItem('clientUsername')||'',soundEnabled=localStorage.getItem('soundEnabled')!=='0',theme=localStorage.getItem('theme')||'dark',checkInputs=JSON.parse(localStorage.getItem('checkInputs')||'{}'),prevState=new Map(),seenPayoutIds=new Set(),isFirstSnapshot=true,expiringIds=new Set(),takingIds=new Set(),warned15=new Set(JSON.parse(sessionStorage.getItem('warned15')||'[]')),warned10=new Set(JSON.parse(sessionStorage.getItem('warned10')||'[]')),warned5=new Set(JSON.parse(sessionStorage.getItem('warned5')||'[]'));
 function persistWarned(){sessionStorage.setItem('warned15',JSON.stringify([...warned15]));sessionStorage.setItem('warned10',JSON.stringify([...warned10]));sessionStorage.setItem('warned5',JSON.stringify([...warned5]));}
-
-let audioCtx=null, notifyPermissionAsked=false, searchQuery='', tempShiftChoice=null, tempRate='', unreadCount=0, originalTitle=document.title, titleFlashInterval=null, originalFavicon=null;
+let audioCtx=null,notifyPermissionAsked=false,searchQuery='',tempShiftChoice=null,tempRate='',unreadCount=0,originalTitle=document.title,titleFlashInterval=null,originalFavicon=null;
 
 function shouldSendNotify(key,win=8000){try{const sKey='notif_dedupe_'+key,n=Date.now(),last=parseInt(localStorage.getItem(sKey)||'0');if(n-last<win)return false;localStorage.setItem(sKey,String(n));return true;}catch(e){return true;}}
 function strongNotify(title,body,opts={}){
-  if(!shouldSendNotify(opts.dedupeKey||(title+'|'+body),opts.dedupeWindow||8000))return;
-  try{playSound(opts.sound||'warning');}catch(e){}try{if(navigator.vibrate)navigator.vibrate(opts.vibrate||[200,100,200]);}catch(e){}
-  try{showToast('🔔 '+title,opts.toastType||'warn');}catch(e){}try{addUnreadAndFlashTitle(title);}catch(e){}try{setUnreadFavicon();}catch(e){}
+  if(!shouldSendNotify(opts.dedupeKey||(title+'|'+body),opts.dedupeWindow||8000)){ return; }
+  try{playSound(opts.sound||'warning');}catch(e){}
+  try{if(navigator.vibrate)navigator.vibrate(opts.vibrate||[200,100,200]);}catch(e){}
+  try{showToast('🔔 '+title,opts.toastType||'warn');}catch(e){}
+  try{addUnreadAndFlashTitle(title);}catch(e){}
+  try{setUnreadFavicon();}catch(e){}
   try{if('Notification' in window&&Notification.permission==='granted'){new Notification(title,{body,tag:'payout-'+(opts.dedupeKey||Date.now()),renotify:false});}}catch(e){}
 }
 function addUnreadAndFlashTitle(newTitle){unreadCount++;if(titleFlashInterval)return;let showOrig=false;titleFlashInterval=setInterval(()=>{document.title=showOrig?originalTitle:`🔴 (${unreadCount}) ${newTitle.substring(0,30)}`;showOrig=!showOrig;},800);}
@@ -288,7 +300,6 @@ function resetTitleFlash(){if(titleFlashInterval){clearInterval(titleFlashInterv
 function setUnreadFavicon(){try{if(!originalFavicon){const link=document.querySelector("link[rel*='icon']");if(link)originalFavicon=link.href;}const canvas=document.createElement('canvas');canvas.width=64;canvas.height=64;const ctx=canvas.getContext('2d');ctx.fillStyle='#ef4444';ctx.beginPath();ctx.arc(32,32,30,0,2*Math.PI);ctx.fill();ctx.fillStyle='#fff';ctx.font='bold 44px Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillText('!',32,34);let link=document.querySelector("link[rel*='icon']")||document.createElement('link');link.rel='icon';link.href=canvas.toDataURL('image/png');document.head.appendChild(link);}catch(e){}}
 function resetFavicon(){try{if(originalFavicon){let link=document.querySelector("link[rel*='icon']");if(link)link.href=originalFavicon;}}catch(e){}}
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)resetTitleFlash();});window.addEventListener('focus',()=>{resetTitleFlash();});
-
 async function hashPin(pin){const buf=await crypto.subtle.digest('SHA-256',new TextEncoder().encode('p2p_salt_'+pin));return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');}
 function setTheme(t){theme=t;localStorage.setItem('theme',t);document.body.setAttribute('data-theme',t);document.querySelectorAll('[data-theme-btn]').forEach(b=>{b.classList.toggle('active',b.dataset.themeBtn===t);});}
 setTheme(theme);
@@ -296,325 +307,891 @@ function onSearch(){searchQuery=document.getElementById('searchInput').value.tri
 function clearSearch(){document.getElementById('searchInput').value='';searchQuery='';document.getElementById('searchClear').style.display='none';document.getElementById('searchCount').textContent='';render();}
 function matchSearch(p){if(!searchQuery)return true;const q=searchQuery.replace(/\s+/g,'').replace(/^@/,''), qRaw=searchQuery;const card=(p.cardNumber||'').replace(/\s+/g,'').toLowerCase(), phone=(p.phone||'').replace(/\s+/g,'').toLowerCase(), uname=(p.client||'').replace(/^@/,'').toLowerCase();if(card.includes(q)||phone.includes(q)||uname.includes(q)||(p.id||'').toLowerCase().includes(qRaw)||(p.bank||'').toLowerCase().includes(qRaw)||String(p.totalSum||'').includes(qRaw)||(p.createdBy||'').toLowerCase().includes(qRaw)||(p.shift||'').toLowerCase().includes(qRaw)||(p.rate&&String(p.rate).includes(qRaw))||(p.checks||[]).some(c=>String(c.sum).includes(qRaw)))return true;return false;}
 function highlightMatch(text){if(!searchQuery||!text)return esc(text);const s=String(text);const idx=s.toLowerCase().indexOf(searchQuery.toLowerCase());if(idx===-1)return esc(s);return esc(s.substring(0,idx))+'<span class="highlight">'+esc(s.substring(idx,idx+searchQuery.length))+'</span>'+esc(s.substring(idx+searchQuery.length));}
-
 function initAudio(){if(!audioCtx){try{audioCtx=new (window.AudioContext||window.webkitAudioContext)();}catch(e){}}if(audioCtx&&audioCtx.state==='suspended')audioCtx.resume();}
-function playSound(type){
-  if(!soundEnabled)return;initAudio();if(!audioCtx)return;const t=audioCtx.currentTime;
-  if(type==='check'){[0,.15,.3].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(880,t+d);g.gain.setValueAtTime(.4,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.1);o.start(t+d);o.stop(t+d+.1);});}
-  else if(type==='warning'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(440,t);g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.01,t+.25);o.start(t);o.stop(t+.25);}
-  else if(type==='new'){[0,.2].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.setValueAtTime(1100,t+d);g.gain.setValueAtTime(.3,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.15);o.start(t+d);o.stop(t+d+.15);});}
-  else if(type==='taken'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(950,t+.3);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.01,t+.3);o.start(t);o.stop(t+.3);}
-}
+function playSound(type){if(!soundEnabled)return;initAudio();if(!audioCtx)return;const t=audioCtx.currentTime;if(type==='check'){[0,.15,.3].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(880,t+d);g.gain.setValueAtTime(.4,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.1);o.start(t+d);o.stop(t+d+.1);});}else if(type==='warning'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(440,t);g.gain.setValueAtTime(.15,t);g.gain.exponentialRampToValueAtTime(.01,t+.25);o.start(t);o.stop(t+.25);}else if(type==='new'){[0,.2].forEach(d=>{const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='triangle';o.frequency.setValueAtTime(1100,t+d);g.gain.setValueAtTime(.3,t+d);g.gain.exponentialRampToValueAtTime(.01,t+d+.15);o.start(t+d);o.stop(t+d+.15);});}else if(type==='taken'){const o=audioCtx.createOscillator(),g=audioCtx.createGain();o.connect(g);g.connect(audioCtx.destination);o.type='sine';o.frequency.setValueAtTime(600,t);o.frequency.linearRampToValueAtTime(950,t+.3);g.gain.setValueAtTime(.3,t);g.gain.exponentialRampToValueAtTime(.01,t+.3);o.start(t);o.stop(t+.3);}}
 document.addEventListener('click',function askNotify(){if(notifyPermissionAsked)return;notifyPermissionAsked=true;initAudio();if('Notification' in window&&Notification.permission==='default'){const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='notifyPreModal';overlay.innerHTML=`<div class="modal-box"><h3>🔔 Включить уведомления</h3><p>Разрешите уведомления чтобы не пропускать заявки.</p><button class="modal-submit" id="notifyYes">✅ Разрешить</button><button class="modal-cancel" id="notifyNo">Позже</button></div>`;document.body.appendChild(overlay);document.getElementById('notifyYes').onclick=async()=>{document.getElementById('notifyPreModal')?.remove();try{await Notification.requestPermission();}catch(e){}};document.getElementById('notifyNo').onclick=()=>{document.getElementById('notifyPreModal')?.remove();};}document.removeEventListener('click',askNotify);},{once:true});
 function showToast(msg,type=''){const el=document.createElement('div');el.className='toast '+type;el.textContent=msg;document.body.appendChild(el);setTimeout(()=>el.remove(),3000);}
 
+// ═══ ЛОГИКА ВХОДА ═══
+function handleLoginClick() {
+  if (window.openLogin) { window.openLogin(); }
+  else { alert('Подождите, идёт загрузка библиотек...'); }
+}
+
 function openLogin(){
   if(role!=='guest'){
-    if(confirm('Выйти из аккаунта?')){role='guest';workerName='';shiftName='';shiftRate=0;clientUsername='';sessionStorage.removeItem('role');sessionStorage.removeItem('workerName');sessionStorage.removeItem('shiftName');sessionStorage.removeItem('shiftRate');sessionStorage.removeItem('clientUsername');currentTab='available';updateModeUI();render();showToast('👋 Вы вышли');}
+    if(confirm('Выйти из аккаунта?')){
+      role='guest'; workerName=''; shiftName=''; shiftRate=0; clientUsername='';
+      sessionStorage.removeItem('role'); sessionStorage.removeItem('workerName');
+      sessionStorage.removeItem('shiftName'); sessionStorage.removeItem('shiftRate');
+      sessionStorage.removeItem('clientUsername');
+      currentTab='available'; updateModeUI(); render(); showToast('👋 Вы вышли');
+    }
     return;
   }
   showLoginChoice();
 }
-function showLoginChoice(){const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';overlay.innerHTML=`<div class="modal-box"><h3>🔐 Вход в систему</h3><p>Выбери, кто ты</p><div class="choice-btns"><button class="client-btn" onclick="selectClientType()">❤️ Клиенты</button><button class="bt7-btn" onclick="selectBT7Type()">🛠 BT7 (Воркеры)</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;document.body.appendChild(overlay);}
-function closeLogin(){document.getElementById('loginModal')?.remove();}
 
-function selectClientType(){closeLogin();showClientUsernameInput();}
+function showLoginChoice(){
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>🔐 Вход в систему</h3><p>Выбери, кто ты</p><div class="choice-btns"><button class="client-btn" onclick="selectClientType()">❤️ Клиенты</button><button class="bt7-btn" onclick="selectBT7Type()">🛠 BT7 (Воркеры)</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  document.body.appendChild(overlay);
+}
+function closeLogin(){ document.getElementById('loginModal')?.remove(); }
+
+function selectClientType(){ closeLogin(); showClientUsernameInput(); }
+
 function showClientUsernameInput(){
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
   overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Вход для клиента</h3><p>Введи свой <b>@username</b> из Telegram</p><div class="uname-wrap"><span class="uname-icon">✈️</span><input type="text" class="uname-input" id="unameInput" placeholder="@username" autocomplete="off" autofocus maxlength="33"><div class="uname-dropdown" id="unameDropdown"></div></div><div class="pin-error" id="unameError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
   document.body.appendChild(overlay);
-  const input=document.getElementById('unameInput'), dropdown=document.getElementById('unameDropdown'); input.focus();
-  input.addEventListener('input',()=>{
-    let v=input.value;if(v.length>0&&v[0]!=='@'){input.value='@'+v.replace(/@/g,'');}
-    const q=input.value.trim().toLowerCase().replace(/^@/,'');if(!q){dropdown.classList.remove('show');return;}
-    const matches=allClients.filter(c=>c.username&&c.username.toLowerCase().replace(/^@/,'').startsWith(q)).slice(0,20);
-    if(matches.length===0){const clean='@'+q.replace(/[^a-z0-9_]/gi,'');dropdown.innerHTML=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;dropdown.classList.add('show');return;}
-    let html=matches.map(c=>{const uname=c.username,prefix=uname.slice(0,q.length+1),rest=uname.slice(q.length+1);return `<div class="uname-item" onclick="proceedClientUsername('${esc(uname)}')"><span class="heart-inline">❤️</span><span><span class="highlight-prefix">${esc(prefix)}</span>${esc(rest)}</span></div>`;}).join('');
+  
+  const input=document.getElementById('unameInput'), dropdown=document.getElementById('unameDropdown'); 
+  input.focus();
+  
+  input.addEventListener('input', ()=>{
+    let v=input.value;
+    if(v.length>0 && v[0]!=='@'){ input.value='@'+v.replace(/@/g,''); }
+    const q=input.value.trim().toLowerCase().replace(/^@/,'');
+    if(!q){ dropdown.classList.remove('show'); return; }
+    const matches=allClients.filter(c=>c.username && c.username.toLowerCase().replace(/^@/,'').startsWith(q)).slice(0,20);
+    
+    if(matches.length===0){
+      const clean='@'+q.replace(/[^a-z0-9_]/gi,'');
+      dropdown.innerHTML=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+      dropdown.classList.add('show'); 
+      return;
+    }
+    
+    let html=matches.map(c=>{
+      const uname=c.username, prefix=uname.slice(0,q.length+1), rest=uname.slice(q.length+1);
+      return `<div class="uname-item" onclick="proceedClientUsername('${esc(uname)}')"><span class="heart-inline">❤️</span><span><span class="highlight-prefix">${esc(prefix)}</span>${esc(rest)}</span></div>`;
+    }).join('');
+    
     const exactMatch=matches.some(c=>c.username.toLowerCase()===input.value.toLowerCase());
-    if(!exactMatch){const clean='@'+q.replace(/[^a-z0-9_]/gi,'');html+=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;}
-    dropdown.innerHTML=html;dropdown.classList.add('show');
+    if(!exactMatch){
+      const clean='@'+q.replace(/[^a-z0-9_]/gi,'');
+      html+=`<div class="uname-new" onclick="proceedClientUsername('${clean}')">➕ Создать нового ${clean}</div>`;
+    }
+    dropdown.innerHTML=html; dropdown.classList.add('show');
   });
-  input.addEventListener('keydown',e=>{if(e.key==='Enter'){const v=input.value.trim();if(v&&v.length>1)proceedClientUsername(v);}else if(e.key==='Escape'){dropdown.classList.remove('show');}});
-  setTimeout(()=>{document.addEventListener('click',function hideDD(e){if(!overlay.contains(e.target)){dropdown.classList.remove('show');document.removeEventListener('click',hideDD);}});},100);
+  
+  input.addEventListener('keydown', e=>{
+    if(e.key==='Enter'){ 
+      const v=input.value.trim(); 
+      if(v && v.length>1){ proceedClientUsername(v); }
+    } else if(e.key==='Escape'){ 
+      dropdown.classList.remove('show'); 
+    }
+  });
+  
+  setTimeout(()=>{
+    document.addEventListener('click', function hideDD(e){
+      if(!overlay.contains(e.target)){ 
+        dropdown.classList.remove('show'); 
+        document.removeEventListener('click',hideDD); 
+      }
+    });
+  },100);
 }
+
 async function proceedClientUsername(username){
-  username=username.trim();if(username[0]!=='@')username='@'+username;username='@'+username.slice(1).replace(/[^a-zA-Z0-9_]/g,'').toLowerCase();
-  if(username.length<3){alert('❌ Слишком короткий username');return;}if(username.length>33){alert('❌ Слишком длинный username');return;}
-  const existing=allClients.find(c=>c.username&&c.username.toLowerCase()===username.toLowerCase());
-  closeLogin();if(existing)showClientPinInput(existing.username);else showClientRegister(username);
+  username=username.trim();
+  if(username[0]!=='@'){ username='@'+username; }
+  username='@'+username.slice(1).replace(/[^a-zA-Z0-9_]/g,'').toLowerCase();
+  
+  if(username.length<3){ alert('❌ Слишком короткий username'); return; }
+  if(username.length>33){ alert('❌ Слишком длинный username'); return; }
+  
+  const existing=allClients.find(c=>c.username && c.username.toLowerCase()===username.toLowerCase());
+  closeLogin();
+  if(existing){ showClientPinInput(existing.username); return; }
+  showClientRegister(username);
 }
+
 function showClientPinInput(username){
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
   overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ ${esc(username)}</h3><p>Введи свой PIN-код</p><div class="pin-row"><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus><button class="heart" onclick="verifyClientPin('${esc(username)}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyClientPin(username);});},50);
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
+    if(f){
+      f.focus();
+      f.addEventListener('keydown', e=>{ if(e.key==='Enter'){ verifyClientPin(username); } });
+    }
+  },50);
 }
+
 async function verifyClientPin(username){
-  const pin=document.getElementById('pinField')?.value;if(!pin)return;const hashed=await hashPin(pin);const existing=allClients.find(c=>c.username&&c.username.toLowerCase()===username.toLowerCase());
-  if(!existing||existing.pinHash!==hashed){document.getElementById('pinError').textContent='❌ Неверный PIN';document.getElementById('pinField').value='';return;}
+  const pin=document.getElementById('pinField')?.value;
+  if(!pin){ return; }
+  const hashed=await hashPin(pin);
+  const existing=allClients.find(c=>c.username && c.username.toLowerCase()===username.toLowerCase());
+  
+  if(!existing || existing.pinHash!==hashed){
+    document.getElementById('pinError').textContent='❌ Неверный PIN';
+    document.getElementById('pinField').value=''; 
+    return;
+  }
   loginClient(existing.username);
 }
-function showClientRegister(username){
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
-  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай PIN (4-6 цифр). Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>{document.getElementById('pinField')?.focus();document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerClient(username);});},50);
-}
-async function registerClient(username){
-  const pin1=document.getElementById('pinField')?.value,pin2=document.getElementById('pinField2')?.value,err=document.getElementById('pinError');
-  if(!pin1||pin1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}
-  try{const pinHash=await hashPin(pin1);await addDoc(clientsRef,{username:username,pinHash,createdAt:now()});showToast('❤️ Добро пожаловать, '+username+'!','heart');loginClient(username);}catch(e){err.textContent='❌ Ошибка: '+e.message;}
-}
-function loginClient(username){role='client';clientUsername=username;sessionStorage.setItem('role','client');sessionStorage.setItem('clientUsername',username);closeLogin();currentTab='available';updateModeUI();render();showToast('❤️ Привет, '+username+'!','heart');}
 
+function showClientRegister(username){
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
+  overlay.innerHTML=`<div class="modal-box heart"><h3>❤️ Регистрация</h3><p>Новый клиент: <b>${esc(username)}</b></p><p style="font-size:11px;">Придумай PIN (4-6 цифр). Он нужен чтобы входить с любого устройства.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="heart pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button class="heart" style="width:100%;" onclick="registerClient('${esc(username)}')">Создать</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
+    if(f){ f.focus(); }
+    document.getElementById('pinField2')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ registerClient(username); } });
+  },50);
+}
+
+async function registerClient(username){
+  const pin1=document.getElementById('pinField')?.value;
+  const pin2=document.getElementById('pinField2')?.value;
+  const err=document.getElementById('pinError');
+  
+  if(!pin1 || pin1.length<4){ err.textContent='❌ PIN минимум 4 цифры'; return; }
+  if(pin1!==pin2){ err.textContent='❌ PIN не совпадает'; return; }
+  if(!/^\d+$/.test(pin1)){ err.textContent='❌ Только цифры'; return; }
+  
+  try{
+    const pinHash=await hashPin(pin1);
+    await addDoc(clientsRef,{username:username,pinHash,createdAt:now()});
+    showToast('❤️ Добро пожаловать, '+username+'!','heart');
+    loginClient(username);
+  }catch(e){ 
+    err.textContent='❌ Ошибка: '+e.message; 
+  }
+}
+
+function loginClient(username){
+  role='client'; clientUsername=username;
+  sessionStorage.setItem('role','client'); sessionStorage.setItem('clientUsername',username);
+  closeLogin(); currentTab='available'; updateModeUI(); render();
+  showToast('❤️ Привет, '+username+'!','heart');
+}
+
+// ═══ ВХОД ВОРКЕРОВ И АДМИНА ═══
 function selectBT7Type(){
-  closeLogin();const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
-  const workerBtns=STAFF_WORKERS.map(w=>{const reg=allStaff.has(w)?' registered':'';return `<button class="${reg}" onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;}).join('');
+  closeLogin(); 
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
+  const workerBtns=STAFF_WORKERS.map(w=>{
+    const reg=allStaff.has(w)?' registered':'';
+    return `<button class="${reg}" onclick="proceedStaffLogin('${w}','worker')">👤 ${w}</button>`;
+  }).join('');
   const adminReg=allStaff.has(STAFF_ADMIN)?' registered':'';
   overlay.innerHTML=`<div class="modal-box"><h3>🛠 BT7</h3><p>Кто работает?</p><div class="worker-btns">${workerBtns}<button class="admin-btn ${adminReg}" onclick="proceedStaffLogin('${STAFF_ADMIN}','admin')">👑 Админ (просмотр)</button></div><button class="modal-cancel" onclick="closeLogin()">Назад</button></div>`;
   document.body.appendChild(overlay);
 }
+
 async function proceedStaffLogin(displayName,roleType){
-  closeLogin();if(!navigator.onLine){alert('❌ Нет интернета. Проверь соединение.');return;}
+  closeLogin();
+  if(!navigator.onLine){ alert('❌ Нет интернета. Проверь соединение.'); return; }
   let existing=allStaff.get(displayName);
+  
   if(!existing){
-    showToast('⏳ Проверяем...');let lastErr=null;
-    for(let attempt=0;attempt<3;attempt++){
-      try{const snap=await getDoc(doc(db,'staff',displayName));if(snap.exists()){existing=snap.data();allStaff.set(displayName,existing);}lastErr=null;break;}
-      catch(e){lastErr=e;const m=(e.message||'').toLowerCase();if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){await new Promise(r=>setTimeout(r,900));continue;}break;}
+    showToast('⏳ Проверяем...'); 
+    let lastErr=null;
+    for(let attempt=0; attempt<3; attempt++){
+      try{
+        const snap=await getDoc(doc(db,'staff',displayName));
+        if(snap.exists()){ existing=snap.data(); allStaff.set(displayName,existing); }
+        lastErr=null; 
+        break;
+      }catch(e){
+        lastErr=e; 
+        const m=(e.message||'').toLowerCase();
+        if(m.includes('offline') || m.includes('unavailable') || m.includes('network')){
+          await new Promise(r=>setTimeout(r,900)); 
+          continue;
+        }
+        break;
+      }
     }
     if(lastErr){
       const m=(lastErr.message||'').toLowerCase();
-      if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){alert('❌ Не удалось связаться с сервером.\n\nПроверь:\n• Интернет\n• Открыт ли сайт через http/https (не file://)\n• Firestore Rules\n\nПопробуй Ctrl+Shift+R');return;}
-      alert('❌ Ошибка: '+lastErr.message);return;
+      if(m.includes('offline') || m.includes('unavailable') || m.includes('network')){
+        alert('❌ Не удалось связаться с сервером.\n\nПроверь:\n• Интернет\n• Открыт ли сайт через http/https\n• Firestore Rules\n\nПопробуй Ctrl+Shift+R');
+        return;
+      }
+      alert('❌ Ошибка: '+lastErr.message); 
+      return;
     }
   }
-  if(existing)showStaffPinInput(displayName,roleType);else showStaffRegister(displayName,roleType);
+  
+  if(existing){ showStaffPinInput(displayName,roleType); return; }
+  showStaffRegister(displayName,roleType);
 }
+
 function showStaffRegister(displayName,roleType){
-  const roleLabel=roleType==='admin'?'Админ':'Воркер';const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
+  const roleLabel = roleType==='admin' ? 'Админ' : 'Воркер';
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
   overlay.innerHTML=`<div class="modal-box"><div class="first-time-badge">🆕 Первый вход</div><h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3><p><b>${roleLabel}</b> входит впервые.<br>Придумай личный PIN для входа.</p><p style="font-size:11px;color:var(--warning);">⚠️ Запомни его! Восстановить нельзя.</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="Придумай PIN (4-6 цифр)" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField2" maxlength="6" placeholder="Повтори PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button style="width:100%;" onclick="registerStaff('${esc(displayName)}','${roleType}')">Создать PIN и войти</button></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>{document.getElementById('pinField')?.focus();document.getElementById('pinField2')?.addEventListener('keydown',e=>{if(e.key==='Enter')registerStaff(displayName,roleType);});},50);
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const f=document.getElementById('pinField');
+    if(f){ f.focus(); }
+    document.getElementById('pinField2')?.addEventListener('keydown', e=>{ if(e.key==='Enter'){ registerStaff(displayName,roleType); } });
+  },50);
 }
+
 async function registerStaff(displayName,roleType){
-  const pin1=document.getElementById('pinField')?.value,pin2=document.getElementById('pinField2')?.value,err=document.getElementById('pinError');
-  if(!pin1||pin1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}if(pin1.length>6){err.textContent='❌ PIN максимум 6 цифр';return;}if(pin1!==pin2){err.textContent='❌ PIN не совпадает';return;}if(!/^\d+$/.test(pin1)){err.textContent='❌ Только цифры';return;}if(!navigator.onLine){err.textContent='❌ Нет интернета';return;}
-  const btn=document.querySelector('#loginModal .pin-row button');if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  const pin1=document.getElementById('pinField')?.value;
+  const pin2=document.getElementById('pinField2')?.value;
+  const err=document.getElementById('pinError');
+  
+  if(!pin1 || pin1.length<4){ err.textContent='❌ PIN минимум 4 цифры'; return; }
+  if(pin1.length>6){ err.textContent='❌ PIN максимум 6 цифр'; return; }
+  if(pin1!==pin2){ err.textContent='❌ PIN не совпадает'; return; }
+  if(!/^\d+$/.test(pin1)){ err.textContent='❌ Только цифры'; return; }
+  if(!navigator.onLine){ err.textContent='❌ Нет интернета'; return; }
+  
+  const btn=document.querySelector('#loginModal .pin-row button');
+  if(btn){ btn.disabled=true; btn.textContent='⏳...'; }
+  
   try{
     const pinHash=await hashPin(pin1);
-    await runTransaction(db,async(tx)=>{const ref=doc(db,'staff',displayName);const snap=await tx.get(ref);if(snap.exists())throw new Error('ALREADY_EXISTS');tx.set(ref,{name:displayName,role:roleType,pinHash,createdAt:now()});});
-    allStaff.set(displayName,{name:displayName,role:roleType,pinHash,createdAt:now()});showToast('✅ PIN установлен');completeStaffLogin(roleType,displayName);
+    await runTransaction(db, async(tx)=>{
+      const ref=doc(db,'staff',displayName);
+      const snap=await tx.get(ref);
+      if(snap.exists()){ throw new Error('ALREADY_EXISTS'); }
+      tx.set(ref,{name:displayName, role:roleType, pinHash, createdAt:now()});
+    });
+    allStaff.set(displayName,{name:displayName, role:roleType, pinHash, createdAt:now()});
+    showToast('✅ PIN установлен'); 
+    completeStaffLogin(roleType,displayName);
   }catch(e){
     const m=(e.message||'').toLowerCase();
-    if(e.message==='ALREADY_EXISTS'){err.textContent='❌ Уже зарегистрирован — введи PIN';setTimeout(()=>showStaffPinInput(displayName,roleType),900);return;}
-    if(m.includes('offline')||m.includes('unavailable')||m.includes('network')){err.textContent='❌ Нет связи с сервером. Проверь интернет.';}else{err.textContent='❌ Ошибка: '+e.message;}
-    if(btn){btn.disabled=false;btn.textContent='Создать PIN и войти';}
+    if(e.message==='ALREADY_EXISTS'){
+      err.textContent='❌ Уже зарегистрирован — введи PIN';
+      setTimeout(()=>showStaffPinInput(displayName,roleType),900); 
+      return;
+    }
+    if(m.includes('offline') || m.includes('unavailable') || m.includes('network')){
+      err.textContent='❌ Нет связи с сервером. Проверь интернет.';
+    }else{
+      err.textContent='❌ Ошибка: '+e.message;
+    }
+    if(btn){ btn.disabled=false; btn.textContent='Создать PIN и войти'; }
   }
 }
+
 function showStaffPinInput(displayName,roleType){
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='loginModal';
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='loginModal';
   overlay.innerHTML=`<div class="modal-box"><h3>${roleType==='admin'?'👑':'🛠'} ${esc(displayName)}</h3><p>Введи свой PIN-код</p><div class="pin-row"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="pinField" maxlength="6" placeholder="••••" autofocus><button onclick="verifyStaffPin('${esc(displayName)}','${roleType}')">Войти</button></div><div class="pin-error" id="pinError"></div><button class="modal-cancel" onclick="closeLogin()">Отмена</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>{const f=document.getElementById('pinField');f?.focus();f?.addEventListener('keydown',e=>{if(e.key==='Enter')verifyStaffPin(displayName,roleType);});},50);
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const f=document.getElementById('pinField'); 
+    if(f){
+      f.focus();
+      f.addEventListener('keydown', e=>{ if(e.key==='Enter'){ verifyStaffPin(displayName,roleType); } });
+    }
+  },50);
 }
+
 async function verifyStaffPin(displayName,roleType){
-  const pin=document.getElementById('pinField')?.value;if(!pin)return;const err=document.getElementById('pinError');const btn=document.querySelector('#loginModal .pin-row button');if(btn){btn.disabled=true;btn.textContent='⏳...';}
+  const pin=document.getElementById('pinField')?.value;
+  if(!pin){ return; }
+  const err=document.getElementById('pinError');
+  const btn=document.querySelector('#loginModal .pin-row button');
+  if(btn){ btn.disabled=true; btn.textContent='⏳...'; }
+  
   try{
-    const hashed=await hashPin(pin);const existing=allStaff.get(displayName);
-    if(!existing||existing.pinHash!==hashed){err.textContent='❌ Неверный PIN';document.getElementById('pinField').value='';if(btn){btn.disabled=false;btn.textContent='Войти';}return;}
+    const hashed=await hashPin(pin);
+    const existing=allStaff.get(displayName);
+    if(!existing || existing.pinHash!==hashed){
+      err.textContent='❌ Неверный PIN';
+      document.getElementById('pinField').value='';
+      if(btn){ btn.disabled=false; btn.textContent='Войти'; }
+      return;
+    }
     completeStaffLogin(roleType,displayName);
-  }catch(e){err.textContent='❌ Ошибка: '+e.message;if(btn){btn.disabled=false;btn.textContent='Войти';}}
-}
-function completeStaffLogin(roleType,displayName){
-  role=roleType;workerName=(roleType==='worker')?displayName:STAFF_ADMIN;sessionStorage.setItem('role',role);sessionStorage.setItem('workerName',workerName);closeLogin();
-  if(role==='admin'){currentTab='done';updateModeUI();render();showToast('👑 Админ: просмотр');return;}
-  if(!shiftName)askShiftModal();else if(!shiftRate)askRateModal();else{updateModeUI();render();const r=document.getElementById('rate');if(r)r.value=shiftRate;showToast('✅ '+workerName);}
-}
-function openPinChange(){
-  if(role!=='worker'&&role!=='admin'){showToast('Только для сотрудников');return;}
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='pinChangeModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>🔑 Смена PIN</h3><p>${esc(workerName)}</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="oldPin" maxlength="6" placeholder="Текущий PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin" maxlength="6" placeholder="Новый PIN (4-6 цифр)"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin2" maxlength="6" placeholder="Повтори новый PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button style="width:100%;" onclick="submitPinChange()">Сменить PIN</button></div><button class="modal-cancel" onclick="closePinChange()">Отмена</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>document.getElementById('oldPin')?.focus(),50);
-}
-function closePinChange(){document.getElementById('pinChangeModal')?.remove();}
-async function submitPinChange(){
-  const oldPin=document.getElementById('oldPin')?.value,n1=document.getElementById('newPin')?.value,n2=document.getElementById('newPin2')?.value,err=document.getElementById('pinError');
-  if(!oldPin||!n1||!n2){err.textContent='Заполни все поля';return;}if(n1.length<4){err.textContent='❌ PIN минимум 4 цифры';return;}if(n1!==n2){err.textContent='❌ Новый PIN не совпадает';return;}if(!/^\d+$/.test(n1)){err.textContent='❌ Только цифры';return;}
-  const btn=document.querySelector('#pinChangeModal .pin-row button');if(btn){btn.disabled=true;btn.textContent='⏳...';}
-  try{
-    const oldHash=await hashPin(oldPin);const existing=allStaff.get(workerName);
-    if(!existing||existing.pinHash!==oldHash){err.textContent='❌ Неверный текущий PIN';if(btn){btn.disabled=false;btn.textContent='Сменить PIN';}return;}
-    const newHash=await hashPin(n1);await updateDoc(doc(db,'staff',workerName),{pinHash:newHash,pinChangedAt:now()});allStaff.set(workerName,{...existing,pinHash:newHash,pinChangedAt:now()});showToast('✅ PIN изменён');closePinChange();
-  }catch(e){err.textContent='❌ Ошибка: '+e.message;if(btn){btn.disabled=false;btn.textContent='Сменить PIN';}}
-}
-
-function askShiftModal(){tempShiftChoice=shiftName||null;renderShiftModal();}
-function renderShiftModal(){
-  const existing=document.getElementById('shiftModal');if(existing)existing.remove();const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='shiftModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>⏰ Выбери смену</h3><p>Смена определит группировку в архиве</p><div class="shift-choice"><button class="morning" onclick="pickShift('Утро')"><span>🌅 Утро</span><span class="time">06:00 - 14:00</span></button><button class="evening" onclick="pickShift('Вечер')"><span>🌆 Вечер</span><span class="time">14:00 - 22:00</span></button><button class="night" onclick="pickShift('Ночь')"><span>🌙 Ночь</span><span class="time">22:00 - 06:00</span></button></div><div id="shiftSelected" style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:6px;"></div><button class="modal-submit" style="margin-top:10px;" onclick="confirmShift()">Подтвердить</button><button class="modal-cancel" onclick="cancelShift()">Отмена</button></div>`;
-  document.body.appendChild(overlay);updateShiftButtonHighlight();
-}
-function pickShift(s){tempShiftChoice=s;updateShiftButtonHighlight();}
-function updateShiftButtonHighlight(){
-  const overlay=document.getElementById('shiftModal');if(!overlay)return;const btns=overlay.querySelectorAll('.shift-choice button');btns.forEach(b=>b.classList.remove('selected'));
-  if(tempShiftChoice==='Утро')btns[0].classList.add('selected');else if(tempShiftChoice==='Вечер')btns[1].classList.add('selected');else if(tempShiftChoice==='Ночь')btns[2].classList.add('selected');
-  const info=document.getElementById('shiftSelected');if(info){info.innerHTML=tempShiftChoice?'✅ Выбрано: <b style="color:var(--accent-2)">'+tempShiftChoice+'</b> ('+SHIFT_TIMES[tempShiftChoice]+')':'Нажми на смену выше';}
-}
-function cancelShift(){document.getElementById('shiftModal')?.remove();if(!shiftName)showToast('❌ Смена не выбрана','err');}
-function confirmShift(){
-  if(!tempShiftChoice){showToast('❌ Выбери смену','err');return;}shiftName=tempShiftChoice;sessionStorage.setItem('shiftName',shiftName);document.getElementById('shiftModal')?.remove();
-  if(!shiftRate)askRateModal();else{updateModeUI();render();showToast('✅ Смена: '+shiftName);}
-}
-function askRateModal(){
-  tempRate=shiftRate?String(shiftRate):'';const existing=document.getElementById('rateModal');if(existing)existing.remove();const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='rateModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>💱 Курс USDT</h3><p>Курс на смену. Можно изменить в каждой заявке.</p><div class="rate-input-wrap"><input type="number" id="rateInput" step="0.01" placeholder="88.15" value="${tempRate}" autofocus></div><div class="rate-hint">Сколько ₽ за 1 USDT</div><button class="modal-submit" style="margin-top:10px;" onclick="confirmRate()">Сохранить</button><button class="modal-cancel" onclick="cancelRate()">${shiftRate?'Отмена':'Пропустить'}</button></div>`;
-  document.body.appendChild(overlay);setTimeout(()=>{const inp=document.getElementById('rateInput');inp?.focus();inp?.select();inp?.addEventListener('keydown',e=>{if(e.key==='Enter')confirmRate();});},50);
-}
-function cancelRate(){document.getElementById('rateModal')?.remove();updateModeUI();render();}
-function confirmRate(){
-  const v=parseFloat(document.getElementById('rateInput')?.value);if(!v||v<=0){showToast('❌ Введи курс > 0','err');return;}shiftRate=v;sessionStorage.setItem('shiftRate',shiftRate);document.getElementById('rateModal')?.remove();updateModeUI();render();const r=document.getElementById('rate');if(r)r.value=shiftRate;showToast('💱 Курс: '+shiftRate+' ₽/USDT');
-}
-
-function openSettings(){
-  if(role==='guest'){showToast('Сначала войди');return;}
-  if(role==='client'){if(confirm('Выйти из аккаунта ❤️ '+clientUsername+'?')){role='guest';clientUsername='';sessionStorage.removeItem('role');sessionStorage.removeItem('clientUsername');currentTab='available';updateModeUI();render();showToast('👋 Вы вышли');}return;}
-  if(role==='admin'){
-    const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='settingsModal';
-    overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>👑 ${esc(workerName)}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
-    document.body.appendChild(overlay);return;
+  }catch(e){
+    err.textContent='❌ Ошибка: '+e.message;
+    if(btn){ btn.disabled=false; btn.textContent='Войти'; }
   }
-  const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='settingsModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>🛠 ${esc(workerName)} • ${esc(shiftName||'—')} • 💱 ${shiftRate||'—'}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button><button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button><button onclick="toggleSound()">${soundEnabled?'🔊 Выключить звук':'🔇 Включить звук'}</button><button onclick="closeSettings(); showStats()">📊 Статистика за смену</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
+}
+
+function completeStaffLogin(roleType,displayName){
+  role=roleType; workerName=(roleType==='worker')?displayName:STAFF_ADMIN;
+  sessionStorage.setItem('role',role); sessionStorage.setItem('workerName',workerName);
+  closeLogin();
+  
+  if(role==='admin'){
+    currentTab='done'; updateModeUI(); render(); showToast('👑 Админ: просмотр'); 
+    return;
+  }
+  
+  if(!shiftName){ 
+    askShiftModal(); 
+    return; 
+  }
+  if(!shiftRate){ 
+    askRateModal(); 
+    return; 
+  }
+  
+  updateModeUI(); render();
+  const r=document.getElementById('rate'); 
+  if(r){ r.value=shiftRate; }
+  showToast('✅ '+workerName);
+}
+
+function openPinChange(){
+  if(role!=='worker' && role!=='admin'){ showToast('Только для сотрудников'); return; }
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='pinChangeModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>🔑 Смена PIN</h3><p>${esc(workerName)}</p><div class="pin-row" style="flex-direction:column;gap:8px;"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="oldPin" maxlength="6" placeholder="Текущий PIN" autofocus><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin" maxlength="6" placeholder="Новый PIN (4-6 цифр)"><input type="text" inputmode="numeric" autocomplete="off" class="pin-masked" id="newPin2" maxlength="6" placeholder="Повтори новый PIN"></div><div class="pin-error" id="pinError"></div><div class="pin-row" style="margin-top:10px;"><button style="width:100%;" onclick="submitPinChange()">Сменить PIN</button></div><button class="modal-cancel" onclick="closePinChange()">Отмена</button></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>{ 
+    const f = document.getElementById('oldPin');
+    if(f){ f.focus(); }
+  },50);
+}
+function closePinChange(){ document.getElementById('pinChangeModal')?.remove(); }
+
+async function submitPinChange(){
+  const oldPin=document.getElementById('oldPin')?.value;
+  const n1=document.getElementById('newPin')?.value;
+  const n2=document.getElementById('newPin2')?.value;
+  const err=document.getElementById('pinError');
+  
+  if(!oldPin || !n1 || !n2){ err.textContent='Заполни все поля'; return; }
+  if(n1.length<4){ err.textContent='❌ PIN минимум 4 цифры'; return; }
+  if(n1!==n2){ err.textContent='❌ Новый PIN не совпадает'; return; }
+  if(!/^\d+$/.test(n1)){ err.textContent='❌ Только цифры'; return; }
+  
+  const btn=document.querySelector('#pinChangeModal .pin-row button');
+  if(btn){ btn.disabled=true; btn.textContent='⏳...'; }
+  
+  try{
+    const oldHash=await hashPin(oldPin);
+    const existing=allStaff.get(workerName);
+    if(!existing || existing.pinHash!==oldHash){
+      err.textContent='❌ Неверный текущий PIN';
+      if(btn){ btn.disabled=false; btn.textContent='Сменить PIN'; }
+      return;
+    }
+    const newHash=await hashPin(n1);
+    await updateDoc(doc(db,'staff',workerName),{pinHash:newHash, pinChangedAt:now()});
+    allStaff.set(workerName,{...existing, pinHash:newHash, pinChangedAt:now()});
+    showToast('✅ PIN изменён'); closePinChange();
+  }catch(e){
+    err.textContent='❌ Ошибка: '+e.message;
+    if(btn){ btn.disabled=false; btn.textContent='Сменить PIN'; }
+  }
+}
+
+// ═══ СМЕНА И КУРС ═══
+function askShiftModal(){ tempShiftChoice=shiftName||null; renderShiftModal(); }
+function renderShiftModal(){
+  const existing=document.getElementById('shiftModal'); 
+  if(existing){ existing.remove(); }
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='shiftModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>⏰ Выбери смену</h3><p>Смена определит группировку в архиве</p><div class="shift-choice"><button class="morning" onclick="pickShift('Утро')"><span>🌅 Утро</span><span class="time">06:00 - 14:00</span></button><button class="evening" onclick="pickShift('Вечер')"><span>🌆 Вечер</span><span class="time">14:00 - 22:00</span></button><button class="night" onclick="pickShift('Ночь')"><span>🌙 Ночь</span><span class="time">22:00 - 06:00</span></button></div><div id="shiftSelected" style="text-align:center;font-size:12px;color:var(--text-dim);margin-top:6px;"></div><button class="modal-submit" style="margin-top:10px;" onclick="confirmShift()">Подтвердить</button><button class="modal-cancel" onclick="cancelShift()">Отмена</button></div>`;
+  document.body.appendChild(overlay); updateShiftButtonHighlight();
+}
+function pickShift(s){ tempShiftChoice=s; updateShiftButtonHighlight(); }
+
+function updateShiftButtonHighlight(){
+  const overlay=document.getElementById('shiftModal'); 
+  if(!overlay){ return; }
+  const btns=overlay.querySelectorAll('.shift-choice button'); 
+  btns.forEach(b=>b.classList.remove('selected'));
+  
+  if(tempShiftChoice==='Утро'){ btns[0].classList.add('selected'); }
+  else if(tempShiftChoice==='Вечер'){ btns[1].classList.add('selected'); }
+  else if(tempShiftChoice==='Ночь'){ btns[2].classList.add('selected'); }
+  
+  const info=document.getElementById('shiftSelected');
+  if(info){ 
+    if(tempShiftChoice){ info.innerHTML='✅ Выбрано: <b style="color:var(--accent-2)">'+tempShiftChoice+'</b> ('+SHIFT_TIMES[tempShiftChoice]+')'; }
+    else{ info.innerHTML='Нажми на смену выше'; }
+  }
+}
+function cancelShift(){ document.getElementById('shiftModal')?.remove(); if(!shiftName){ showToast('❌ Смена не выбрана','err'); } }
+function confirmShift(){
+  if(!tempShiftChoice){ showToast('❌ Выбери смену','err'); return; }
+  shiftName=tempShiftChoice; sessionStorage.setItem('shiftName',shiftName);
+  document.getElementById('shiftModal')?.remove();
+  
+  if(!shiftRate){ 
+    askRateModal(); 
+    return; 
+  }
+  updateModeUI(); render(); showToast('✅ Смена: '+shiftName);
+}
+
+function askRateModal(){
+  tempRate=shiftRate?String(shiftRate):'';
+  const existing=document.getElementById('rateModal'); 
+  if(existing){ existing.remove(); }
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='rateModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>💱 Курс USDT</h3><p>Курс на смену. Можно изменить в каждой заявке.</p><div class="rate-input-wrap"><input type="number" id="rateInput" step="0.01" placeholder="88.15" value="${tempRate}" autofocus></div><div class="rate-hint">Сколько ₽ за 1 USDT</div><button class="modal-submit" style="margin-top:10px;" onclick="confirmRate()">Сохранить</button><button class="modal-cancel" onclick="cancelRate()">${shiftRate?'Отмена':'Пропустить'}</button></div>`;
+  document.body.appendChild(overlay);
+  setTimeout(()=>{
+    const inp=document.getElementById('rateInput'); 
+    if(inp){ 
+      inp.focus(); 
+      inp.select();
+      inp.addEventListener('keydown', e=>{ if(e.key==='Enter'){ confirmRate(); } });
+    }
+  },50);
+}
+function cancelRate(){ document.getElementById('rateModal')?.remove(); updateModeUI(); render(); }
+function confirmRate(){
+  const v=parseFloat(document.getElementById('rateInput')?.value);
+  if(!v || v<=0){ showToast('❌ Введи курс > 0','err'); return; }
+  shiftRate=v; sessionStorage.setItem('shiftRate',shiftRate);
+  document.getElementById('rateModal')?.remove(); updateModeUI(); render();
+  const r=document.getElementById('rate'); 
+  if(r){ r.value=shiftRate; }
+  showToast('💱 Курс: '+shiftRate+' ₽/USDT');
+}
+
+// ═══ НАСТРОЙКИ ═══
+function openSettings(){
+  if(role==='guest'){ showToast('Сначала войди'); return; }
+  if(role==='client'){
+    if(confirm('Выйти из аккаунта ❤️ '+clientUsername+'?')){
+      role='guest'; clientUsername='';
+      sessionStorage.removeItem('role'); sessionStorage.removeItem('clientUsername');
+      currentTab='available'; updateModeUI(); render(); showToast('👋 Вы вышли');
+    }
+    return;
+  }
+  
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='settingsModal';
+  
+  if(role==='admin'){
+    overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>👑 ${esc(workerName)}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
+  } else {
+    overlay.innerHTML=`<div class="modal-box"><h3>⚙️ Настройки</h3><p>🛠 ${esc(workerName)} • ${esc(shiftName||'—')} • 💱 ${shiftRate||'—'}</p><p style="font-size:11px;">🕐 Смещение часов: <b>${clockOffset>=0?'+':''}${Math.round(clockOffset/1000)}с</b> ${clockSynced?'✅':'⚠️'}</p><div class="choice-btns"><button onclick="closeSettings(); askShiftModal()">⏰ Сменить смену</button><button onclick="closeSettings(); askRateModal()">💱 Сменить курс</button><button onclick="closeSettings(); openPinChange()">🔑 Сменить PIN</button><button onclick="closeSettings(); syncClock(false)">🕐 Синхронизировать время</button><button onclick="toggleSound()">${soundEnabled?'🔊 Выключить звук':'🔇 Включить звук'}</button><button onclick="closeSettings(); showStats()">📊 Статистика за смену</button></div><button class="modal-cancel" onclick="closeSettings()">Закрыть</button></div>`;
+  }
   document.body.appendChild(overlay);
 }
-function closeSettings(){document.getElementById('settingsModal')?.remove();}
-function toggleSound(){soundEnabled=!soundEnabled;localStorage.setItem('soundEnabled',soundEnabled?'1':'0');showToast(soundEnabled?'🔊 ВКЛ':'🔇 ВЫКЛ');closeSettings();if(role==='worker')openSettings();}
+function closeSettings(){ document.getElementById('settingsModal')?.remove(); }
+function toggleSound(){
+  soundEnabled=!soundEnabled; localStorage.setItem('soundEnabled',soundEnabled?'1':'0');
+  showToast(soundEnabled?'🔊 ВКЛ':'🔇 ВЫКЛ'); closeSettings();
+  if(role==='worker'){ openSettings(); }
+}
 function showStats(){
-  const todayDate=new Date(now());const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
-  let myPayouts=payouts.filter(p=>p.createdAt>=todayStart);myPayouts=myPayouts.filter(p=>p.createdBy===workerName);
+  const todayDate=new Date(now());
+  const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
+  let myPayouts=payouts.filter(p=>p.createdAt>=todayStart);
+  myPayouts=myPayouts.filter(p=>p.createdBy===workerName);
   const done=myPayouts.filter(p=>p.status==='done'), active=myPayouts.filter(p=>p.status==='active'), cancelled=myPayouts.filter(p=>p.status==='cancelled'), expired=myPayouts.filter(p=>p.status==='expired');
   const totalSum=done.reduce((s,p)=>s+p.totalSum,0);
   alert(`📊 Статистика за сегодня (${todayDate.toLocaleDateString('ru-RU')})\n👤 Воркер: ${workerName}\n⏰ Смена: ${shiftName||'—'}\n💱 Курс: ${shiftRate||'—'} ₽/USDT\n\n✅ Закрыто: ${done.length}\n🔥 В работе: ${active.length}\n⏰ Просрочено: ${expired.length}\n❌ Отменено: ${cancelled.length}\n💰 Оборот: ${Math.round(totalSum).toLocaleString('ru-RU')} ₽`);
 }
 
+// ═══ UI И ФИЛЬТРЫ ═══
 function updateModeUI(){
   const btn=document.getElementById('modeBtn'), settingsBtn=document.getElementById('settingsBtn'), form=document.getElementById('adminForm'), adminInfo=document.getElementById('adminInfo'), badge=document.getElementById('workerBadge'), rateBadge=document.getElementById('rateBadge'), meInfo=document.getElementById('meInfo'), tabAvail=document.getElementById('tabAvailable'), tabAct=document.getElementById('tabActive'), tabExp=document.getElementById('tabExpired'), tabDone=document.getElementById('tabDone');
   [tabAvail,tabAct,tabExp,tabDone].forEach(t=>t.classList.remove('hidden','active'));
+  
   if(role==='admin'){
-    btn.textContent='👑 Админ (просмотр)';btn.className='admin';form.style.display='none';settingsBtn.style.display='block';adminInfo.style.display='block';badge.textContent='👑 Админ';badge.className='badge admin';rateBadge.textContent='';rateBadge.className='badge';meInfo.textContent='👑 Просмотр архива всех воркеров';tabAvail.classList.add('hidden');tabAct.classList.add('hidden');
-    if(currentTab==='expired')tabExp.classList.add('active');else{currentTab='done';tabDone.classList.add('active');}
-  }else if(role==='worker'){
-    btn.textContent='🛠 '+workerName;btn.className='worker';form.style.display='block';settingsBtn.style.display='block';adminInfo.style.display='none';badge.textContent='🛠 '+workerName+' • '+(shiftName||'?');badge.className='badge worker';meInfo.textContent='🛠 '+workerName+' • '+(shiftName||'смена не выбрана')+' • личный архив';
-    if(currentTab==='available')tabAvail.classList.add('active');else if(currentTab==='active')tabAct.classList.add('active');else if(currentTab==='expired')tabExp.classList.add('active');else tabDone.classList.add('active');
-    if(shiftRate){rateBadge.textContent='💱 '+shiftRate+' ₽';rateBadge.className='badge rate';}else{rateBadge.textContent='';rateBadge.className='badge';}
-  }else if(role==='client'){
-    btn.textContent='❤️ '+clientUsername;btn.className='client';form.style.display='none';settingsBtn.style.display='block';adminInfo.style.display='none';badge.textContent='❤️ '+clientUsername;badge.className='badge client';rateBadge.textContent='';rateBadge.className='badge';meInfo.textContent='❤️ '+clientUsername+' — личный архив';tabExp.classList.add('hidden');
-    if(currentTab==='available')tabAvail.classList.add('active');else if(currentTab==='active')tabAct.classList.add('active');else{currentTab='done';tabDone.classList.add('active');}
-  }else{
-    btn.textContent='🔒 Войти';btn.className='';form.style.display='none';settingsBtn.style.display='none';adminInfo.style.display='none';badge.textContent='';badge.className='badge';rateBadge.textContent='';rateBadge.className='badge';meInfo.textContent='👤 Режим гостя — войди для работы';tabExp.classList.add('hidden');
-    if(currentTab==='available')tabAvail.classList.add('active');else{currentTab='available';tabAvail.classList.add('active');}
+    btn.textContent='👑 Админ (просмотр)'; btn.className='admin';
+    form.style.display='none'; settingsBtn.style.display='block'; adminInfo.style.display='block';
+    badge.textContent='👑 Админ'; badge.className='badge admin';
+    rateBadge.textContent=''; rateBadge.className='badge';
+    meInfo.textContent='👑 Просмотр архива всех воркеров';
+    tabAvail.classList.add('hidden'); tabAct.classList.add('hidden');
+    if(currentTab==='expired'){ tabExp.classList.add('active'); }
+    else{ currentTab='done'; tabDone.classList.add('active'); }
+    return;
+  }
+  
+  if(role==='worker'){
+    btn.textContent='🛠 '+workerName; btn.className='worker';
+    form.style.display='block'; settingsBtn.style.display='block'; adminInfo.style.display='none';
+    badge.textContent='🛠 '+workerName+' • '+(shiftName||'?'); badge.className='badge worker';
+    meInfo.textContent='🛠 '+workerName+' • '+(shiftName||'смена не выбрана')+' • личный архив';
+    if(currentTab==='available'){ tabAvail.classList.add('active'); }
+    else if(currentTab==='active'){ tabAct.classList.add('active'); }
+    else if(currentTab==='expired'){ tabExp.classList.add('active'); }
+    else{ tabDone.classList.add('active'); }
+    if(shiftRate){ rateBadge.textContent='💱 '+shiftRate+' ₽'; rateBadge.className='badge rate'; }
+    else{ rateBadge.textContent=''; rateBadge.className='badge'; }
+    return;
+  }
+  
+  if(role==='client'){
+    btn.textContent='❤️ '+clientUsername; btn.className='client';
+    form.style.display='none'; settingsBtn.style.display='block'; adminInfo.style.display='none';
+    badge.textContent='❤️ '+clientUsername; badge.className='badge client';
+    rateBadge.textContent=''; rateBadge.className='badge';
+    meInfo.textContent='❤️ '+clientUsername+' — личный архив';
+    tabExp.classList.add('hidden');
+    if(currentTab==='available'){ tabAvail.classList.add('active'); }
+    else if(currentTab==='active'){ tabAct.classList.add('active'); }
+    else{ currentTab='done'; tabDone.classList.add('active'); }
+    return;
+  }
+  
+  btn.textContent='🔒 Войти'; btn.className='';
+  form.style.display='none'; settingsBtn.style.display='none'; adminInfo.style.display='none';
+  badge.textContent=''; badge.className='badge';
+  rateBadge.textContent=''; rateBadge.className='badge';
+  meInfo.textContent='👤 Режим гостя — войди для работы';
+  tabExp.classList.add('hidden');
+  if(currentTab==='available'){ tabAvail.classList.add('active'); }
+  else{ currentTab='available'; tabAvail.classList.add('active'); }
+}
+
+function setTab(tab){
+  if(role==='admin' && tab!=='done' && tab!=='expired'){ return; }
+  if(role==='guest' && tab!=='available'){ return; }
+  if(role==='client' && tab!=='available' && tab!=='active' && tab!=='done'){ return; }
+  
+  currentTab=tab;
+  document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));
+  const el=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));
+  if(el){ el.classList.add('active'); }
+  render();
+}
+
+function filterPayouts(list,tab){
+  if(role==='admin'){
+    if(tab==='done' || tab==='expired'){ return list; }
+    return [];
+  }
+  if(role==='worker'){
+    if(tab==='available'){ return list; }
+    if(tab==='active'){ return list.filter(p=>p.createdBy===workerName); }
+    if(tab==='expired'){ return list.filter(p=>p.createdBy===workerName); }
+    if(tab==='done'){ return list.filter(p=>p.createdBy===workerName); }
+  }
+  if(role==='client'){
+    if(tab==='available'){ return list; }
+    if(tab==='active'){ return list.filter(p=>p.client===clientUsername); }
+    if(tab==='done'){ return list.filter(p=>p.client===clientUsername); }
+  }
+  if(tab==='available'){ return list; }
+  return [];
+}
+
+// ═══ ДЕЙСТВИЯ С ЗАЯВКАМИ ═══
+async function addPayout(){
+  if(role!=='worker'){ alert('❌ Только воркер может создавать заявки'); return; }
+  const phone=sanitizeReq(document.getElementById('phone').value), cardNumber=sanitizeReq(document.getElementById('cardNumber').value), bank=document.getElementById('bank').value.trim(), totalSum=parseFloat(document.getElementById('totalSum').value), totalChecks=parseInt(document.getElementById('totalChecks').value), timerMin=parseInt(document.getElementById('timerMin').value)||60, rate=parseFloat(document.getElementById('rate').value)||shiftRate||0;
+  
+  const errors=[];
+  if(!phone && !cardNumber){ errors.push('📱 Заполни телефон ИЛИ 💳 карту'); }
+  if(!totalSum || totalSum<=0){ errors.push('💰 Укажи сумму'); }
+  if(!totalChecks || totalChecks<=0){ errors.push('📄 Укажи количество чеков'); }
+  if(rate<=0){ errors.push('💱 Укажи курс'); }
+  if(errors.length>0){ alert('⚠️ Заполни поля:\n\n'+errors.join('\n')); return; }
+  
+  const todayDate=new Date(now()), todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();
+  const normCard=s=>(s||'').replace(/\s+/g,''), normPhone=s=>(s||'').replace(/\D/g,'');
+  const cardClean=normCard(cardNumber), phoneClean=normPhone(phone);
+  const sameCardPayouts=cardClean?payouts.filter(x=>x.createdAt>=todayStart && normCard(x.cardNumber)===cardClean):[], samePhonePayouts=phoneClean?payouts.filter(x=>x.createdAt>=todayStart && normPhone(x.phone)===phoneClean):[];
+  const lines=[];
+  
+  if(sameCardPayouts.length>0){
+    lines.push('💳 КАРТА уже выдавалась ('+sameCardPayouts.length+' раз):');
+    sameCardPayouts.forEach(x=>{
+      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), client=x.client?' • '+x.client:' • в пуле', status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';
+      lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);
+    });
+  }
+  if(samePhonePayouts.length>0){
+    if(lines.length){ lines.push(''); }
+    lines.push('📱 ТЕЛЕФОН уже выдавался ('+samePhonePayouts.length+' раз):');
+    samePhonePayouts.forEach(x=>{
+      const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), client=x.client?' • '+x.client:' • в пуле', status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';
+      lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);
+    });
+  }
+  
+  if(lines.length){
+    const ok=confirm('⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n'+lines.join('\n')+'\n\nПродолжить создание заявки?');
+    if(!ok){ return; }
+  }
+  
+  try{
+    await addDoc(payoutsRef,{phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',status:'available',client:null,checks:[],createdAt:now(),startedAt:null,finishedAt:null});
+    ['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id=>document.getElementById(id).value='');
+    showToast('✅ Заявка создана ('+rate+' ₽/USDT)');
+  }catch(e){ alert('Ошибка: '+e.message); }
+}
+
+async function editRate(id){
+  if(role!=='worker'){ alert('Только воркер'); return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  const v=prompt('💱 Изменить курс\n\nТекущий: '+(p.rate||'—')+' ₽/USDT\n\nНовый курс:',p.rate||'');
+  if(v===null){ return; }
+  const r=parseFloat(v); 
+  if(!r || r<=0){ alert('Курс должен быть > 0'); return; }
+  await updateDoc(doc(db,'payouts',id),{rate:r}); 
+  showToast('💱 Курс: '+r+' ₽/USDT');
+}
+
+async function takePayout(id){
+  if(role!=='client'){ alert('❌ Только клиент'); return; }
+  if(takingIds.has(id)){ return; } 
+  takingIds.add(id);
+  
+  try{
+    await runTransaction(db,async(tx)=>{
+      const ref=doc(db,'payouts',id), snap=await tx.get(ref);
+      if(!snap.exists()){ throw new Error('not_found'); }
+      const data=snap.data();
+      if(data.status==='active' || data.status==='done' || data.status==='cancelled'){ throw new Error('already_taken'); }
+      if(data.status==='expired'){ throw new Error('expired'); }
+      if(data.status!=='available'){ throw new Error('not_available'); }
+      const leftMs=(data.timerMin||0)*60000-(now()-(data.createdAt||0));
+      if(leftMs<0){ tx.update(ref,{status:'expired',expiredAt:now()}); throw new Error('expired'); }
+      tx.update(ref,{status:'active',client:clientUsername,startedAt:now()});
+    });
+    setTab('active'); showToast('❤️ Взято в работу!','heart');
+  }catch(e){
+    const m=e.message||'';
+    if(m.includes('already_taken')){ showToast('❌ Уже взята другим клиентом','err'); }
+    else if(m.includes('expired')){ showToast('⏰ Время истекло — заявка в «Просрочено»','warn'); }
+    else if(m.includes('not_found')){ showToast('❌ Заявка не найдена','err'); }
+    else if(m.includes('not_available')){ showToast('❌ Заявка недоступна','err'); }
+    else{ showToast('Ошибка: '+m,'err'); }
+  }finally{ takingIds.delete(id); }
+}
+
+async function uploadCheck(id,inputEl){
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  const isOwner=(role==='client' && p.client===clientUsername) || (role==='worker');
+  if(!isOwner){ alert('❌ Нельзя'); return; }
+  const file=inputEl.files[0], sumEl=document.getElementById('checkSum_'+id), sum=parseFloat(sumEl.value);
+  if(!file){ alert('Выбери файл'); return; }
+  if(!sum || sum<=0){ alert('Введи сумму чека'); return; }
+  if(file.size>900000){ alert('Файл > 900 KB'); return; }
+  
+  const btn=inputEl.parentElement.querySelector('label'), oldText=btn.textContent; 
+  btn.textContent='⏳...';
+  try{
+    const base64=await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve(reader.result); reader.onerror=reject; reader.readAsDataURL(file); });
+    const newChecks=[...(p.checks||[]),{data:base64,fileName:file.name,fileType:file.type,sum,uploadedAt:now()}];
+    const totalPaid=newChecks.reduce((s,c)=>s+c.sum,0);
+    const update={checks:newChecks};
+    if(totalPaid>=p.totalSum){ update.status='done'; update.finishedAt=now(); }
+    await updateDoc(doc(db,'payouts',id),update);
+    delete checkInputs[id]; localStorage.setItem('checkInputs',JSON.stringify(checkInputs));
+    sumEl.value=''; inputEl.value='';
+    showToast('✅ Чек на '+Math.round(sum).toLocaleString('ru-RU')+' ₽');
+  }catch(e){ alert('Ошибка: '+e.message); }
+  finally{ btn.textContent=oldText; }
+}
+
+function openProblemModal(id){
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='problemModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>⚠️ Проблема</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><textarea class="modal-textarea" id="problemText" placeholder="Опиши проблему..."></textarea><label class="modal-file-label" for="problemFile">📎 Прикрепить скриншот</label><input type="file" id="problemFile" accept="image/*,.pdf" style="display:none"><div id="problemFileName" style="font-size:11px;color:var(--text-dim);margin-bottom:8px;"></div><button class="modal-submit" onclick="submitProblem('${id}')">Отправить</button><button class="modal-cancel" onclick="closeProblemModal()">Отмена</button></div>`;
+  document.body.appendChild(overlay);
+  document.getElementById('problemFile')?.addEventListener('change',e=>{ const f=e.target.files[0]; if(f){ document.getElementById('problemFileName').textContent='✓ '+f.name; } });
+}
+function closeProblemModal(){ document.getElementById('problemModal')?.remove(); }
+
+async function submitProblem(id){
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  const text=document.getElementById('problemText').value.trim(), fileEl=document.getElementById('problemFile'), file=fileEl?.files[0];
+  if(!text && !file){ alert('Напиши или прикрепи'); return; }
+  
+  const btn=document.querySelector('#problemModal .modal-submit'); 
+  btn.textContent='⏳...'; btn.disabled=true;
+  try{
+    let fileData=null;
+    if(file){
+      if(file.size>900000){ throw new Error('Файл > 900 KB'); }
+      fileData=await new Promise((resolve,reject)=>{ const reader=new FileReader(); reader.onload=()=>resolve({data:reader.result,name:file.name,type:file.type}); reader.onerror=reject; reader.readAsDataURL(file); });
+    }
+    const problems=[...(p.problems||[]),{text,file:fileData,createdAt:now(),by:role==='client'?clientUsername:workerName}];
+    await updateDoc(doc(db,'payouts',id),{problems,hasProblem:true});
+    closeProblemModal(); showToast('✅ Отправлено');
+  }catch(e){ alert('Ошибка: '+e.message); }
+  finally{ if(btn){ btn.textContent='Отправить'; btn.disabled=false; } }
+}
+
+async function cancelByClient(id){
+  if(role!=='client'){ return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p || p.client!==clientUsername){ return; }
+  const reason=prompt('❌ Отмена сделки\n\nПричина (можно пусто):'); 
+  if(reason===null){ return; }
+  await updateDoc(doc(db,'payouts',id),{status:'cancelled',cancelledAt:now(),cancelledBy:clientUsername,cancelReason:reason||'без причины'});
+  showToast('❌ Отменено');
+}
+
+async function finishPayout(id){
+  if(role!=='worker'){ return; }
+  if(!confirm('Завершить заявку?')){ return; }
+  await updateDoc(doc(db,'payouts',id),{status:'done',finishedAt:now()});
+}
+
+async function returnToAvailable(id){
+  if(role!=='worker'){ return; }
+  if(!confirm('Вернуть в доступные?')){ return; }
+  await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null});
+}
+
+async function deletePayout(id){
+  if(role!=='worker'){ return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  if(p.createdBy!==workerName){ alert('Только свои заявки'); return; }
+  if(!confirm('Удалить навсегда?')){ return; }
+  await deleteDoc(doc(db,'payouts',id));
+}
+
+async function extendTimer(id,minutes){
+  if(role!=='worker'){ return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  await updateDoc(doc(db,'payouts',id),{timerMin:p.timerMin+minutes});
+  warned15.delete(id); warned10.delete(id); warned5.delete(id); persistWarned();
+  showToast('⏰ +'+minutes+' мин');
+}
+
+function revivePayout(id){
+  if(role!=='worker'){ return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  if(p.createdBy!==workerName){ alert('Только свои заявки'); return; }
+  if(p.status!=='expired'){ return; }
+  
+  const existing=document.getElementById('reviveModal'); 
+  if(existing){ existing.remove(); }
+  const overlay=document.createElement('div'); overlay.className='modal-overlay'; overlay.id='reviveModal';
+  overlay.innerHTML=`<div class="modal-box"><h3>🔄 Вернуть в пул</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><p style="font-size:11px;color:var(--warning);margin-top:4px;">⚠️ Убедись что реквизиты всё ещё актуальны!<br>После возврата её сможет взять любой клиент.</p><label class="revive-confirm" id="reviveLabel"><input type="checkbox" id="reviveConfirm"><span>✅ Реквизиты проверены и актуальны</span></label><div class="rate-input-wrap"><input type="number" id="reviveTimer" value="60" min="1" max="1440"></div><div class="rate-hint">Таймер, мин (1–1440)</div><button class="modal-submit" id="reviveSubmit" style="margin-top:10px;" onclick="confirmRevive('${id}')" disabled>🔄 Вернуть в пул</button><button class="modal-cancel" onclick="closeReviveModal()">Отмена</button></div>`;
+  document.body.appendChild(overlay);
+  
+  const chk=document.getElementById('reviveConfirm'), lbl=document.getElementById('reviveLabel'), sub=document.getElementById('reviveSubmit');
+  chk.addEventListener('change',()=>{ sub.disabled=!chk.checked; lbl.classList.toggle('checked',chk.checked); });
+  setTimeout(()=>{ const f = document.getElementById('reviveTimer'); if(f){ f.focus(); f.select(); } },50);
+}
+function closeReviveModal(){ document.getElementById('reviveModal')?.remove(); }
+
+async function confirmRevive(id){
+  if(role!=='worker'){ return; }
+  const p=payouts.find(x=>x.id===id); 
+  if(!p){ return; }
+  if(p.createdBy!==workerName){ alert('Только свои заявки'); return; }
+  
+  const chk=document.getElementById('reviveConfirm');
+  if(!chk || !chk.checked){ showToast('❌ Подтверди актуальность','err'); return; }
+  const mins=parseInt(document.getElementById('reviveTimer')?.value);
+  if(!mins || mins<1 || mins>1440){ showToast('❌ Таймер от 1 до 1440 мин','err'); return; }
+  
+  const btn=document.getElementById('reviveSubmit'); 
+  btn.disabled=true; btn.textContent='⏳...';
+  try{
+    await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null,timerMin:mins,createdAt:now(),originalCreatedAt:p.originalCreatedAt||p.createdAt,revivedAt:now(),revivedBy:workerName,reviveCount:(p.reviveCount||0)+1});
+    warned15.delete(id); warned10.delete(id); warned5.delete(id); persistWarned(); expiringIds.delete(id);
+    closeReviveModal(); showToast('🔄 Вернули в пул на '+mins+' мин','info');
+  }catch(e){
+    showToast('Ошибка: '+e.message,'err');
+    btn.disabled=false; btn.textContent='🔄 Вернуть в пул';
   }
 }
-function setTab(tab){
-  if(role==='admin'&&tab!=='done'&&tab!=='expired')return;if(role==='guest'&&tab!=='available')return;if(role==='client'&&tab!=='available'&&tab!=='active'&&tab!=='done')return;
-  currentTab=tab;document.querySelectorAll('.tabs button').forEach(b=>b.classList.remove('active'));const el=document.getElementById('tab'+tab.charAt(0).toUpperCase()+tab.slice(1));if(el)el.classList.add('active');render();
-}
-function filterPayouts(list,tab){
-  if(role==='admin'){if(tab==='done'||tab==='expired')return list;return [];}
-  if(role==='worker'){if(tab==='available')return list;if(tab==='active')return list.filter(p=>p.createdBy===workerName);if(tab==='expired')return list.filter(p=>p.createdBy===workerName);if(tab==='done')return list.filter(p=>p.createdBy===workerName);}
-  if(role==='client'){if(tab==='available')return list;if(tab==='active')return list.filter(p=>p.client===clientUsername);if(tab==='done')return list.filter(p=>p.client===clientUsername);}
-  if(tab==='available')return list;return [];
-}
 
-async function addPayout(){
-  if(role!=='worker'){alert('❌ Только воркер может создавать заявки');return;}
-  const phone=sanitizeReq(document.getElementById('phone').value), cardNumber=sanitizeReq(document.getElementById('cardNumber').value), bank=document.getElementById('bank').value.trim(), totalSum=parseFloat(document.getElementById('totalSum').value), totalChecks=parseInt(document.getElementById('totalChecks').value), timerMin=parseInt(document.getElementById('timerMin').value)||60, rate=parseFloat(document.getElementById('rate').value)||shiftRate||0;
-  const errors=[];if(!phone&&!cardNumber)errors.push('📱 Заполни телефон ИЛИ 💳 карту');if(!totalSum||totalSum<=0)errors.push('💰 Укажи сумму');if(!totalChecks||totalChecks<=0)errors.push('📄 Укажи количество чеков');if(rate<=0)errors.push('💱 Укажи курс');
-  if(errors.length>0){alert('⚠️ Заполни поля:\n\n'+errors.join('\n'));return;}
-  const todayDate=new Date(now());const todayStart=new Date(todayDate.getFullYear(),todayDate.getMonth(),todayDate.getDate()).getTime();const normCard=s=>(s||'').replace(/\s+/g,''), normPhone=s=>(s||'').replace(/\D/g,'');const cardClean=normCard(cardNumber), phoneClean=normPhone(phone);
-  const sameCardPayouts=cardClean?payouts.filter(x=>x.createdAt>=todayStart&&normCard(x.cardNumber)===cardClean):[], samePhonePayouts=phoneClean?payouts.filter(x=>x.createdAt>=todayStart&&normPhone(x.phone)===phoneClean):[];const lines=[];
-  if(sameCardPayouts.length>0){lines.push('💳 КАРТА уже выдавалась ('+sameCardPayouts.length+' раз):');sameCardPayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), client=x.client?' • '+x.client:' • в пуле', status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);});}
-  if(samePhonePayouts.length>0){if(lines.length)lines.push('');lines.push('📱 ТЕЛЕФОН уже выдавался ('+samePhonePayouts.length+' раз):');samePhonePayouts.forEach(x=>{const t=new Date(x.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'}), client=x.client?' • '+x.client:' • в пуле', status=x.status==='done'?' ✅':x.status==='cancelled'?' ❌':x.status==='expired'?' ⏰':'';lines.push('   • '+t+' • '+(x.createdBy||'—')+client+' • '+formatMoney(x.totalSum)+status);});}
-  if(lines.length){const ok=confirm('⚠️ ВНИМАНИЕ! Реквизит уже использовался сегодня\n\n'+lines.join('\n')+'\n\nПродолжить создание заявки?');if(!ok)return;}
-  try{await addDoc(payoutsRef,{phone,cardNumber,bank,totalSum,totalChecks,timerMin,rate,createdBy:workerName||'Unknown',creatorRole:'worker',shift:shiftName||'',status:'available',client:null,checks:[],createdAt:now(),startedAt:null,finishedAt:null});['phone','cardNumber','bank','totalSum','totalChecks'].forEach(id=>document.getElementById(id).value='');showToast('✅ Заявка создана ('+rate+' ₽/USDT)');}catch(e){alert('Ошибка: '+e.message);}
+// ═══ УТИЛИТЫ И РЕНДЕР ═══
+function paidSum(p){ return (p.checks||[]).reduce((s,c)=>s+c.sum,0); }
+function formatMoney(n){ return Math.round(n).toLocaleString('ru-RU')+' ₽'; }
+function formatTime(ms){ 
+  if(ms<0){ ms=0; } 
+  const total=Math.floor(ms/1000),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60; 
+  if(h>0){ return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); } 
+  return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0'); 
 }
-async function editRate(id){if(role!=='worker'){alert('Только воркер');return;}const p=payouts.find(x=>x.id===id);if(!p)return;const v=prompt('💱 Изменить курс\n\nТекущий: '+(p.rate||'—')+' ₽/USDT\n\nНовый курс:',p.rate||'');if(v===null)return;const r=parseFloat(v);if(!r||r<=0){alert('Курс должен быть > 0');return;}await updateDoc(doc(db,'payouts',id),{rate:r});showToast('💱 Курс: '+r+' ₽/USDT');}
-async function takePayout(id){
-  if(role!=='client'){alert('❌ Только клиент');return;}if(takingIds.has(id))return;takingIds.add(id);
-  try{await runTransaction(db,async(tx)=>{const ref=doc(db,'payouts',id);const snap=await tx.get(ref);if(!snap.exists())throw new Error('not_found');const data=snap.data();if(data.status==='active'||data.status==='done'||data.status==='cancelled')throw new Error('already_taken');if(data.status==='expired')throw new Error('expired');if(data.status!=='available')throw new Error('not_available');const leftMs=(data.timerMin||0)*60000-(now()-(data.createdAt||0));if(leftMs<0){tx.update(ref,{status:'expired',expiredAt:now()});throw new Error('expired');}tx.update(ref,{status:'active',client:clientUsername,startedAt:now()});});setTab('active');showToast('❤️ Взято в работу!','heart');}
-  catch(e){const m=e.message||'';if(m.includes('already_taken'))showToast('❌ Уже взята другим клиентом','err');else if(m.includes('expired'))showToast('⏰ Время истекло — заявка в «Просрочено»','warn');else if(m.includes('not_found'))showToast('❌ Заявка не найдена','err');else if(m.includes('not_available'))showToast('❌ Заявка недоступна','err');else showToast('Ошибка: '+m,'err');}finally{takingIds.delete(id);}
-}
-async function uploadCheck(id,inputEl){
-  const p=payouts.find(x=>x.id===id);if(!p)return;const isOwner=(role==='client'&&p.client===clientUsername)||(role==='worker');if(!isOwner){alert('❌ Нельзя');return;}const file=inputEl.files[0], sumEl=document.getElementById('checkSum_'+id), sum=parseFloat(sumEl.value);if(!file){alert('Выбери файл');return;}if(!sum||sum<=0){alert('Введи сумму чека');return;}if(file.size>900000){alert('Файл > 900 KB');return;}
-  const btn=inputEl.parentElement.querySelector('label'), oldText=btn.textContent;btn.textContent='⏳...';
-  try{const base64=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(file);});const newChecks=[...(p.checks||[]),{data:base64,fileName:file.name,fileType:file.type,sum,uploadedAt:now()}];const totalPaid=newChecks.reduce((s,c)=>s+c.sum,0);const update={checks:newChecks};if(totalPaid>=p.totalSum){update.status='done';update.finishedAt=now();}await updateDoc(doc(db,'payouts',id),update);delete checkInputs[id];localStorage.setItem('checkInputs',JSON.stringify(checkInputs));sumEl.value='';inputEl.value='';showToast('✅ Чек на '+Math.round(sum).toLocaleString('ru-RU')+' ₽');}
-  catch(e){alert('Ошибка: '+e.message);}finally{btn.textContent=oldText;}
-}
-function openProblemModal(id){const p=payouts.find(x=>x.id===id);if(!p)return;const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='problemModal';overlay.innerHTML=`<div class="modal-box"><h3>⚠️ Проблема</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><textarea class="modal-textarea" id="problemText" placeholder="Опиши проблему..."></textarea><label class="modal-file-label" for="problemFile">📎 Прикрепить скриншот</label><input type="file" id="problemFile" accept="image/*,.pdf" style="display:none"><div id="problemFileName" style="font-size:11px;color:var(--text-dim);margin-bottom:8px;"></div><button class="modal-submit" onclick="submitProblem('${id}')">Отправить</button><button class="modal-cancel" onclick="closeProblemModal()">Отмена</button></div>`;document.body.appendChild(overlay);document.getElementById('problemFile')?.addEventListener('change',e=>{const f=e.target.files[0];if(f)document.getElementById('problemFileName').textContent='✓ '+f.name;});}
-function closeProblemModal(){document.getElementById('problemModal')?.remove();}
-async function submitProblem(id){
-  const p=payouts.find(x=>x.id===id);if(!p)return;const text=document.getElementById('problemText').value.trim(), fileEl=document.getElementById('problemFile'), file=fileEl?.files[0];if(!text&&!file){alert('Напиши или прикрепи');return;}const btn=document.querySelector('#problemModal .modal-submit');btn.textContent='⏳...';btn.disabled=true;
-  try{let fileData=null;if(file){if(file.size>900000)throw new Error('Файл > 900 KB');fileData=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve({data:reader.result,name:file.name,type:file.type});reader.onerror=reject;reader.readAsDataURL(file);});}const problems=[...(p.problems||[]),{text,file:fileData,createdAt:now(),by:role==='client'?clientUsername:workerName}];await updateDoc(doc(db,'payouts',id),{problems,hasProblem:true});closeProblemModal();showToast('✅ Отправлено');}catch(e){alert('Ошибка: '+e.message);}finally{if(btn){btn.textContent='Отправить';btn.disabled=false;}}
-}
-async function cancelByClient(id){if(role!=='client')return;const p=payouts.find(x=>x.id===id);if(!p||p.client!==clientUsername)return;const reason=prompt('❌ Отмена сделки\n\nПричина (можно пусто):');if(reason===null)return;await updateDoc(doc(db,'payouts',id),{status:'cancelled',cancelledAt:now(),cancelledBy:clientUsername,cancelReason:reason||'без причины'});showToast('❌ Отменено');}
-async function finishPayout(id){if(role!=='worker')return;if(!confirm('Завершить заявку?'))return;await updateDoc(doc(db,'payouts',id),{status:'done',finishedAt:now()});}
-async function returnToAvailable(id){if(role!=='worker')return;if(!confirm('Вернуть в доступные?'))return;await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null});}
-async function deletePayout(id){if(role!=='worker')return;const p=payouts.find(x=>x.id===id);if(!p)return;if(p.createdBy!==workerName){alert('Только свои заявки');return;}if(!confirm('Удалить навсегда?'))return;await deleteDoc(doc(db,'payouts',id));}
-async function extendTimer(id,minutes){if(role!=='worker')return;const p=payouts.find(x=>x.id===id);if(!p)return;await updateDoc(doc(db,'payouts',id),{timerMin:p.timerMin+minutes});warned15.delete(id);warned10.delete(id);warned5.delete(id);persistWarned();showToast('⏰ +'+minutes+' мин');}
-function revivePayout(id){
-  if(role!=='worker')return;const p=payouts.find(x=>x.id===id);if(!p)return;if(p.createdBy!==workerName){alert('Только свои заявки');return;}if(p.status!=='expired')return;
-  const existing=document.getElementById('reviveModal');if(existing)existing.remove();const overlay=document.createElement('div');overlay.className='modal-overlay';overlay.id='reviveModal';
-  overlay.innerHTML=`<div class="modal-box"><h3>🔄 Вернуть в пул</h3><p>Заявка на ${formatMoney(p.totalSum)}</p><p style="font-size:11px;color:var(--warning);margin-top:4px;">⚠️ Убедись что реквизиты всё ещё актуальны!<br>После возврата её сможет взять любой клиент.</p><label class="revive-confirm" id="reviveLabel"><input type="checkbox" id="reviveConfirm"><span>✅ Реквизиты проверены и актуальны</span></label><div class="rate-input-wrap"><input type="number" id="reviveTimer" value="60" min="1" max="1440"></div><div class="rate-hint">Таймер, мин (1–1440)</div><button class="modal-submit" id="reviveSubmit" style="margin-top:10px;" onclick="confirmRevive('${id}')" disabled>🔄 Вернуть в пул</button><button class="modal-cancel" onclick="closeReviveModal()">Отмена</button></div>`;
-  document.body.appendChild(overlay);const chk=document.getElementById('reviveConfirm'), lbl=document.getElementById('reviveLabel'), sub=document.getElementById('reviveSubmit');chk.addEventListener('change',()=>{sub.disabled=!chk.checked;lbl.classList.toggle('checked',chk.checked);});setTimeout(()=>{document.getElementById('reviveTimer')?.focus();document.getElementById('reviveTimer')?.select();},50);
-}
-function closeReviveModal(){document.getElementById('reviveModal')?.remove();}
-async function confirmRevive(id){
-  if(role!=='worker')return;const p=payouts.find(x=>x.id===id);if(!p)return;if(p.createdBy!==workerName){alert('Только свои заявки');return;}const chk=document.getElementById('reviveConfirm');if(!chk||!chk.checked){showToast('❌ Подтверди актуальность','err');return;}const mins=parseInt(document.getElementById('reviveTimer')?.value);if(!mins||mins<1||mins>1440){showToast('❌ Таймер от 1 до 1440 мин','err');return;}const btn=document.getElementById('reviveSubmit');btn.disabled=true;btn.textContent='⏳...';
-  try{await updateDoc(doc(db,'payouts',id),{status:'available',client:null,startedAt:null,timerMin:mins,createdAt:now(),originalCreatedAt:p.originalCreatedAt||p.createdAt,revivedAt:now(),revivedBy:workerName,reviveCount:(p.reviveCount||0)+1});warned15.delete(id);warned10.delete(id);warned5.delete(id);persistWarned();expiringIds.delete(id);closeReviveModal();showToast('🔄 Вернули в пул на '+mins+' мин','info');}catch(e){showToast('Ошибка: '+e.message,'err');btn.disabled=false;btn.textContent='🔄 Вернуть в пул';}
-}
-
-function paidSum(p){return (p.checks||[]).reduce((s,c)=>s+c.sum,0);}
-function formatMoney(n){return Math.round(n).toLocaleString('ru-RU')+' ₽';}
-function formatTime(ms){if(ms<0)ms=0;const total=Math.floor(ms/1000),h=Math.floor(total/3600),m=Math.floor((total%3600)/60),s=total%60;if(h>0)return String(h).padStart(2,'0')+':'+String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');return String(m).padStart(2,'0')+':'+String(s).padStart(2,'0');}
-function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
-function copyText(text){navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано')).catch(()=>{});}
-function saveCheckInput(id,value){checkInputs[id]=value;localStorage.setItem('checkInputs',JSON.stringify(checkInputs));}
-document.addEventListener('click',(e)=>{const el=e.target.closest('[data-copy]');if(!el)return;e.preventDefault();const val=el.getAttribute('data-copy');if(val!==null&&val!=='')copyText(val);});
-function getCurrentShift(){const h=new Date(now()).getHours();if(h>=6&&h<14)return 'Утро';if(h>=14&&h<22)return 'Вечер';return 'Ночь';}
-function getShiftEmoji(s){if(s==='Утро')return '🌅';if(s==='Вечер')return '🌆';if(s==='Ночь')return '🌙';return '⏰';}
+function esc(s){ return String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
+function copyText(text){ navigator.clipboard.writeText(text).then(()=>showToast('📋 Скопировано')).catch(()=>{}); }
+function saveCheckInput(id,value){ checkInputs[id]=value; localStorage.setItem('checkInputs',JSON.stringify(checkInputs)); }
+document.addEventListener('click',(e)=>{ const el=e.target.closest('[data-copy]'); if(!el){ return; } e.preventDefault(); const val=el.getAttribute('data-copy'); if(val!==null && val!==''){ copyText(val); } });
+function getCurrentShift(){ const h=new Date(now()).getHours(); if(h>=6 && h<14){ return 'Утро'; } if(h>=14 && h<22){ return 'Вечер'; } return 'Ночь'; }
+function getShiftEmoji(s){ if(s==='Утро'){ return '🌅'; } if(s==='Вечер'){ return '🌆'; } if(s==='Ночь'){ return '🌙'; } return '⏰'; }
 
 function renderCard(p){
-  const paid=paidSum(p), left=Math.max(0,p.totalSum-paid), pct=Math.min(100,(paid/p.totalSum)*100), checksCount=(p.checks||[]).length, isMine=(role==='client'&&p.client===clientUsername), canEditRate=role==='worker';
+  const paid=paidSum(p), left=Math.max(0,p.totalSum-paid), pct=Math.min(100,(paid/p.totalSum)*100), checksCount=(p.checks||[]).length, isMine=(role==='client' && p.client===clientUsername), canEditRate=role==='worker';
   let timerHtml='', cardExtraClass='';
-  if((p.status==='available'||p.status==='active')&&p.createdAt){
-    const limitMs=p.timerMin*60000, leftMs=limitMs-(now()-p.createdAt);let cls;
-    if(p.status==='available'){if(leftMs<0)cls='dead';else if(leftMs<5*60000)cls='red';else if(leftMs<10*60000)cls='orange';else if(leftMs<15*60000)cls='yellow';else cls='gray';}
-    else{if(leftMs<0)cls='red';else if(leftMs<5*60000)cls='red';else if(leftMs<10*60000)cls='orange';else if(leftMs<15*60000)cls='yellow';else cls='green';}
-    if(p.status==='active'){if(leftMs<0)cardExtraClass=' expired';else if(leftMs<10*60000)cardExtraClass=' warning';}
+  
+  if((p.status==='available' || p.status==='active') && p.createdAt){
+    const limitMs=p.timerMin*60000, leftMs=limitMs-(now()-p.createdAt); let cls;
+    if(p.status==='available'){
+      if(leftMs<0){ cls='dead'; }
+      else if(leftMs<5*60000){ cls='red'; }
+      else if(leftMs<10*60000){ cls='orange'; }
+      else if(leftMs<15*60000){ cls='yellow'; }
+      else{ cls='gray'; }
+    }else{
+      if(leftMs<0){ cls='red'; }
+      else if(leftMs<5*60000){ cls='red'; }
+      else if(leftMs<10*60000){ cls='orange'; }
+      else if(leftMs<15*60000){ cls='yellow'; }
+      else{ cls='green'; }
+    }
+    if(p.status==='active'){
+      if(leftMs<0){ cardExtraClass=' expired'; }
+      else if(leftMs<10*60000){ cardExtraClass=' warning'; }
+    }
     timerHtml=`<span class="timer ${cls}" data-timer-start="${p.createdAt}" data-timer-limit="${limitMs}" data-payout-id="${p.id}">${formatTime(leftMs)}</span>`;
   }
-  let expiredTagHtml=p.status==='expired'?`<div class="expired-tag">⏰ Не обработана — время истекло</div>`:'';
-  let revivedTagHtml=p.revivedAt&&p.status!=='expired'?`<div class="card-row small" style="color:var(--info)">🔄 Возрождена: ${new Date(p.revivedAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} • ${esc(p.revivedBy||'—')}${p.reviveCount>1?' (×'+p.reviveCount+')':''}</div>`:'';
+  
+  let expiredTagHtml = '';
+  if(p.status==='expired'){ expiredTagHtml=`<div class="expired-tag">⏰ Не обработана — время истекло</div>`; }
+  
+  let revivedTagHtml = '';
+  if(p.revivedAt && p.status!=='expired'){ revivedTagHtml=`<div class="card-row small" style="color:var(--info)">🔄 Возрождена: ${new Date(p.revivedAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})} • ${esc(p.revivedBy||'—')}${p.reviveCount>1?' (×'+p.reviveCount+')':''}</div>`; }
+  
   let actions='';
   if(p.status==='available'){
-    if(role==='client'){const leftMs=p.timerMin*60000-(now()-p.createdAt);if(leftMs>0){actions=`<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`;}else{actions=`<div class="card-actions"><button class="gray" disabled>⏰ Время истекло</button></div>`;}}
-    else if(role==='worker'){actions=`<div class="card-actions">`;if(canEditRate)actions+=`<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`;if(p.createdBy===workerName)actions+=`<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`;actions+=`</div>`;}
-  }else if(p.status==='active'){
-    const savedSum=checkInputs[p.id]||'', canUpload=isMine||role==='worker';
-    if(canUpload){actions=`<div class="check-form"><div class="check-form-title">💵 Загрузить чек</div><div class="check-form-row"><input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)"><input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)"><label for="checkFile_${p.id}">📎 Чек</label></div></div>`;}
-    if(isMine){actions+=`<div class="card-actions"><button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button><button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button></div>`;}
-    if(role==='worker'){actions+=`<div class="card-actions"><button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button><button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button><button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button><button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button></div>`;}
-  }else if(p.status==='expired'){
-    if(role==='worker'&&p.createdBy===workerName){actions=`<div class="card-actions"><button class="green" onclick="revivePayout('${p.id}')">🔄 Вернуть в пул</button><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`;}
+    if(role==='client'){
+      const leftMs=p.timerMin*60000-(now()-p.createdAt);
+      if(leftMs>0){ actions=`<div class="card-actions"><button class="green" onclick="takePayout('${p.id}')">❤️ Взять в работу</button></div>`; }
+      else{ actions=`<div class="card-actions"><button class="gray" disabled>⏰ Время истекло</button></div>`; }
+    }else if(role==='worker'){
+      actions=`<div class="card-actions">`;
+      if(canEditRate){ actions+=`<button class="rate-btn" onclick="editRate('${p.id}')">✏️ Курс</button>`; }
+      if(p.createdBy===workerName){ actions+=`<button class="red" onclick="deletePayout('${p.id}')">× Удалить</button>`; }
+      actions+=`</div>`;
+    }
   }
+  else if(p.status==='active'){
+    const savedSum=checkInputs[p.id]||'', canUpload=isMine || role==='worker';
+    if(canUpload){ actions=`<div class="check-form"><div class="check-form-title">💵 Загрузить чек</div><div class="check-form-row"><input type="number" id="checkSum_${p.id}" placeholder="Сумма ₽" step="0.01" value="${savedSum}" oninput="saveCheckInput('${p.id}', this.value)"><input type="file" id="checkFile_${p.id}" accept=".pdf,image/*" onchange="uploadCheck('${p.id}', this)"><label for="checkFile_${p.id}">📎 Чек</label></div></div>`; }
+    if(isMine){ actions+=`<div class="card-actions"><button class="orange" onclick="openProblemModal('${p.id}')">⚠️ Проблема</button><button class="red" onclick="cancelByClient('${p.id}')">❌ Отменить</button></div>`; }
+    if(role==='worker'){ actions+=`<div class="card-actions"><button class="green" onclick="finishPayout('${p.id}')">✅ Завершить</button><button class="orange" onclick="extendTimer('${p.id}', 30)">⏰ +30</button><button class="orange" onclick="extendTimer('${p.id}', 60)">⏰ +1ч</button><button class="gray" onclick="returnToAvailable('${p.id}')">⏸ Вернуть</button></div>`; }
+  }
+  else if(p.status==='expired'){
+    if(role==='worker' && p.createdBy===workerName){ actions=`<div class="card-actions"><button class="green" onclick="revivePayout('${p.id}')">🔄 Вернуть в пул</button><button class="red" onclick="deletePayout('${p.id}')">× Удалить</button></div>`; }
+  }
+  
   let checksHtml='';
-  if((p.checks||[]).length){checksHtml=`<div class="checks-list">`+p.checks.map((c,i)=>`<div class="check-item"><span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b> <span style="color:var(--text-mute);font-size:10px">${new Date(c.uploadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span><a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a></div>`).join('')+`</div>`;}
+  if((p.checks||[]).length){
+    checksHtml=`<div class="checks-list">`+p.checks.map((c,i)=>`<div class="check-item"><span>📄 Чек ${i+1}: <b>${formatMoney(c.sum)}</b> <span style="color:var(--text-mute);font-size:10px">${new Date(c.uploadedAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span><a href="${c.data}" download="${esc(c.fileName)}" target="_blank">Скачать ⬇</a></div>`).join('')+`</div>`;
+  }
+  
   let problemsHtml='';
-  if((p.problems||[]).length){problemsHtml=`<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;"><div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>${p.problems.map(pr=>`<div class="check-item" style="background:rgba(239,68,68,0.1);"><span style="font-size:11px;">${esc(pr.text||'(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>${pr.file?`<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>`:''}</div>`).join('')}</div>`;}
-  let cancelHtml=p.status==='cancelled'?`<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason||'')}</div>`:'';
-  let metaHtml='';
-  if(role!=='guest'&&(p.createdBy||p.shift)){metaHtml=`<div class="card-row small">🛠 ${esc(p.createdBy||'—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift||'—')} • ${new Date(p.originalCreatedAt||p.createdAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>`;}
+  if((p.problems||[]).length){
+    problemsHtml=`<div class="checks-list" style="border-top:1px solid var(--danger);padding-top:6px;margin-top:6px;"><div style="font-size:11px;color:var(--danger);font-weight:bold;margin-bottom:4px;">⚠️ Проблемы:</div>${p.problems.map(pr=>`<div class="check-item" style="background:rgba(239,68,68,0.1);"><span style="font-size:11px;">${esc(pr.text||'(без описания)')} <span style="color:var(--text-mute);font-size:10px">${new Date(pr.createdAt).toLocaleTimeString('ru-RU',{hour:'2-digit',minute:'2-digit'})}</span></span>${pr.file?`<a href="${pr.file.data}" download="${esc(pr.file.name)}" target="_blank" style="color:var(--danger)">Скачать ⬇</a>`:''}</div>`).join('')}</div>`;
+  }
+  
+  let cancelHtml = '';
+  if(p.status==='cancelled'){ cancelHtml=`<div class="card-row small" style="color:var(--danger)">❌ Отменено: ${esc(p.cancelReason||'')}</div>`; }
+  
+  let metaHtml = '';
+  if(role!=='guest' && (p.createdBy||p.shift)){
+    metaHtml=`<div class="card-row small">🛠 ${esc(p.createdBy||'—')} • ${getShiftEmoji(p.shift)} ${esc(p.shift||'—')} • ${new Date(p.originalCreatedAt||p.createdAt).toLocaleString('ru-RU',{day:'2-digit',month:'2-digit',hour:'2-digit',minute:'2-digit'})}</div>`;
+  }
+  
   const rateHtml=p.rate?`<div class="card-row small">💱 Курс: <span class="rate-value" ${canEditRate?`onclick="editRate('${p.id}')"`:''}>${p.rate} ₽/USDT</span>${canEditRate?' ✏️':''}</div>`:'';
   const cardHtml=p.cardNumber?`<div class="card-row">💳 Карта: <span class="card-num" data-copy="${esc(p.cardNumber)}">${highlightMatch(p.cardNumber)}</span></div>`:'';
   const phoneHtml=p.phone?`<div class="card-row">📱 Телефон: <span class="phone-num" data-copy="${esc(p.phone)}">${highlightMatch(p.phone)}</span></div>`:'';
   const heartPrefix=isMine?'❤️ ':'';
+
   return `<div class="card ${p.status}${cardExtraClass}${isMine?' mine':''}">
       <div class="card-header"><b>${heartPrefix}${formatMoney(p.totalSum)}</b>${timerHtml}</div>
       ${expiredTagHtml}${revivedTagHtml}${cardHtml}${phoneHtml}
@@ -633,88 +1210,187 @@ function renderArchive(list){
   list.forEach(p=>{
     const d=new Date(p.createdAt);
     const dateKey=d.toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
-    if(!byDate[dateKey]) byDate[dateKey]={date:dateKey, latestAt:0, items:[]};
+    if(!byDate[dateKey]){ byDate[dateKey]={date:dateKey, latestAt:0, items:[]}; }
     byDate[dateKey].items.push(p);
-    if(p.createdAt>byDate[dateKey].latestAt) byDate[dateKey].latestAt=p.createdAt;
+    if(p.createdAt>byDate[dateKey].latestAt){ byDate[dateKey].latestAt=p.createdAt; }
   });
+  
   const sortedDates=Object.keys(byDate).sort((a,b)=>byDate[b].latestAt-byDate[a].latestAt);
   const todayStr=new Date(now()).toLocaleDateString('ru-RU',{day:'2-digit',month:'2-digit',year:'numeric'});
   let html='';
+  
   sortedDates.forEach((dateKey, idx)=>{
     const dayData=byDate[dateKey], isToday=dateKey===todayStr, totalCount=dayData.items.length;
     const totalDone=dayData.items.filter(p=>p.status==='done').reduce((s,p)=>s+p.totalSum,0);
-    const openAttr=(idx===0||isToday||!!searchQuery)?' open':'';
+    const openAttr=(idx===0 || isToday || !!searchQuery)?' open':'';
+    
     html+=`<details class="date-group"${openAttr}>
       <summary class="date-summary"><span>${isToday?'🔥 ':'📅 '}${dateKey}</span><span>${totalCount} заявок • ${Math.round(totalDone).toLocaleString('ru-RU')} ₽</span><span class="arrow">▶</span></summary>
       <div class="date-content">`;
+      
     const sortedItems = dayData.items.sort((a,b)=>b.createdAt-a.createdAt);
     html += sortedItems.map(renderCard).join('');
+    
     html+=`</div></details>`;
   });
   return html;
 }
 
 function render(){
-  const el=document.getElementById('content');let baseList=[];
-  if(currentTab==='available'){baseList=payouts.filter(p=>p.status==='available');baseList=baseList.filter(p=>{const left=p.timerMin*60000-(now()-p.createdAt);return left>0;});}
-  else if(currentTab==='active'){baseList=payouts.filter(p=>p.status==='active');}
-  else if(currentTab==='expired'){baseList=payouts.filter(p=>p.status==='expired');}
-  else{baseList=payouts.filter(p=>p.status==='done'||p.status==='cancelled');}
+  const el=document.getElementById('content'); let baseList=[];
+  
+  if(currentTab==='available'){
+    baseList=payouts.filter(p=>p.status==='available');
+    baseList=baseList.filter(p=>{ const left=p.timerMin*60000-(now()-p.createdAt); return left>0; });
+  }
+  else if(currentTab==='active'){ baseList=payouts.filter(p=>p.status==='active'); }
+  else if(currentTab==='expired'){ baseList=payouts.filter(p=>p.status==='expired'); }
+  else{ baseList=payouts.filter(p=>p.status==='done' || p.status==='cancelled'); }
+  
   let list=filterPayouts(baseList,currentTab);
-  if(searchQuery)list=list.filter(matchSearch);
+  if(searchQuery){ list=list.filter(matchSearch); }
+  
   const countEl=document.getElementById('searchCount');
-  if(countEl){if(searchQuery){countEl.textContent=list.length?'🔍 '+list.length:'❌ 0';countEl.className='search-count'+(list.length?'':' no-results');}else{countEl.textContent='';countEl.className='search-count';}}
-  if(!list.length){el.innerHTML=`<div class="empty">${searchQuery?'🔍 Ничего не найдено':currentTab==='available'?'Нет доступных заявок':currentTab==='active'?(role==='guest'?'Войди, чтобы видеть':'Нет заявок в работе'):currentTab==='expired'?'✅ Нет просроченных заявок':(role==='guest'?'Войди, чтобы видеть архив':'Архив пуст')}</div>`;return;}
-  if(currentTab==='done')el.innerHTML=renderArchive(list);else el.innerHTML=list.map(renderCard).join('');
+  if(countEl){
+    if(searchQuery){ countEl.textContent=list.length?'🔍 '+list.length:'❌ 0'; countEl.className='search-count'+(list.length?'':' no-results'); }
+    else{ countEl.textContent=''; countEl.className='search-count'; }
+  }
+  
+  if(!list.length){
+    el.innerHTML=`<div class="empty">${searchQuery?'🔍 Ничего не найдено':currentTab==='available'?'Нет доступных заявок':currentTab==='active'?(role==='guest'?'Войди, чтобы видеть':'Нет заявок в работе'):currentTab==='expired'?'✅ Нет просроченных заявок':(role==='guest'?'Войди, чтобы видеть архив':'Архив пуст')}</div>`;
+    return;
+  }
+  
+  if(currentTab==='done'){ el.innerHTML=renderArchive(list); return; }
+  el.innerHTML=list.map(renderCard).join('');
 }
 
+// ═══ ТАЙМЕРЫ И АВТО-ПРОСРОЧКА ═══
 setInterval(()=>{
-  if(role==='worker'){payouts.forEach(p=>{if(p.status!=='available')return;if(p.createdBy!==workerName)return;const leftMs=p.timerMin*60000-(now()-p.createdAt);if(leftMs<0&&!expiringIds.has(p.id)){expiringIds.add(p.id);updateDoc(doc(db,'payouts',p.id),{status:'expired',expiredAt:now()}).catch(e=>{console.warn('expire failed',e);expiringIds.delete(p.id);});}});}
+  if(role==='worker'){
+    payouts.forEach(p=>{
+      if(p.status!=='available'){ return; }
+      if(p.createdBy!==workerName){ return; }
+      const leftMs=p.timerMin*60000-(now()-p.createdAt);
+      if(leftMs<0 && !expiringIds.has(p.id)){
+        expiringIds.add(p.id);
+        updateDoc(doc(db,'payouts',p.id),{status:'expired',expiredAt:now()}).catch(e=>{ console.warn('expire failed',e); expiringIds.delete(p.id); });
+      }
+    });
+  }
+  
   document.querySelectorAll('[data-timer-start]').forEach(el=>{
     const start=parseInt(el.dataset.timerStart), limit=parseInt(el.dataset.timerLimit), id=el.dataset.payoutId, left=limit-(now()-start);
-    el.textContent=formatTime(left);const p=payouts.find(x=>x.id===id);if(!p)return;let cls;
-    if(p.status==='available'){if(left<0)cls='dead';else if(left<5*60000)cls='red';else if(left<10*60000)cls='orange';else if(left<15*60000)cls='yellow';else cls='gray';}
-    else if(p.status==='active'){if(left<0)cls='red';else if(left<5*60000)cls='red';else if(left<10*60000)cls='orange';else if(left<15*60000)cls='yellow';else cls='green';}
-    else{cls='gray';}el.className='timer '+cls;
-    if(role!=='worker')return;if(p.createdBy!==workerName)return;
-    if(left>0&&left<5*60000&&!warned5.has(id)){warned15.add(id);warned10.add(id);warned5.add(id);persistWarned();strongNotify('🔴 5 МИНУТ!',formatMoney(p.totalSum)+' — срочно!',{sound:'warning',toastType:'err',vibrate:[500,200,500,200,500],dedupeKey:'w5_'+id});}
-    else if(left>0&&left<10*60000&&!warned10.has(id)){warned15.add(id);warned10.add(id);persistWarned();strongNotify('🟠 10 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'w10_'+id});}
-    else if(left>0&&left<15*60000&&!warned15.has(id)){warned15.add(id);persistWarned();strongNotify('🟡 15 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[200,100,200],dedupeKey:'w15_'+id});}
+    el.textContent=formatTime(left);
+    
+    const p=payouts.find(x=>x.id===id); if(!p){ return; }
+    let cls;
+    if(p.status==='available'){
+      if(left<0){ cls='dead'; }
+      else if(left<5*60000){ cls='red'; }
+      else if(left<10*60000){ cls='orange'; }
+      else if(left<15*60000){ cls='yellow'; }
+      else{ cls='gray'; }
+    }else if(p.status==='active'){
+      if(left<0){ cls='red'; }
+      else if(left<5*60000){ cls='red'; }
+      else if(left<10*60000){ cls='orange'; }
+      else if(left<15*60000){ cls='yellow'; }
+      else{ cls='green'; }
+    }else{ cls='gray'; }
+    el.className='timer '+cls;
+    
+    if(role!=='worker'){ return; } 
+    if(p.createdBy!==workerName){ return; }
+    
+    if(left>0 && left<5*60000 && !warned5.has(id)){
+      warned15.add(id); warned10.add(id); warned5.add(id); persistWarned();
+      strongNotify('🔴 5 МИНУТ!',formatMoney(p.totalSum)+' — срочно!',{sound:'warning',toastType:'err',vibrate:[500,200,500,200,500],dedupeKey:'w5_'+id});
+    }
+    else if(left>0 && left<10*60000 && !warned10.has(id)){
+      warned15.add(id); warned10.add(id); persistWarned();
+      strongNotify('🟠 10 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'w10_'+id});
+    }
+    else if(left>0 && left<15*60000 && !warned15.has(id)){
+      warned15.add(id); persistWarned();
+      strongNotify('🟡 15 минут',formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[200,100,200],dedupeKey:'w15_'+id});
+    }
   });
 },1000);
 
-onSnapshot(clientsRef,snapshot=>{allClients=snapshot.docs.map(d=>d.data());allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));},err=>{console.warn('Clients snapshot error:',err.message);});
-onSnapshot(staffRef,snapshot=>{allStaff.clear();snapshot.docs.forEach(d=>allStaff.set(d.id,{name:d.id,...d.data()}));console.log('👥 Staff loaded:',[...allStaff.keys()].join(', '));},err=>{console.warn('Staff snapshot error:',err.message);});
+// ═══ ПОДПИСКИ FIREBASE ═══
+onSnapshot(clientsRef,snapshot=>{
+  allClients=snapshot.docs.map(d=>d.data());
+  allClients.sort((a,b)=>(a.username||'').localeCompare(b.username||'','ru'));
+},err=>{ console.warn('Clients snapshot error:',err.message); });
+
+onSnapshot(staffRef,snapshot=>{
+  allStaff.clear();
+  snapshot.docs.forEach(d=>allStaff.set(d.id,{name:d.id,...d.data()}));
+},err=>{ console.warn('Staff snapshot error:',err.message); });
+
 onSnapshot(query(payoutsRef,orderBy('createdAt','desc')),snapshot=>{
   const newPayouts=snapshot.docs.map(d=>({id:d.id,...d.data()}));
-  if(role==='client'&&!isFirstSnapshot){newPayouts.forEach(p=>{if(!seenPayoutIds.has(p.id)&&p.status==='available'){const age=now()-p.createdAt;if(age>=0&&age<120000){const rateTxt=p.rate?' • 💱 '+p.rate:'', bankTxt=p.bank?' • '+p.bank:'';strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,{sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});}}});}
+  
+  if(role==='client' && !isFirstSnapshot){
+    newPayouts.forEach(p=>{
+      if(!seenPayoutIds.has(p.id) && p.status==='available'){
+        const age=now()-p.createdAt;
+        if(age>=0 && age<120000){
+          const rateTxt=p.rate?' • 💱 '+p.rate:'', bankTxt=p.bank?' • '+p.bank:'';
+          strongNotify('❤️ Новая заявка!',formatMoney(p.totalSum)+bankTxt+rateTxt,{sound:'new',toastType:'heart',vibrate:[100,50,100],dedupeKey:'new_'+p.id});
+        }
+      }
+    });
+  }
+  
   if(role==='worker'){
     newPayouts.forEach(p=>{
       const prev=prevState.get(p.id), checksCount=(p.checks||[]).length, problemsCount=(p.problems||[]).length;
       if(prev){
         const isMyPayout=(p.createdBy===workerName);
-        if(isMyPayout&&prev.status==='available'&&p.status==='active'){strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),{sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status});}
-        if(isMyPayout&&checksCount>prev.checksCount){const lastCheck=p.checks[checksCount-1];strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),{sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount});}
-        if(isMyPayout&&problemsCount>prev.problemsCount){strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount});}
-        if(isMyPayout&&prev.status!=='cancelled'&&p.status==='cancelled'){strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),{sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id});}
-        if(isMyPayout&&prev.status==='active'&&p.status==='done'){strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),{sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id});}
-        if(isMyPayout&&prev.status==='available'&&p.status==='expired'){strongNotify('⏰ Заявка просрочена',formatMoney(p.totalSum)+' — в «Просрочено»',{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'expired_'+p.id});}
-        if(isMyPayout&&prev.status==='expired'&&p.status==='available'){strongNotify('🔄 Возрождена в пул',formatMoney(p.totalSum),{sound:'taken',toastType:'info',vibrate:[100,50,100],dedupeKey:'revived_'+p.id+'_'+p.createdAt});}
+        if(isMyPayout && prev.status==='available' && p.status==='active'){ strongNotify('🟢 Взяли в работу',formatMoney(p.totalSum)+(p.client?' • '+p.client:''),{sound:'taken',toastType:'blue',vibrate:[50,30,50],dedupeKey:'taken_'+p.id+'_'+p.status}); }
+        if(isMyPayout && checksCount>prev.checksCount){ const lastCheck=p.checks[checksCount-1]; strongNotify('💰 Чек оплачен',formatMoney(p.totalSum)+' → +'+formatMoney(lastCheck.sum),{sound:'check',toastType:'',vibrate:[200,100,200],dedupeKey:'check_'+p.id+'_'+checksCount}); }
+        if(isMyPayout && problemsCount>prev.problemsCount){ strongNotify('⚠️ Проблема от клиента','Заявка '+formatMoney(p.totalSum),{sound:'warning',toastType:'warn',vibrate:[300,100,300,100,300],dedupeKey:'prob_'+p.id+'_'+problemsCount}); }
+        if(isMyPayout && prev.status!=='cancelled' && p.status==='cancelled'){ strongNotify('❌ Клиент отменил',formatMoney(p.totalSum),{sound:'warning',toastType:'err',vibrate:[300,100,300],dedupeKey:'cancel_'+p.id}); }
+        if(isMyPayout && prev.status==='active' && p.status==='done'){ strongNotify('🎉 Заявка закрыта',formatMoney(p.totalSum),{sound:'check',toastType:'',vibrate:[100,50,100,50,200],dedupeKey:'done_'+p.id}); }
+        if(isMyPayout && prev.status==='available' && p.status==='expired'){ strongNotify('⏰ Заявка просрочена',formatMoney(p.totalSum)+' — в «Просрочено»',{sound:'warning',toastType:'warn',vibrate:[300,100,300],dedupeKey:'expired_'+p.id}); }
+        if(isMyPayout && prev.status==='expired' && p.status==='available'){ strongNotify('🔄 Возрождена в пул',formatMoney(p.totalSum),{sound:'taken',toastType:'info',vibrate:[100,50,100],dedupeKey:'revived_'+p.id+'_'+p.createdAt}); }
       }
     });
   }
-  prevState.clear();newPayouts.forEach(p=>prevState.set(p.id,{status:p.status,checksCount:(p.checks||[]).length,problemsCount:(p.problems||[]).length,client:p.client||null}));newPayouts.forEach(p=>seenPayoutIds.add(p.id));isFirstSnapshot=false;payouts=newPayouts;render();
-},err=>{document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;});
+  
+  prevState.clear();
+  newPayouts.forEach(p=>prevState.set(p.id,{status:p.status,checksCount:(p.checks||[]).length,problemsCount:(p.problems||[]).length,client:p.client||null}));
+  newPayouts.forEach(p=>seenPayoutIds.add(p.id));
+  isFirstSnapshot=false;
+  payouts=newPayouts;
+  render();
+},err=>{
+  document.getElementById('content').innerHTML=`<div class="empty">❌ Ошибка: ${esc(err.message)}</div>`;
+});
 
-updateModeUI();render();
-setTimeout(()=>{const rateInput=document.getElementById('rate');if(rateInput&&shiftRate)rateInput.value=shiftRate;},200);
+updateModeUI(); render();
 
+// ✅ ВКЛЮЧАЕМ КНОПКУ, КОГДА ВСЁ ЗАГРУЗИЛОСЬ
+const btn=document.getElementById('modeBtn');
+if(btn){
+  btn.disabled = false;
+  btn.style.opacity = '1';
+  btn.style.cursor = 'pointer';
+  btn.textContent = '🔒 Войти';
+  btn.onclick = handleLoginClick;
+}
+
+setTimeout(()=>{ const rateInput=document.getElementById('rate'); if(rateInput && shiftRate){ rateInput.value=shiftRate; } },200);
+
+// ✅ ЭКСПОРТ ВСЕХ ФУНКЦИЙ
 Object.assign(window,{
   takePayout,uploadCheck,finishPayout,returnToAvailable,deletePayout,addPayout,setTab,copyText,openLogin,extendTimer,saveCheckInput,
   openSettings,closeSettings,toggleSound,selectClientType,selectBT7Type,closeLogin,setTheme,openProblemModal,closeProblemModal,submitProblem,
   cancelByClient,editRate,onSearch,clearSearch,proceedClientUsername,verifyClientPin,registerClient,askShiftModal,askRateModal,pickShift,
   confirmShift,cancelShift,confirmRate,cancelRate,syncClock,revivePayout,closeReviveModal,confirmRevive,proceedStaffLogin,registerStaff,
-  verifyStaffPin,completeStaffLogin,openPinChange,closePinChange,submitPinChange
+  verifyStaffPin,completeStaffLogin,openPinChange,closePinChange,submitPinChange, handleLoginClick
 });
 </script>
 </body>
